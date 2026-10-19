@@ -125,6 +125,28 @@ the-dented-puck-foundation/
 
 ---
 
+## Firebase
+
+Sign-in is Google only. After sign-in, the app creates the user's profile:
+
+```ts
+const ref = doc(db, "Users", user.uid);
+if (!(await getDoc(ref)).exists()) {
+  await setDoc(ref, { role: "player", email: user.email, username, region, age, phoneNumber });
+}
+```
+
+`firestore.rules` rejects the write unless `role` is `"player"`, `email` is `user.email`, `username` is 3–30 chars of `a-z 0-9 . _`, `region` is 1–64 chars, `age` is a whole number 1–120, and `phoneNumber` has 10–15 digits. Profiles can't be edited or overwritten.
+
+```bash
+cd firebase-tests
+npm install
+npm test              # run the rules tests (needs Java)
+npm run deploy:rules  # deploy firestore.rules to denton-puck
+```
+
+---
+
 ## Styling with Tailwind (NativeWind)
 
 You can write standard Tailwind CSS `className` utilities directly on React Native components:

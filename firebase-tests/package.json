@@ -1,0 +1,20 @@
+{
+  "name": "firebase-tests",
+  "private": true,
+  "scripts": {
+    "deploy:rules": "firebase deploy --only firestore:rules --project prod",
+    "emulators": "firebase emulators:start --only auth,firestore --project demo-dented-puck",
+    "test": "firebase emulators:exec --only auth,firestore --project demo-dented-puck \"jest --runInBand\"",
+    "typecheck": "tsc"
+  },
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "^5.0.2",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^22.0.0",
+    "firebase": "^12.19.0",
+    "firebase-tools": "^15.34.0",
+    "jest": "^30.5.2",
+    "ts-jest": "^29.4.15",
+    "typescript": "~6.0.3"
+  }
+}
