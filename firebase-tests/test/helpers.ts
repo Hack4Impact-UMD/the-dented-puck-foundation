@@ -26,7 +26,8 @@ export async function initRulesEnv(): Promise<RulesTestEnvironment> {
 
 export async function clearAuthEmulator(): Promise<void> {
   const auth = emulatorHost("FIREBASE_AUTH_EMULATOR_HOST");
-  await fetch(`http://${auth}/emulator/v1/projects/${PROJECT_ID}/accounts`, { method: "DELETE" });
+  const res = await fetch(`http://${auth}/emulator/v1/projects/${PROJECT_ID}/accounts`, { method: "DELETE" });
+  if (!res.ok) throw new Error(`Failed to clear the Auth emulator: HTTP ${res.status} ${res.statusText}`);
 }
 
 // The Auth emulator "sends" verification emails by storing the out-of-band code instead.
