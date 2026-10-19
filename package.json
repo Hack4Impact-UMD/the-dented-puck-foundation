@@ -19,7 +19,8 @@
     "react-native-safe-area-context": "~5.7.0",
     "react-native-screens": "~4.26.0",
     "react-native-web": "^0.21.2",
-    "typescript": "~6.0.3"
+    "typescript": "~6.0.3",
+    "undefined": "node_modules"
   },
   "scripts": {
     "start": "expo start",
@@ -29,6 +30,7 @@
   },
   "private": true,
   "devDependencies": {
+    "@types/react-native": "^0.72.8",
     "autoprefixer": "^10.6.1",
     "babel-preset-expo": "^57.0.14",
     "postcss": "^8.5.29",

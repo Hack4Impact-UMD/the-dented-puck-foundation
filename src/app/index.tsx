@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Text, View } from 'react-native';
 import { app } from '@/firebase';
+import { Link } from 'expo-router';
 
 export default function HomeScreen() {
   const [status, setStatus] = useState('Initializing Firebase...');
@@ -23,6 +24,9 @@ export default function HomeScreen() {
       <Text className="text-sm text-sky-400 text-center">
         {status}
       </Text>
+      <Link href="/auth/login" className="text-sky-400 mt-6">
+        Log in
+      </Link>
     </View>
   );
 }
