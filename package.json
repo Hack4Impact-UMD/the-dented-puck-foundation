@@ -31,6 +31,7 @@
   "devDependencies": {
     "autoprefixer": "^10.6.1",
     "babel-preset-expo": "^57.0.14",
+    "firebase-admin": "^14.5.0",
     "postcss": "^8.5.29",
     "tailwindcss": "3"
   }

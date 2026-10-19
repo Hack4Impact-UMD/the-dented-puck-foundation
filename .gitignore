@@ -40,3 +40,10 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# local Claude Code context (personal, not shared via git)
+CLAUDE.md
+.claude/
+
+# Firebase service account key (admin credentials — never commit)
+serviceAccountKey.json

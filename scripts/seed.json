@@ -1,0 +1,995 @@
+{
+  "Users": {
+    "user_1001": {
+      "userId": 1001,
+      "role": "global-admin",
+      "username": "alex.rivera",
+      "reigonId": 1,
+      "age": 41,
+      "email": "alex.rivera@example.com",
+      "phone-number": "(410) 555-0101"
+    },
+    "user_1002": {
+      "userId": 1002,
+      "role": "global-admin",
+      "username": "naomi.fischer",
+      "reigonId": 4,
+      "age": 38,
+      "email": "naomi.fischer@example.com",
+      "phone-number": "(602) 555-0102"
+    },
+    "user_1101": {
+      "userId": 1101,
+      "role": "super-admin",
+      "username": "sarah.mitchell",
+      "reigonId": 1,
+      "age": 45,
+      "email": "sarah.mitchell@example.com",
+      "phone-number": "(410) 555-0103"
+    },
+    "user_1102": {
+      "userId": 1102,
+      "role": "super-admin",
+      "username": "james.carter",
+      "reigonId": 2,
+      "age": 52,
+      "email": "james.carter@example.com",
+      "phone-number": "(404) 555-0104"
+    },
+    "user_1103": {
+      "userId": 1103,
+      "role": "super-admin",
+      "username": "linda.svensson",
+      "reigonId": 3,
+      "age": 47,
+      "email": "linda.svensson@example.com",
+      "phone-number": "(312) 555-0105"
+    },
+    "user_1104": {
+      "userId": 1104,
+      "role": "super-admin",
+      "username": "miguel.torres",
+      "reigonId": 4,
+      "age": 39,
+      "email": "miguel.torres@example.com",
+      "phone-number": "(602) 555-0106"
+    },
+    "user_1201": {
+      "userId": 1201,
+      "role": "team-staff",
+      "username": "marcus.bell",
+      "reigonId": 1,
+      "age": 44,
+      "email": "marcus.bell@example.com",
+      "phone-number": "(410) 555-0107"
+    },
+    "user_1202": {
+      "userId": 1202,
+      "role": "team-staff",
+      "username": "kevin.oconnor",
+      "reigonId": 1,
+      "age": 29,
+      "email": "kevin.oconnor@example.com",
+      "phone-number": "(410) 555-0108"
+    },
+    "user_1301": {
+      "userId": 1301,
+      "role": "player",
+      "username": "maya.thompson",
+      "reigonId": 1,
+      "age": 12,
+      "email": "maya.thompson@example.com",
+      "phone-number": "(410) 555-0109"
+    },
+    "user_1302": {
+      "userId": 1302,
+      "role": "player",
+      "username": "arjun.patel",
+      "reigonId": 1,
+      "age": 11,
+      "email": "arjun.patel@example.com",
+      "phone-number": "(410) 555-0110"
+    },
+    "user_1303": {
+      "userId": 1303,
+      "role": "player",
+      "username": "sofia.rossi",
+      "reigonId": 1,
+      "age": 12,
+      "email": "sofia.rossi@example.com",
+      "phone-number": "(410) 555-0111"
+    },
+    "user_1304": {
+      "userId": 1304,
+      "role": "player",
+      "username": "liam.obrien",
+      "reigonId": 1,
+      "age": 13,
+      "email": "liam.obrien@example.com",
+      "phone-number": "(410) 555-0112"
+    },
+    "user_1401": {
+      "userId": 1401,
+      "role": "contact",
+      "username": "denise.thompson",
+      "reigonId": 1,
+      "age": 44,
+      "email": "denise.thompson@example.com",
+      "phone-number": "(410) 555-0113",
+      "linkedPlayerId": "1301"
+    },
+    "user_1402": {
+      "userId": 1402,
+      "role": "contact",
+      "username": "vikram.patel",
+      "reigonId": 1,
+      "age": 45,
+      "email": "vikram.patel@example.com",
+      "phone-number": "(410) 555-0114",
+      "linkedPlayerId": "1302"
+    },
+    "user_1203": {
+      "userId": 1203,
+      "role": "team-staff",
+      "username": "rachel.feldman",
+      "reigonId": 1,
+      "age": 36,
+      "email": "rachel.feldman@example.com",
+      "phone-number": "(410) 555-0115"
+    },
+    "user_1305": {
+      "userId": 1305,
+      "role": "player",
+      "username": "zara.ahmed",
+      "reigonId": 1,
+      "age": 13,
+      "email": "zara.ahmed@example.com",
+      "phone-number": "(410) 555-0116"
+    },
+    "user_1306": {
+      "userId": 1306,
+      "role": "player",
+      "username": "ethan.kim",
+      "reigonId": 1,
+      "age": 12,
+      "email": "ethan.kim@example.com",
+      "phone-number": "(410) 555-0117"
+    },
+    "user_1307": {
+      "userId": 1307,
+      "role": "player",
+      "username": "chloe.dubois",
+      "reigonId": 1,
+      "age": 13,
+      "email": "chloe.dubois@example.com",
+      "phone-number": "(410) 555-0118"
+    },
+    "user_1308": {
+      "userId": 1308,
+      "role": "player",
+      "username": "noah.goldberg",
+      "reigonId": 1,
+      "age": 12,
+      "email": "noah.goldberg@example.com",
+      "phone-number": "(410) 555-0119"
+    },
+    "user_1403": {
+      "userId": 1403,
+      "role": "contact",
+      "username": "anita.ahmed",
+      "reigonId": 1,
+      "age": 46,
+      "email": "anita.ahmed@example.com",
+      "phone-number": "(410) 555-0120",
+      "linkedPlayerId": "1305"
+    },
+    "user_1404": {
+      "userId": 1404,
+      "role": "contact",
+      "username": "daniel.kim",
+      "reigonId": 1,
+      "age": 35,
+      "email": "daniel.kim@example.com",
+      "phone-number": "(410) 555-0121",
+      "linkedPlayerId": "1306"
+    },
+    "user_1204": {
+      "userId": 1204,
+      "role": "team-staff",
+      "username": "andre.jackson",
+      "reigonId": 2,
+      "age": 50,
+      "email": "andre.jackson@example.com",
+      "phone-number": "(404) 555-0122"
+    },
+    "user_1205": {
+      "userId": 1205,
+      "role": "team-staff",
+      "username": "aisha.bello",
+      "reigonId": 2,
+      "age": 27,
+      "email": "aisha.bello@example.com",
+      "phone-number": "(404) 555-0123"
+    },
+    "user_1309": {
+      "userId": 1309,
+      "role": "player",
+      "username": "jaylen.brooks",
+      "reigonId": 2,
+      "age": 15,
+      "email": "jaylen.brooks@example.com",
+      "phone-number": "(404) 555-0124"
+    },
+    "user_1310": {
+      "userId": 1310,
+      "role": "player",
+      "username": "isabella.morales",
+      "reigonId": 2,
+      "age": 14,
+      "email": "isabella.morales@example.com",
+      "phone-number": "(404) 555-0125"
+    },
+    "user_1311": {
+      "userId": 1311,
+      "role": "player",
+      "username": "kenji.watanabe",
+      "reigonId": 2,
+      "age": 15,
+      "email": "kenji.watanabe@example.com",
+      "phone-number": "(404) 555-0126"
+    },
+    "user_1312": {
+      "userId": 1312,
+      "role": "player",
+      "username": "amara.okafor",
+      "reigonId": 2,
+      "age": 14,
+      "email": "amara.okafor@example.com",
+      "phone-number": "(404) 555-0127"
+    },
+    "user_1405": {
+      "userId": 1405,
+      "role": "contact",
+      "username": "monique.brooks",
+      "reigonId": 2,
+      "age": 36,
+      "email": "monique.brooks@example.com",
+      "phone-number": "(404) 555-0128",
+      "linkedPlayerId": "1309"
+    },
+    "user_1406": {
+      "userId": 1406,
+      "role": "contact",
+      "username": "carlos.morales",
+      "reigonId": 2,
+      "age": 37,
+      "email": "carlos.morales@example.com",
+      "phone-number": "(404) 555-0129",
+      "linkedPlayerId": "1310"
+    },
+    "user_1206": {
+      "userId": 1206,
+      "role": "team-staff",
+      "username": "marie.landry",
+      "reigonId": 2,
+      "age": 42,
+      "email": "marie.landry@example.com",
+      "phone-number": "(404) 555-0130"
+    },
+    "user_1313": {
+      "userId": 1313,
+      "role": "player",
+      "username": "lucas.thibodeaux",
+      "reigonId": 2,
+      "age": 14,
+      "email": "lucas.thibodeaux@example.com",
+      "phone-number": "(404) 555-0131"
+    },
+    "user_1314": {
+      "userId": 1314,
+      "role": "player",
+      "username": "grace.nguyen",
+      "reigonId": 2,
+      "age": 15,
+      "email": "grace.nguyen@example.com",
+      "phone-number": "(404) 555-0132"
+    },
+    "user_1315": {
+      "userId": 1315,
+      "role": "player",
+      "username": "mateo.hernandez",
+      "reigonId": 2,
+      "age": 14,
+      "email": "mateo.hernandez@example.com",
+      "phone-number": "(404) 555-0133"
+    },
+    "user_1316": {
+      "userId": 1316,
+      "role": "player",
+      "username": "leila.haddad",
+      "reigonId": 2,
+      "age": 15,
+      "email": "leila.haddad@example.com",
+      "phone-number": "(404) 555-0134"
+    },
+    "user_1207": {
+      "userId": 1207,
+      "role": "team-staff",
+      "username": "tom.lindqvist",
+      "reigonId": 3,
+      "age": 58,
+      "email": "tom.lindqvist@example.com",
+      "phone-number": "(312) 555-0135"
+    },
+    "user_1208": {
+      "userId": 1208,
+      "role": "team-staff",
+      "username": "henry.walsh",
+      "reigonId": 3,
+      "age": 31,
+      "email": "henry.walsh@example.com",
+      "phone-number": "(312) 555-0136"
+    },
+    "user_1317": {
+      "userId": 1317,
+      "role": "player",
+      "username": "olivia.johansson",
+      "reigonId": 3,
+      "age": 10,
+      "email": "olivia.johansson@example.com",
+      "phone-number": "(312) 555-0137"
+    },
+    "user_1318": {
+      "userId": 1318,
+      "role": "player",
+      "username": "samuel.mensah",
+      "reigonId": 3,
+      "age": 9,
+      "email": "samuel.mensah@example.com",
+      "phone-number": "(312) 555-0138"
+    },
+    "user_1319": {
+      "userId": 1319,
+      "role": "player",
+      "username": "priya.raman",
+      "reigonId": 3,
+      "age": 10,
+      "email": "priya.raman@example.com",
+      "phone-number": "(312) 555-0139"
+    },
+    "user_1320": {
+      "userId": 1320,
+      "role": "player",
+      "username": "caleb.novak",
+      "reigonId": 3,
+      "age": 10,
+      "email": "caleb.novak@example.com",
+      "phone-number": "(312) 555-0140"
+    },
+    "user_1407": {
+      "userId": 1407,
+      "role": "contact",
+      "username": "yuki.johansson",
+      "reigonId": 3,
+      "age": 38,
+      "email": "yuki.johansson@example.com",
+      "phone-number": "(312) 555-0141",
+      "linkedPlayerId": "1317"
+    },
+    "user_1408": {
+      "userId": 1408,
+      "role": "contact",
+      "username": "chinwe.mensah",
+      "reigonId": 3,
+      "age": 39,
+      "email": "chinwe.mensah@example.com",
+      "phone-number": "(312) 555-0142",
+      "linkedPlayerId": "1318"
+    },
+    "user_1209": {
+      "userId": 1209,
+      "role": "team-staff",
+      "username": "fatima.yusuf",
+      "reigonId": 3,
+      "age": 34,
+      "email": "fatima.yusuf@example.com",
+      "phone-number": "(312) 555-0143"
+    },
+    "user_1321": {
+      "userId": 1321,
+      "role": "player",
+      "username": "ava.kowalski",
+      "reigonId": 3,
+      "age": 10,
+      "email": "ava.kowalski@example.com",
+      "phone-number": "(312) 555-0144"
+    },
+    "user_1322": {
+      "userId": 1322,
+      "role": "player",
+      "username": "omar.farouk",
+      "reigonId": 3,
+      "age": 9,
+      "email": "omar.farouk@example.com",
+      "phone-number": "(312) 555-0145"
+    },
+    "user_1323": {
+      "userId": 1323,
+      "role": "player",
+      "username": "emma.larsen",
+      "reigonId": 3,
+      "age": 10,
+      "email": "emma.larsen@example.com",
+      "phone-number": "(312) 555-0146"
+    },
+    "user_1324": {
+      "userId": 1324,
+      "role": "player",
+      "username": "diego.castillo",
+      "reigonId": 3,
+      "age": 10,
+      "email": "diego.castillo@example.com",
+      "phone-number": "(312) 555-0147"
+    },
+    "user_1210": {
+      "userId": 1210,
+      "role": "team-staff",
+      "username": "rosa.delgado",
+      "reigonId": 4,
+      "age": 46,
+      "email": "rosa.delgado@example.com",
+      "phone-number": "(602) 555-0148"
+    },
+    "user_1325": {
+      "userId": 1325,
+      "role": "player",
+      "username": "kai.nakamura",
+      "reigonId": 4,
+      "age": 16,
+      "email": "kai.nakamura@example.com",
+      "phone-number": "(602) 555-0149"
+    },
+    "user_1326": {
+      "userId": 1326,
+      "role": "player",
+      "username": "lucia.vargas",
+      "reigonId": 4,
+      "age": 17,
+      "email": "lucia.vargas@example.com",
+      "phone-number": "(602) 555-0150"
+    },
+    "user_1327": {
+      "userId": 1327,
+      "role": "player",
+      "username": "elijah.begay",
+      "reigonId": 4,
+      "age": 16,
+      "email": "elijah.begay@example.com",
+      "phone-number": "(602) 555-0151"
+    },
+    "user_1328": {
+      "userId": 1328,
+      "role": "player",
+      "username": "hannah.schmidt",
+      "reigonId": 4,
+      "age": 17,
+      "email": "hannah.schmidt@example.com",
+      "phone-number": "(602) 555-0152"
+    },
+    "user_1409": {
+      "userId": 1409,
+      "role": "contact",
+      "username": "robert.nakamura",
+      "reigonId": 4,
+      "age": 40,
+      "email": "robert.nakamura@example.com",
+      "phone-number": "(602) 555-0153",
+      "linkedPlayerId": "1325"
+    },
+    "user_1410": {
+      "userId": 1410,
+      "role": "contact",
+      "username": "kwame.vargas",
+      "reigonId": 4,
+      "age": 41,
+      "email": "kwame.vargas@example.com",
+      "phone-number": "(602) 555-0154",
+      "linkedPlayerId": "1326"
+    },
+    "user_1211": {
+      "userId": 1211,
+      "role": "team-staff",
+      "username": "david.park",
+      "reigonId": 4,
+      "age": 40,
+      "email": "david.park@example.com",
+      "phone-number": "(602) 555-0155"
+    },
+    "user_1212": {
+      "userId": 1212,
+      "role": "team-staff",
+      "username": "ji-woo.lee",
+      "reigonId": 4,
+      "age": 25,
+      "email": "ji-woo.lee@example.com",
+      "phone-number": "(602) 555-0156"
+    },
+    "user_1329": {
+      "userId": 1329,
+      "role": "player",
+      "username": "mia.chen",
+      "reigonId": 4,
+      "age": 16,
+      "email": "mia.chen@example.com",
+      "phone-number": "(602) 555-0157"
+    },
+    "user_1330": {
+      "userId": 1330,
+      "role": "player",
+      "username": "tomas.silva",
+      "reigonId": 4,
+      "age": 17,
+      "email": "tomas.silva@example.com",
+      "phone-number": "(602) 555-0158"
+    },
+    "user_1331": {
+      "userId": 1331,
+      "role": "player",
+      "username": "nia.williams",
+      "reigonId": 4,
+      "age": 16,
+      "email": "nia.williams@example.com",
+      "phone-number": "(602) 555-0159"
+    },
+    "user_1332": {
+      "userId": 1332,
+      "role": "player",
+      "username": "rohan.mehta",
+      "reigonId": 4,
+      "age": 17,
+      "email": "rohan.mehta@example.com",
+      "phone-number": "(602) 555-0160"
+    },
+    "user_1411": {
+      "userId": 1411,
+      "role": "contact",
+      "username": "patricia.chen",
+      "reigonId": 4,
+      "age": 42,
+      "email": "patricia.chen@example.com",
+      "phone-number": "(602) 555-0161",
+      "linkedPlayerId": "1329"
+    },
+    "user_1412": {
+      "userId": 1412,
+      "role": "contact",
+      "username": "wei.silva",
+      "reigonId": 4,
+      "age": 43,
+      "email": "wei.silva@example.com",
+      "phone-number": "(602) 555-0162",
+      "linkedPlayerId": "1330"
+    }
+  },
+  "Teams": {
+    "team_201": {
+      "teamId": 201,
+      "reigonId": 1,
+      "name": "Harbor Hawks",
+      "supervisor": {
+        "userId": 1201,
+        "role": "team-staff",
+        "username": "marcus.bell",
+        "reigonId": 1,
+        "age": 44,
+        "email": "marcus.bell@example.com",
+        "phone-number": "(410) 555-0107"
+      },
+      "status": "active",
+      "wins": 7,
+      "loses": 2
+    },
+    "team_202": {
+      "teamId": 202,
+      "reigonId": 1,
+      "name": "Chesapeake Comets",
+      "supervisor": {
+        "userId": 1203,
+        "role": "team-staff",
+        "username": "rachel.feldman",
+        "reigonId": 1,
+        "age": 36,
+        "email": "rachel.feldman@example.com",
+        "phone-number": "(410) 555-0115"
+      },
+      "status": "active",
+      "wins": 5,
+      "loses": 4
+    },
+    "team_203": {
+      "teamId": 203,
+      "reigonId": 2,
+      "name": "Peachtree Pioneers",
+      "supervisor": {
+        "userId": 1204,
+        "role": "team-staff",
+        "username": "andre.jackson",
+        "reigonId": 2,
+        "age": 50,
+        "email": "andre.jackson@example.com",
+        "phone-number": "(404) 555-0122"
+      },
+      "status": "active",
+      "wins": 6,
+      "loses": 3
+    },
+    "team_204": {
+      "teamId": 204,
+      "reigonId": 2,
+      "name": "Bayou Bluejays",
+      "supervisor": {
+        "userId": 1206,
+        "role": "team-staff",
+        "username": "marie.landry",
+        "reigonId": 2,
+        "age": 42,
+        "email": "marie.landry@example.com",
+        "phone-number": "(404) 555-0130"
+      },
+      "status": "suspended",
+      "wins": 3,
+      "loses": 6
+    },
+    "team_205": {
+      "teamId": 205,
+      "reigonId": 3,
+      "name": "Prairie Thunder",
+      "supervisor": {
+        "userId": 1207,
+        "role": "team-staff",
+        "username": "tom.lindqvist",
+        "reigonId": 3,
+        "age": 58,
+        "email": "tom.lindqvist@example.com",
+        "phone-number": "(312) 555-0135"
+      },
+      "status": "active",
+      "wins": 8,
+      "loses": 1
+    },
+    "team_206": {
+      "teamId": 206,
+      "reigonId": 3,
+      "name": "Lakeshore Lightning",
+      "supervisor": {
+        "userId": 1209,
+        "role": "team-staff",
+        "username": "fatima.yusuf",
+        "reigonId": 3,
+        "age": 34,
+        "email": "fatima.yusuf@example.com",
+        "phone-number": "(312) 555-0143"
+      },
+      "status": "inactive",
+      "wins": 2,
+      "loses": 7
+    },
+    "team_207": {
+      "teamId": 207,
+      "reigonId": 4,
+      "name": "Canyon Coyotes",
+      "supervisor": {
+        "userId": 1210,
+        "role": "team-staff",
+        "username": "rosa.delgado",
+        "reigonId": 4,
+        "age": 46,
+        "email": "rosa.delgado@example.com",
+        "phone-number": "(602) 555-0148"
+      },
+      "status": "active",
+      "wins": 4,
+      "loses": 5
+    },
+    "team_208": {
+      "teamId": 208,
+      "reigonId": 4,
+      "name": "Pacific Otters",
+      "supervisor": {
+        "userId": 1211,
+        "role": "team-staff",
+        "username": "david.park",
+        "reigonId": 4,
+        "age": 40,
+        "email": "david.park@example.com",
+        "phone-number": "(602) 555-0155"
+      },
+      "status": "active",
+      "wins": 6,
+      "loses": 2
+    }
+  },
+  "UserToTeam": {
+    "1201_201": { "userId": 1201, "teamId": 201, "status": "active" },
+    "1202_201": { "userId": 1202, "teamId": 201, "status": "active" },
+    "1301_201": { "userId": 1301, "teamId": 201, "status": "active" },
+    "1302_201": { "userId": 1302, "teamId": 201, "status": "active" },
+    "1303_201": { "userId": 1303, "teamId": 201, "status": "active" },
+    "1304_201": { "userId": 1304, "teamId": 201, "status": "active" },
+    "1203_202": { "userId": 1203, "teamId": 202, "status": "active" },
+    "1305_202": { "userId": 1305, "teamId": 202, "status": "active" },
+    "1306_202": { "userId": 1306, "teamId": 202, "status": "active" },
+    "1307_202": { "userId": 1307, "teamId": 202, "status": "active" },
+    "1308_202": { "userId": 1308, "teamId": 202, "status": "suspended" },
+    "1204_203": { "userId": 1204, "teamId": 203, "status": "active" },
+    "1205_203": { "userId": 1205, "teamId": 203, "status": "active" },
+    "1309_203": { "userId": 1309, "teamId": 203, "status": "active" },
+    "1310_203": { "userId": 1310, "teamId": 203, "status": "active" },
+    "1311_203": { "userId": 1311, "teamId": 203, "status": "active" },
+    "1312_203": { "userId": 1312, "teamId": 203, "status": "active" },
+    "1206_204": { "userId": 1206, "teamId": 204, "status": "active" },
+    "1313_204": { "userId": 1313, "teamId": 204, "status": "active" },
+    "1314_204": { "userId": 1314, "teamId": 204, "status": "active" },
+    "1315_204": { "userId": 1315, "teamId": 204, "status": "active" },
+    "1316_204": { "userId": 1316, "teamId": 204, "status": "active" },
+    "1207_205": { "userId": 1207, "teamId": 205, "status": "active" },
+    "1208_205": { "userId": 1208, "teamId": 205, "status": "active" },
+    "1317_205": { "userId": 1317, "teamId": 205, "status": "active" },
+    "1318_205": { "userId": 1318, "teamId": 205, "status": "active" },
+    "1319_205": { "userId": 1319, "teamId": 205, "status": "active" },
+    "1320_205": { "userId": 1320, "teamId": 205, "status": "active" },
+    "1324_205": { "userId": 1324, "teamId": 205, "status": "active" },
+    "1209_206": { "userId": 1209, "teamId": 206, "status": "inactive" },
+    "1321_206": { "userId": 1321, "teamId": 206, "status": "inactive" },
+    "1322_206": { "userId": 1322, "teamId": 206, "status": "inactive" },
+    "1323_206": { "userId": 1323, "teamId": 206, "status": "inactive" },
+    "1324_206": { "userId": 1324, "teamId": 206, "status": "inactive" },
+    "1210_207": { "userId": 1210, "teamId": 207, "status": "active" },
+    "1325_207": { "userId": 1325, "teamId": 207, "status": "active" },
+    "1326_207": { "userId": 1326, "teamId": 207, "status": "active" },
+    "1327_207": { "userId": 1327, "teamId": 207, "status": "active" },
+    "1328_207": { "userId": 1328, "teamId": 207, "status": "active" },
+    "1211_208": { "userId": 1211, "teamId": 208, "status": "active" },
+    "1212_208": { "userId": 1212, "teamId": 208, "status": "active" },
+    "1329_208": { "userId": 1329, "teamId": 208, "status": "active" },
+    "1330_208": { "userId": 1330, "teamId": 208, "status": "active" },
+    "1331_208": { "userId": 1331, "teamId": 208, "status": "active" },
+    "1332_208": { "userId": 1332, "teamId": 208, "status": "active" }
+  },
+  "Events": {
+    "event_301": {
+      "eventId": 301,
+      "regionId": 1,
+      "teamIds": [201, 202],
+      "title": "Harbor Hawks vs. Chesapeake Comets",
+      "startTime": "2026-09-12T10:00:00-04:00",
+      "endTime": "2026-09-12T11:30:00-04:00",
+      "location": "Quiet Waters Park, Field 2, Annapolis, MD",
+      "result": "Harbor Hawks 3 - 2 Chesapeake Comets"
+    },
+    "event_302": {
+      "eventId": 302,
+      "regionId": 1,
+      "teamIds": [201],
+      "title": "Harbor Hawks Practice",
+      "startTime": "2026-10-15T17:30:00-04:00",
+      "endTime": "2026-10-15T19:00:00-04:00",
+      "location": "Truxtun Park, Annapolis, MD"
+    },
+    "event_303": {
+      "eventId": 303,
+      "regionId": 1,
+      "teamIds": [201, 202],
+      "title": "Bay Rivalry Rematch",
+      "startTime": "2026-10-24T09:00:00-04:00",
+      "endTime": "2026-10-24T10:30:00-04:00",
+      "location": "Quiet Waters Park, Field 2, Annapolis, MD"
+    },
+    "event_304": {
+      "eventId": 304,
+      "regionId": 2,
+      "teamIds": [203, 204],
+      "title": "Peachtree Pioneers vs. Bayou Bluejays",
+      "startTime": "2026-09-19T11:00:00-04:00",
+      "endTime": "2026-09-19T12:30:00-04:00",
+      "location": "Piedmont Park Fields, Atlanta, GA",
+      "result": "Peachtree Pioneers 4 - 4 Bayou Bluejays"
+    },
+    "event_305": {
+      "eventId": 305,
+      "regionId": 2,
+      "teamIds": [203, 204],
+      "title": "Pioneers vs. Bluejays (Round 2)",
+      "startTime": "2026-10-10T10:00:00-04:00",
+      "endTime": "2026-10-10T11:30:00-04:00",
+      "location": "Piedmont Park Fields, Atlanta, GA",
+      "result": "Postponed - rain"
+    },
+    "event_306": {
+      "eventId": 306,
+      "regionId": 2,
+      "teamIds": [203],
+      "title": "Family Picnic & Skills Day",
+      "startTime": "2026-10-18T12:00:00-04:00",
+      "endTime": "2026-10-18T15:00:00-04:00",
+      "location": "Grant Park Pavilion, Atlanta, GA"
+    },
+    "event_307": {
+      "eventId": 307,
+      "regionId": 3,
+      "teamIds": [205, 206],
+      "title": "Prairie Thunder vs. Lakeshore Lightning",
+      "startTime": "2026-08-29T09:30:00-05:00",
+      "endTime": "2026-08-29T10:30:00-05:00",
+      "location": "Lincoln Park Fields, Chicago, IL",
+      "result": "Prairie Thunder 2 - 1 Lakeshore Lightning"
+    },
+    "event_308": {
+      "eventId": 308,
+      "regionId": 3,
+      "teamIds": [205],
+      "title": "Prairie Thunder Intra-squad Scrimmage",
+      "startTime": "2026-10-20T16:30:00-05:00",
+      "endTime": "2026-10-20T17:30:00-05:00",
+      "location": "Humboldt Park, Chicago, IL"
+    },
+    "event_309": {
+      "eventId": 309,
+      "regionId": 4,
+      "teamIds": [207, 208],
+      "title": "Canyon Coyotes vs. Pacific Otters",
+      "startTime": "2026-10-03T08:00:00-07:00",
+      "endTime": "2026-10-03T09:30:00-07:00",
+      "location": "Encanto Park, Phoenix, AZ",
+      "result": "Canyon Coyotes 1 - 3 Pacific Otters"
+    },
+    "event_310": {
+      "eventId": 310,
+      "regionId": 4,
+      "teamIds": [208],
+      "title": "Pacific Otters Team Photo Day",
+      "startTime": "2026-10-14T17:00:00-07:00",
+      "endTime": "2026-10-14T18:00:00-07:00",
+      "location": "Encanto Park Clubhouse, Phoenix, AZ"
+    },
+    "event_311": {
+      "eventId": 311,
+      "regionId": 4,
+      "teamIds": [207, 208],
+      "title": "West Region Fall Classic",
+      "startTime": "2026-11-07T08:00:00-07:00",
+      "endTime": "2026-11-07T14:00:00-07:00",
+      "location": "Reach 11 Sports Complex, Phoenix, AZ"
+    },
+    "event_312": {
+      "eventId": 312,
+      "regionId": 1,
+      "teamIds": [201, 202, 203, 205],
+      "title": "Fall Friendship Jamboree (cross-region)",
+      "startTime": "2026-11-14T09:00:00-05:00",
+      "endTime": "2026-11-14T16:00:00-05:00",
+      "location": "Navy-Marine Corps Stadium Grounds, Annapolis, MD"
+    }
+  },
+  "Conversations": {
+    "conversation_401": {
+      "conversationId": 401,
+      "teamId": 201,
+      "type": "group",
+      "participantIds": [1201, 1202, 1301, 1302, 1303, 1304],
+      "messages": {
+        "msg_1": { "text": "Great hustle on Saturday, Hawks! Practice Thursday at 5:30.", "senderId": 1201, "timeSent": "2026-10-12T19:05:00-04:00" },
+        "msg_2": { "text": "Can we work on corner kicks?", "senderId": 1301, "timeSent": "2026-10-12T19:20:00-04:00" },
+        "msg_3": { "text": "Absolutely, Maya. Bring water bottles, everyone!", "senderId": 1201, "timeSent": "2026-10-12T19:31:00-04:00" }
+      }
+    },
+    "conversation_402": {
+      "conversationId": 402,
+      "teamId": 202,
+      "type": "group",
+      "participantIds": [1203, 1305, 1306, 1307],
+      "messages": {
+        "msg_1": { "text": "Comets: rematch vs. the Hawks is Oct 24. Let's be ready!", "senderId": 1203, "timeSent": "2026-10-11T18:00:00-04:00" },
+        "msg_2": { "text": "We got this!", "senderId": 1306, "timeSent": "2026-10-11T18:12:00-04:00" }
+      }
+    },
+    "conversation_403": {
+      "conversationId": 403,
+      "teamId": 203,
+      "type": "group",
+      "participantIds": [1204, 1205, 1309, 1310, 1311, 1312],
+      "messages": {
+        "msg_1": { "text": "Picnic on the 18th - families welcome, bring a dish to share.", "senderId": 1204, "timeSent": "2026-10-09T20:00:00-04:00" },
+        "msg_2": { "text": "My mom is making her famous lemonade.", "senderId": 1311, "timeSent": "2026-10-09T20:15:00-04:00" }
+      }
+    },
+    "conversation_404": {
+      "conversationId": 404,
+      "teamId": 204,
+      "type": "group",
+      "participantIds": [1206, 1313, 1314, 1315, 1316],
+      "messages": {
+        "msg_1": { "text": "Reminder: the team is on pause while the league reviews our paperwork. Hang tight!", "senderId": 1206, "timeSent": "2026-10-05T17:00:00-04:00" }
+      }
+    },
+    "conversation_405": {
+      "conversationId": 405,
+      "teamId": 205,
+      "type": "group",
+      "participantIds": [1207, 1208, 1317, 1318, 1319, 1320, 1324],
+      "messages": {
+        "msg_1": { "text": "Welcome to the team, Diego!", "senderId": 1207, "timeSent": "2026-10-01T16:00:00-05:00" },
+        "msg_2": { "text": "Thanks Coach! Excited to play.", "senderId": 1324, "timeSent": "2026-10-01T16:10:00-05:00" }
+      }
+    },
+    "conversation_406": {
+      "conversationId": 406,
+      "teamId": 206,
+      "type": "group",
+      "participantIds": [1209, 1321, 1322, 1323, 1324],
+      "messages": {
+        "msg_1": { "text": "Thanks for a fun season, Lightning! See you next year.", "senderId": 1209, "timeSent": "2026-09-01T12:00:00-05:00" }
+      }
+    },
+    "conversation_407": {
+      "conversationId": 407,
+      "teamId": 207,
+      "type": "group",
+      "participantIds": [1210, 1325, 1326, 1327, 1328],
+      "messages": {
+        "msg_1": { "text": "Fall Classic sign-up sheet is posted. Snacks volunteers needed!", "senderId": 1210, "timeSent": "2026-10-08T18:45:00-07:00" }
+      }
+    },
+    "conversation_408": {
+      "conversationId": 408,
+      "teamId": 208,
+      "type": "group",
+      "participantIds": [1211, 1212, 1329, 1330, 1331, 1332],
+      "messages": {
+        "msg_1": { "text": "Photo day tomorrow at 5 - wear home jerseys!", "senderId": 1211, "timeSent": "2026-10-13T12:00:00-07:00" },
+        "msg_2": { "text": "Do we need cleats for the photos?", "senderId": 1331, "timeSent": "2026-10-13T12:30:00-07:00" },
+        "msg_3": { "text": "Sneakers are fine, Nia.", "senderId": 1211, "timeSent": "2026-10-13T12:41:00-07:00" }
+      }
+    },
+    "conversation_409": {
+      "conversationId": 409,
+      "teamId": 201,
+      "type": "dm",
+      "participantIds": [1201, 1401],
+      "messages": {
+        "msg_1": { "text": "Hi! Maya did great this week. Is she able to make Thursday's practice?", "senderId": 1201, "timeSent": "2026-10-12T20:00:00-04:00", "recipientId": 1401 },
+        "msg_2": { "text": "Yes, I'll drop her off at 5:20. Thanks, Coach!", "senderId": 1401, "timeSent": "2026-10-12T20:22:00-04:00", "recipientId": 1201 }
+      }
+    },
+    "conversation_410": {
+      "conversationId": 410,
+      "teamId": 208,
+      "type": "dm",
+      "participantIds": [1211, 1411],
+      "messages": {
+        "msg_1": { "text": "Photo order forms are due Friday.", "senderId": 1211, "timeSent": "2026-10-13T09:00:00-07:00", "recipientId": 1411 },
+        "msg_2": { "text": "Got it, we'll send it in with Mia tomorrow.", "senderId": 1411, "timeSent": "2026-10-13T09:40:00-07:00", "recipientId": 1211 }
+      }
+    },
+    "conversation_411": {
+      "conversationId": 411,
+      "teamId": 202,
+      "type": "dm",
+      "participantIds": [1101, 1203],
+      "messages": {
+        "msg_1": { "text": "Rachel, can you confirm the field permit for the Oct 24 rematch?", "senderId": 1101, "timeSent": "2026-10-10T10:00:00-04:00", "recipientId": 1203 },
+        "msg_2": { "text": "Confirmed - permit uploaded to the shared drive.", "senderId": 1203, "timeSent": "2026-10-10T11:15:00-04:00", "recipientId": 1101 }
+      }
+    },
+    "conversation_412": {
+      "conversationId": 412,
+      "teamId": 203,
+      "type": "dm",
+      "participantIds": [1204, 1205],
+      "messages": {
+        "msg_1": { "text": "Aisha, could you run the skills stations at the picnic?", "senderId": 1204, "timeSent": "2026-10-09T08:30:00-04:00", "recipientId": 1205 },
+        "msg_2": { "text": "Happy to! I'll bring cones and pinnies.", "senderId": 1205, "timeSent": "2026-10-09T09:02:00-04:00", "recipientId": 1204 }
+      }
+    }
+  }
+}
