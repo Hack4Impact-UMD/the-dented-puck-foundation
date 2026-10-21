@@ -1,0 +1,6 @@
+{
+  "projects": {
+    "default": "demo-dented-puck",
+    "prod": "denton-puck"
+  }
+}

@@ -1,0 +1,47 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Google sign-in is the only supported method for now, and Google must report the
+    // account's email as verified.
+    function isVerifiedGoogleUser() {
+      return request.auth != null
+        && request.auth.token.firebase.sign_in_provider == 'google.com'
+        && request.auth.token.email_verified == true;
+    }
+
+    // A new profile in main's User schema (src/types/index.ts). Every new user is a player,
+    // and the email must be the one on their sign-in token, so the app can't pick either.
+    function isValidNewProfile(data) {
+      return data.keys().hasOnly(['role', 'username', 'region', 'age', 'email', 'phoneNumber'])
+        && data.keys().hasAll(['role', 'username', 'region', 'age', 'email', 'phoneNumber'])
+        && data.role == 'player'
+        && data.email == request.auth.token.email
+        && data.username is string
+        && data.username.matches('^[a-z0-9._]{3,30}$')
+        && data.region is string
+        && data.region.trim().size() > 0
+        && data.region.size() <= 64
+        && data.age is int
+        && data.age >= 1
+        && data.age <= 120
+        && data.phoneNumber is string
+        && data.phoneNumber.size() <= 30
+        && data.phoneNumber.matches('^[^0-9]*([0-9][^0-9]*){10,15}$');
+    }
+
+    match /Users/{userId} {
+      allow read: if request.auth != null
+        && request.auth.uid == userId
+        && request.auth.token.email_verified == true;
+      // create only applies when the doc doesn't exist yet, so a profile is never overwritten.
+      allow create: if isVerifiedGoogleUser()
+        && request.auth.uid == userId
+        && isValidNewProfile(request.resource.data);
+      allow update, delete: if false;
+    }
+
+    // No rules for the other collections yet, so everything else is denied.
+  }
+}
