@@ -1,5 +1,6 @@
 import type { ReactNode, Ref } from "react";
-import { Image, Text, TextInput, View, type TextInputProps } from "react-native";
+import { Text, TextInput, View, type TextInputProps } from "react-native";
+import { AuthErrorMessage } from "./AuthErrorMessage";
 
 interface AuthTextFieldProps extends TextInputProps {
   label: string;
@@ -40,18 +41,7 @@ export function AuthTextField({
         ) : null}
       </View>
 
-      {error ? (
-        <View className="flex-row gap-2">
-          <Image source={require("@/assets/icons/error.png")} style={{ width: 22, height: 22, marginTop: 2 }} />
-          <Text
-            accessibilityRole="alert"
-            accessibilityLiveRegion="polite"
-            className="flex-1 font-sans text-lg leading-[26px] text-danger-dark"
-          >
-            {error}
-          </Text>
-        </View>
-      ) : null}
+      {error ? <AuthErrorMessage message={error} /> : null}
 
       {children}
 

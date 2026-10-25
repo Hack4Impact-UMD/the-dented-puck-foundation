@@ -6,11 +6,8 @@ import {
   signInWithPopup,
   type User as FirebaseUser,
 } from 'firebase/auth';
-import { doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore';
 import { Platform } from 'react-native';
-import { auth, db } from '@/firebase';
-
-const USERS_COLLECTION = 'users';
+import { auth } from '@/firebase';
 
 // Signs in or creates a Firebase Auth user. Does not write to Firestore.
 export async function signInWithGoogle() {
@@ -32,35 +29,12 @@ export async function signUpWithEmail(email: string, password: string) {
   const { user } = await createUserWithEmailAndPassword(auth, email.trim(), password);
 
   try {
-    await createUserProfile(user.uid, user.email ?? email.trim());
-  } catch (err) {
-    // Roll back so the user can retry 
-    await user.delete().catch(() => {});
-    throw err;
-  }
-
-  try {
     await sendEmailVerification(user);
   } catch {
     // the verify-email screen can resend
   }
 
   return user;
-}
-
-export async function createUserProfile(uid: string, email: string) {
-  await setDoc(doc(db, USERS_COLLECTION, uid), {
-    email,
-    createdAt: serverTimestamp(),
-  });
-}
-
-// For providers like Google, where the Auth account may exist before the profile does.
-export async function ensureUserProfile(user: FirebaseUser) {
-  const snapshot = await getDoc(doc(db, USERS_COLLECTION, user.uid));
-  if (!snapshot.exists()) {
-    await createUserProfile(user.uid, user.email ?? '');
-  }
 }
 
 export type AuthErrorField = 'email' | 'form';
