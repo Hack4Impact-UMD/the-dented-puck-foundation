@@ -27,6 +27,7 @@ module.exports = {
             DEFAULT: "#F2F2F2",
             dark: "#1C1C1C",
           },
+          field: "#2D2E2F",
         },
         ink: {
           DEFAULT: "#010101",
@@ -35,10 +36,12 @@ module.exports = {
             DEFAULT: "#4A4A4A",
             dark: "#B3B3B3",
           },
+          subtle: "#BDBDBD",
         },
         line: {
           DEFAULT: "#767676",
           subtle: "#D9D9D9",
+          dark: "#5C5C5C",
         },
         danger: {
           DEFAULT: "#B3261E",
