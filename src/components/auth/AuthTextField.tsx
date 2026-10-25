@@ -30,7 +30,7 @@ export function AuthTextField({
       <View>
         <TextInput
           accessibilityLabel={label}
-          accessibilityHint={error ?? helperText}
+          accessibilityHint={error ?? undefined}
           className={`min-h-14 rounded border-2 bg-surface-field px-4 font-sans text-[18px] text-white ${
             error ? "border-danger-dark" : "border-white"
           } ${accessory ? "pr-20" : ""}`}
