@@ -29,6 +29,7 @@
   },
   "private": true,
   "devDependencies": {
+    "@types/react-native": "^0.72.8",
     "autoprefixer": "^10.6.1",
     "babel-preset-expo": "^57.0.14",
     "firebase-admin": "^14.5.0",

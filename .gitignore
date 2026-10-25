@@ -47,3 +47,6 @@ CLAUDE.md
 
 # Firebase service account key (admin credentials — never commit)
 serviceAccountKey.json
+
+# local AI coding tool state/logs (not shared via git)
+.omx/
