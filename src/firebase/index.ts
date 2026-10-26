@@ -1,14 +1,17 @@
-import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
+import { FirebaseError } from 'firebase/app';
+import { initializeApp, getApps, getApp, type FirebaseApp } from 'firebase/app';
 import {
   initializeAuth,
   getAuth,
   // @ts-expect-error getReactNativePersistence is provided by React Native bundle of firebase/auth
   getReactNativePersistence,
-  Auth,
+  type Auth,
 } from 'firebase/auth';
-import { getFirestore, Firestore } from 'firebase/firestore';
-import { getStorage, FirebaseStorage } from 'firebase/storage';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getFirestore, type Firestore } from 'firebase/firestore';
+import { getStorage, type FirebaseStorage } from 'firebase/storage';
+import { createAsyncStorage } from '@react-native-async-storage/async-storage';
+
+const appStorage = createAsyncStorage('app');
 
 const firebaseConfig = {
   apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
@@ -25,10 +28,14 @@ export const app: FirebaseApp =
 export const auth: Auth = (() => {
   try {
     return initializeAuth(app, {
-      persistence: getReactNativePersistence(AsyncStorage),
+      persistence: getReactNativePersistence(appStorage),
     });
-  } catch {
-    return getAuth(app);
+  } catch (error) {
+    if (error instanceof FirebaseError && error.code === 'auth/already-initialized') {
+      return getAuth(app);
+    }
+
+    throw error;
   }
 })();
 
