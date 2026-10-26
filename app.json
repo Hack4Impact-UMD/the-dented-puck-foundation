@@ -15,7 +15,8 @@
       "package": "org.thedentedpuckfoundation.app"
     },
     "plugins": [
-      "expo-router"
+      "expo-router",
+      "@react-native-vector-icons/ionicons"
     ]
   }
 }
