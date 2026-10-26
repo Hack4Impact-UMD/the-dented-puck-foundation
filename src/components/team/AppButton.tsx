@@ -6,18 +6,17 @@ type Variant = 'primary' | 'secondary' | 'outline';
 type IconName = React.ComponentProps<typeof Ionicons>['name'];
 
 type AppButtonProps = {
-    title: string,
+    title: string;
     onPress: () => void;
     variant?: Variant;
     icon?: IconName;
     accessibilityLabel?: string;
-    accessibilityValue?: { text: string };
-    accessibilityRole?: 'button' | 'link';
+    accessibilityRole?: 'button';
     accessibilityHint?: string;
-    className?: string
+    className?: string;
 };
 
-const variants: Record<Variant, { container: string; text: string, iconColor?: string }> = {
+const variants: Record<Variant, { container: string; text: string; iconColor?: string }> = {
     primary:    { container: 'bg-transparent', text: 'text-[18px] text-white underline', iconColor: '#FFFFFF'},
     secondary:  { container: 'bg-brand', text: 'text-[20px] text-on-brand' },
     outline:    { container: 'border-2 border-brand bg-brand-soft-dark', text: 'text-[20px] text-brand', iconColor: '#FFD101' },
@@ -25,14 +24,13 @@ const variants: Record<Variant, { container: string; text: string, iconColor?: s
 
 // button component with varying styles
 export default function AppButton({
-    title, 
-    onPress, 
-    variant = 'primary', 
+    title,
+    onPress,
+    variant = 'primary',
     icon,
-    accessibilityLabel, 
-    accessibilityHint, 
+    accessibilityLabel,
+    accessibilityHint,
     accessibilityRole = 'button',
-    accessibilityValue,
     className = ''
 }: AppButtonProps) {
 
@@ -42,7 +40,6 @@ export default function AppButton({
         <Pressable
             onPress={onPress}
             accessibilityLabel={accessibilityLabel ?? title}
-            accessibilityValue={accessibilityValue}
             accessibilityRole={accessibilityRole}
             accessibilityHint={accessibilityHint}
             className={`flex-row gap-[10px] px-2 min-h-14 rounded-[4px] justify-center items-center active:opacity-70 ${styles.container} ${className}`}
@@ -50,5 +47,5 @@ export default function AppButton({
             {icon && <Ionicons name={icon} size={24} color={styles.iconColor} accessibilityElementsHidden importantForAccessibility="no" />}
             <Text className={`font-sans-bold text-center shrink ${styles.text}`}>{title}</Text>
         </Pressable>
-    )
+    );
 }

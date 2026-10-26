@@ -14,7 +14,7 @@ export default function TeamInfo() {
   // get teamId from the current URL
   const { teamId } = useLocalSearchParams<{ teamId: string }>();
 
-  // fetch the team information and identify stored result or determine loading state
+  // store the last fetched team and which teamId it belongs to
   const [result, setResult] = useState<{ id: string; team: TeamWithId | null } | null>(null);
   const loading = result?.id !== teamId;
   const team = loading ? null : result.team;
@@ -64,51 +64,52 @@ export default function TeamInfo() {
         <>
           <TeamInfoCard name={team.name} season={getSeasonLabel()}>
             <View className={`${pairRow} gap-4 w-full mt-8`}>
-              <AppButton 
-                title="View roster" 
-                onPress={view_roster_button} 
-                variant="outline" 
-                icon="list" 
+              <AppButton
+                title="View roster"
+                onPress={view_roster_button}
+                variant="outline"
+                icon="list"
                 className={`${pairItem} px-2`}
                 accessibilityLabel="View roster"
                 accessibilityHint={`Opens the ${team.name} roster`}
               />
-              <AppButton 
-                title="View schedule" 
-                onPress={view_schedule_button} 
-                variant="outline" 
-                icon="calendar-outline" 
+              <AppButton
+                title="View schedule"
+                onPress={view_schedule_button}
+                variant="outline"
+                icon="calendar-outline"
                 className={`${pairItem} px-2`}
                 accessibilityLabel="View schedule"
                 accessibilityHint={`Opens the ${team.name} schedule`}
               />
             </View>
-            <AppButton 
-              title="Chat with coach" 
-              onPress={chat_with_coach_button} 
-              variant="outline" icon="chatbox" 
-              className="w-full mt-4" 
+            <AppButton
+              title="Chat with coach"
+              onPress={chat_with_coach_button}
+              variant="outline"
+              icon="chatbox"
+              className="w-full mt-4"
               accessibilityLabel="Chat with coach"
               accessibilityHint="Opens a chat with the team's coach"
             />
           </TeamInfoCard>
 
           <View className={`mt-auto ${pairRow} gap-4 px-4 py-8`}>
-            <AppButton 
-                title="Follow" 
-                onPress={follow_button} 
-                variant="outline" 
-                className={pairItem}
-                accessibilityLabel="Follow team"
-                accessibilityHint={`Get updates from ${team.name}`}
+            <AppButton
+              title="Follow"
+              onPress={follow_button}
+              variant="outline"
+              className={pairItem}
+              accessibilityLabel="Follow team"
+              accessibilityHint={`Get updates from ${team.name}`}
             />
-            <AppButton 
-                title="Join team" 
-                onPress={join_team_button} 
-                variant="secondary" 
-                className={pairItem}
-                accessibilityLabel="Join team"
-                accessibilityHint={`Sends a request to the coach to join ${team.name}`}
+            <AppButton
+              title="Join team"
+              onPress={join_team_button}
+              variant="secondary"
+              className={pairItem}
+              accessibilityLabel="Join team"
+              accessibilityHint={`Sends a request to the coach to join ${team.name}`}
             />
           </View>
         </>
