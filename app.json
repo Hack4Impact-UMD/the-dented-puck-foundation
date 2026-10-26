@@ -29,7 +29,9 @@
         {
           "locationWhenInUsePermission": "Allow The Dented Puck Foundation to find teams and events near you."
         }
-      ]
+      ],
+      "expo-asset",
+      "expo-font"
     ]
   }
 }
