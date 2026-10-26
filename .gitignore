@@ -26,6 +26,9 @@ npm-debug.*
 yarn-debug.*
 yarn-error.*
 
+# Firebase emulator logs (firestore-debug.log, firebase-debug.log, ui-debug.log, ...)
+*-debug.log
+
 # macOS
 .DS_Store
 *.pem
