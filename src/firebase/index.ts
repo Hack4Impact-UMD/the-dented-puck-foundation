@@ -7,6 +7,7 @@ import {
   getReactNativePersistence,
   type Auth,
 } from 'firebase/auth';
+import { Platform } from 'react-native';
 import { getFirestore, type Firestore } from 'firebase/firestore';
 import { getStorage, type FirebaseStorage } from 'firebase/storage';
 import { createAsyncStorage } from '@react-native-async-storage/async-storage';
