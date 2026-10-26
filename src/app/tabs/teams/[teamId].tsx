@@ -14,13 +14,13 @@ export default function TeamInfo() {
   // get teamId from the current URL
   const { teamId } = useLocalSearchParams<{ teamId: string }>();
 
-  // remember which teamId the result belongs to, so a new teamId shows loading again
+  // fetch the team information and identify stored result or determine loading state
   const [result, setResult] = useState<{ id: string; team: TeamWithId | null } | null>(null);
   const loading = result?.id !== teamId;
   const team = loading ? null : result.team;
 
+  // fetch team from Firestore whenever teamId changes then update results
   useEffect(() => {
-    // ignore results from a previous teamId if the param changes mid-request
     let active = true;
     getTeam(teamId)
       .then((t) => { if (active) setResult({ id: teamId, team: t }); })
@@ -31,13 +31,13 @@ export default function TeamInfo() {
     return () => { active = false; };
   }, [teamId]);
 
-  // stack paired buttons vertically when the system font size is large
+  // stack buttons vertically when the system font size is large
   const { fontScale } = useWindowDimensions();
   const stack = fontScale > 1.3;
   const pairRow = stack ? 'flex-col' : 'flex-row';
   const pairItem = stack ? 'w-full' : 'flex-1';
 
-  // placeholder functions for now
+  // placeholder functions before establishing functionality
   const back_button = () => router.back();
   const create_button = () => router.push('/tabs/teams/create');
   const view_roster_button = () => console.log('View roster pressed', teamId);

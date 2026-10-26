@@ -17,7 +17,7 @@ export function getInitials(name: string) {
         .toUpperCase();
 }
 
-// yellow circle icon (able to swap for profile picture)
+// yellow circle icon (able to swap for profile picture in future)
 export default function TeamIcon({ name, size = 140 }: TeamIconProps) {
     return (
         <View

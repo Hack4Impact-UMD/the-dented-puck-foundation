@@ -10,8 +10,7 @@ export async function getTeam(teamId: string): Promise<TeamWithId | null> {
     return { id: snapshot.id, ...(snapshot.data() as Team) }
 }
 
-// PLACEHOLDER
-// fallback when a team doc has no season
+// PLACEHOLDER for a team's season information (hardcoded as 2026-2027)
 export function getSeasonLabel(date = new Date()): string {
     const startYear = date.getFullYear();
     return `${startYear}-${startYear + 1}`;
