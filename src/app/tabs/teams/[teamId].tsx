@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Text, View } from 'react-native';
+import { ActivityIndicator, Text, View, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
 
@@ -31,6 +31,12 @@ export default function TeamInfo() {
     return () => { active = false; };
   }, [teamId]);
 
+  // stack paired buttons vertically when the system font size is large
+  const { fontScale } = useWindowDimensions();
+  const stack = fontScale > 1.3;
+  const pairRow = stack ? 'flex-col' : 'flex-row';
+  const pairItem = stack ? 'w-full' : 'flex-1';
+
   // placeholder functions for now
   const back_button = () => router.back();
   const create_button = () => router.push('/tabs/teams/create');
@@ -38,8 +44,6 @@ export default function TeamInfo() {
   const view_schedule_button = () => console.log('View schedule pressed', teamId);
   const chat_with_coach_button = () => console.log('Chat with coach pressed', teamId);
   const follow_button = () => console.log('Follow pressed', teamId);
-
-  // join button waiting on join behavior
   const join_team_button = () => console.log('Join team pressed', teamId);
 
   return (
@@ -59,24 +63,24 @@ export default function TeamInfo() {
       ) : (
         <>
           <TeamInfoCard name={team.name} season={getSeasonLabel()}>
-            <View className="flex-row gap-4 w-full mt-8">
+            <View className={`${pairRow} gap-4 w-full mt-8`}>
               <AppButton 
                 title="View roster" 
                 onPress={view_roster_button} 
                 variant="outline" 
                 icon="list" 
-                className="flex-1 px-2" 
-                accessibilityLabel={`View ${team.name} roster`}
-                accessibilityHint="Opens the team roster"
+                className={`${pairItem} px-2`}
+                accessibilityLabel="View roster"
+                accessibilityHint={`Opens the ${team.name} roster`}
               />
               <AppButton 
                 title="View schedule" 
                 onPress={view_schedule_button} 
                 variant="outline" 
                 icon="calendar-outline" 
-                className="flex-1 px-2" 
-                accessibilityLabel={`View ${team.name} schedule`}
-                accessibilityHint="Opens the team schedule"
+                className={`${pairItem} px-2`}
+                accessibilityLabel="View schedule"
+                accessibilityHint={`Opens the ${team.name} schedule`}
               />
             </View>
             <AppButton 
@@ -84,32 +88,32 @@ export default function TeamInfo() {
               onPress={chat_with_coach_button} 
               variant="outline" icon="chatbox" 
               className="w-full mt-4" 
+              accessibilityLabel="Chat with coach"
               accessibilityHint="Opens a chat with the team's coach"
             />
           </TeamInfoCard>
 
-          <View className="mt-auto flex-row gap-4 px-4 pb-4">
+          <View className={`mt-auto ${pairRow} gap-4 px-4 py-8`}>
             <AppButton 
                 title="Follow" 
                 onPress={follow_button} 
                 variant="outline" 
-                className="flex-1" 
-                accessibilityLabel={`Follow ${team.name}`}
-                accessibilityHint="Get updates from team"
+                className={pairItem}
+                accessibilityLabel="Follow team"
+                accessibilityHint={`Get updates from ${team.name}`}
             />
             <AppButton 
                 title="Join team" 
                 onPress={join_team_button} 
                 variant="secondary" 
-                className="flex-1" 
-                accessibilityLabel={`Join ${team.name}`}
-                accessibilityHint="Sends a request to join this team"
+                className={pairItem}
+                accessibilityLabel="Join team"
+                accessibilityHint={`Sends a request to the coach to join ${team.name}`}
             />
           </View>
         </>
       )}
-
-      {/* NAVBAR ? */}
+      {/* NAVBAR */}
     </SafeAreaView>
   );
 }

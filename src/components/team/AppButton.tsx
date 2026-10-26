@@ -20,7 +20,7 @@ type AppButtonProps = {
 const variants: Record<Variant, { container: string; text: string, iconColor?: string }> = {
     primary:    { container: 'bg-transparent', text: 'text-[18px] text-white underline', iconColor: '#FFFFFF'},
     secondary:  { container: 'bg-brand', text: 'text-[20px] text-on-brand' },
-    outline:    { container: 'border border-brand bg-brand-soft-dark', text: 'text-[20px] text-brand', iconColor: '#FFD101' },
+    outline:    { container: 'border-2 border-brand bg-brand-soft-dark', text: 'text-[20px] text-brand', iconColor: '#FFD101' },
 };
 
 // button component with varying styles
@@ -45,10 +45,10 @@ export default function AppButton({
             accessibilityValue={accessibilityValue}
             accessibilityRole={accessibilityRole}
             accessibilityHint={accessibilityHint}
-            className={`flex-row gap-2 px-4 py-3 min-h-[44px] rounded-[2px] justify-center items-center active:opacity-70 ${styles.container} ${className}`}
+            className={`flex-row gap-[10px] px-2 min-h-14 rounded-[4px] justify-center items-center active:opacity-70 ${styles.container} ${className}`}
         >
-            {icon && <Ionicons name={icon} size={22} color={styles.iconColor} accessibilityElementsHidden importantForAccessibility="no" />}
-            <Text className={`font-bold ${styles.text}`}>{title}</Text>
+            {icon && <Ionicons name={icon} size={24} color={styles.iconColor} accessibilityElementsHidden importantForAccessibility="no" />}
+            <Text className={`font-sans-bold text-center shrink ${styles.text}`}>{title}</Text>
         </Pressable>
     )
 }

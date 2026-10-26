@@ -5,6 +5,10 @@ module.exports = {
   presets: [require('nativewind/preset')],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['AtkinsonHyperlegible_400Regular'],
+        'sans-bold': ['AtkinsonHyperlegible_700Bold'],
+      },
       colors: {
         brand: {
           DEFAULT: '#FFD101',

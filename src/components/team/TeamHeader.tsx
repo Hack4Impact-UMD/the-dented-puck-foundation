@@ -10,11 +10,10 @@ type TeamHeaderProps = {
 // the top bar of the Team Info page
 export default function TeamHeader({ onBack, onCreate }: TeamHeaderProps) {
     return (
-        <View className="flex-row justify-between items-center w-full mt-5 px-2">
+        <View className="flex-row justify-between items-center w-full px-2">
             <Pressable
                 onPress={onBack}
-                hitSlop={10}
-                className="items-center justify-center active:opacity-70"
+                className="w-12 h-12 items-center justify-center active:opacity-70"
                 accessibilityLabel="Back"
                 accessibilityRole="button"
                 accessibilityHint="Return to the previous screen"
@@ -25,9 +24,10 @@ export default function TeamHeader({ onBack, onCreate }: TeamHeaderProps) {
                 title="Create"
                 onPress={onCreate}
                 variant="primary"
-                accessibilityLabel="Create a team"
-                accessibilityRole="link"
+                accessibilityLabel="Create"
+                accessibilityRole="button"
                 accessibilityHint="Opens the create team screen"
+                className="min-h-12"
             />
         </View>
     );
