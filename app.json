@@ -16,20 +16,7 @@
     },
     "plugins": [
       "expo-router",
-      [
-        "expo-image-picker",
-        {
-          "cameraPermission": "Allow The Dented Puck Foundation to take your profile photo.",
-          "photosPermission": "Allow The Dented Puck Foundation to choose your profile photo.",
-          "microphonePermission": false
-        }
-      ],
-      [
-        "expo-location",
-        {
-          "locationWhenInUsePermission": "Allow The Dented Puck Foundation to find teams and events near you."
-        }
-      ]
+      "expo-font"
     ]
   }
 }
