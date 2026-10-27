@@ -1,20 +1,16 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Text, View } from 'react-native';
-import { app } from '@/firebase';
 import { Link } from 'expo-router';
+import { app } from '@/firebase';
 
 export default function HomeScreen() {
-  const [status, setStatus] = useState('Initializing Firebase...');
-
-  useEffect(() => {
+  const [status] = useState(() => {
     try {
-      if (app?.name) {
-        setStatus(`Connected: ${app.options.projectId || app.name}`);
-      }
-    } catch (err: any) {
-      setStatus(`Firebase status: ${err?.message ?? 'Unavailable'}`);
+      return app?.name ? `Connected: ${app.options.projectId || app.name}` : 'Firebase unavailable';
+    } catch (err: unknown) {
+      return `Firebase status: ${err instanceof Error ? err.message : 'Unavailable'}`;
     }
-  }, []);
+  });
 
   return (
     <View className="flex-1 items-center justify-center bg-slate-900 p-6">
@@ -29,6 +25,9 @@ export default function HomeScreen() {
       </Link>
       <Link href="/auth/signup" className="text-sky-400 mt-3">
         Sign up
+      </Link>
+      <Link href="/auth/verify-email" className="text-sky-400 mt-3">
+        email verification check
       </Link>
     </View>
   );
