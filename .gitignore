@@ -40,3 +40,5 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+/scripts/denton-puck-firebase-adminsdk-fbsvc-b8e433d1b6.json
