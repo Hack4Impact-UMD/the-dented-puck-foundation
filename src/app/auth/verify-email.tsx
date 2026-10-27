@@ -1,6 +1,6 @@
-import { createElement, useEffect, useState } from 'react';
-import { onAuthStateChanged, type User } from 'firebase/auth'
-import { router, useLocalSearchParams } from 'expo-router';
+import { useEffect, useState } from 'react';
+import { onAuthStateChanged, type User } from 'firebase/auth';
+import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import VerifyEmailContent from '@/components/auth/VerifyEmailContent';
 import { auth } from '@/firebase';
@@ -9,9 +9,6 @@ import { getUserProfile, resendVerificationEmail } from '@/services/authService'
 type ScreenMessage = { type: 'error' | 'success'; text: string };
 
 export default function VerifyEmailScreen() {
-  const { preview } = useLocalSearchParams<{ preview?: string }>();
-  // Require both the preview query and a development build so this bypass cannot run in production.
-  const isPreview = __DEV__ && preview === 'true';
   const [user, setUser] = useState<User | null>(null);
   const [email, setEmail] = useState('');
   const [isLoadingProfile, setIsLoadingProfile] = useState(true);
@@ -20,16 +17,8 @@ export default function VerifyEmailScreen() {
   const [message, setMessage] = useState<ScreenMessage | null>(null);
 
   useEffect(() => {
-    if (isPreview) {
-      // Sample-only state lets the screen render without Firebase Auth or a Firestore profile.
-      setEmail('jordan.lee@gmail.com');
-      setIsLoadingProfile(false);
-      setIsProfileEmailValid(false);
-      return;
-    }
-
     let isMounted = true;
-    
+
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (!isMounted) {
         return;
@@ -76,13 +65,9 @@ export default function VerifyEmailScreen() {
       isMounted = false;
       unsubscribe();
     };
-  }, [isPreview]);
+  }, []);
 
   async function handleResend() {
-    // Preview mode is visual only: never call the live email action from it.
-    if (isPreview) {
-      return;
-    }
     if (!user) {
       return;
     }
@@ -107,19 +92,20 @@ export default function VerifyEmailScreen() {
     }
   }
 
-  return createElement(
-    SafeAreaView,
-    { className: 'flex-1 bg-black', edges: ['top', 'bottom'] },
-    createElement(VerifyEmailContent, {
-      email,
-      isPreview,
-      isLoadingProfile,
-      isProfileEmailValid,
-      isResending,
-      message,
-      onBack: () => router.replace(isPreview ? '/' : '/auth/signup'),
-      onClose: () => router.replace(isPreview ? '/' : '/auth/login'),
-      onResend: handleResend,
-    }),
+  return (
+    <SafeAreaView className="flex-1 bg-black" edges={['top', 'bottom']}>
+      <VerifyEmailContent
+        email={email}
+        isLoadingProfile={isLoadingProfile}
+        isProfileEmailValid={isProfileEmailValid}
+        isResending={isResending}
+        message={message}
+        onBack={() => router.replace('/auth/signup')}
+        onClose={() => router.replace('/auth/login')}
+        onResend={handleResend}
+      />
+    </SafeAreaView>
   );
+}
+
 }

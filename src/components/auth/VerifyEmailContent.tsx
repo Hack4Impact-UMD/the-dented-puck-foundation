@@ -2,7 +2,6 @@ import { Pressable, ScrollView, Text, View } from 'react-native';
 
 interface VerifyEmailContentProps {
   email: string;
-  isPreview: boolean;
   isLoadingProfile: boolean;
   isProfileEmailValid: boolean;
   isResending: boolean;
@@ -14,7 +13,6 @@ interface VerifyEmailContentProps {
 
 export default function VerifyEmailContent({
   email,
-  isPreview,
   isLoadingProfile,
   isProfileEmailValid,
   isResending,
@@ -25,7 +23,7 @@ export default function VerifyEmailContent({
 }: VerifyEmailContentProps) {
   const instructions = 'A verification link has been sent to:';
   const emailLabel = email || (isLoadingProfile ? 'Loading email address' : 'Email unavailable');
-  const isResendDisabled = isPreview || isResending || !email || !isProfileEmailValid;
+  const isResendDisabled = isResending || !email || !isProfileEmailValid;
   const rootViewProps = {
     className: 'flex-1 bg-surface-dark',
     experimental_accessibilityOrder: [
@@ -45,7 +43,7 @@ export default function VerifyEmailContent({
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="Back"
-          accessibilityHint={isPreview ? 'Returns to the home screen' : 'Returns to account creation'}
+          accessibilityHint="Returns to account creation"
           className="h-12 w-12 items-center justify-center"
           nativeID="verify-email-back"
           onPress={onBack}
@@ -62,7 +60,7 @@ export default function VerifyEmailContent({
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="Close"
-          accessibilityHint={isPreview ? 'Returns to the home screen' : 'Returns to log in'}
+          accessibilityHint="Returns to log in"
           className="h-12 w-12 items-center justify-center"
           nativeID="verify-email-close"
           onPress={onClose}
@@ -106,11 +104,9 @@ export default function VerifyEmailContent({
           accessibilityRole="button"
           accessibilityLabel={isResending ? 'Sending verification email' : 'Resend verification email'}
           accessibilityHint={
-            isPreview
-              ? 'Unavailable in the visual preview'
-              : isLoadingProfile
-                ? 'Available after account details finish loading'
-                : 'Sends another verification link to this email address'
+            isLoadingProfile
+              ? 'Available after account details finish loading'
+              : 'Sends another verification link to this email address'
           }
           accessibilityState={{ disabled: isResendDisabled, busy: isResending }}
           className={`mt-9 min-h-14 items-center justify-center rounded-sm px-4 ${
