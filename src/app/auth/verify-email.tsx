@@ -1,8 +1,10 @@
 import { createElement, useEffect, useState } from 'react';
-import type { User } from 'firebase/auth';
+import { onAuthStateChanged, type User } from 'firebase/auth'
 import { router, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-const VerifyEmailContent = require('@/components/auth/VerifyEmailContent').default;
+import VerifyEmailContent from '@/components/auth/VerifyEmailContent';
+import { auth } from '@/firebase';
+import { getUserProfile, resendVerificationEmail } from '@/services/authService';
 
 type ScreenMessage = { type: 'error' | 'success'; text: string };
 
@@ -27,71 +29,52 @@ export default function VerifyEmailScreen() {
     }
 
     let isMounted = true;
-    let unsubscribe: (() => void) | undefined;
+    
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      if (!isMounted) {
+        return;
+      }
 
-    import('@/firebase')
-      .then(({ auth }) => {
-        return import('firebase/auth').then(({ onAuthStateChanged }) => {
-          if (!isMounted) {
-            return;
-          }
+      if (!currentUser) {
+        router.replace('/auth/login');
+        return;
+      }
 
-          unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-            if (!isMounted) {
-              return;
-            }
+      setUser(currentUser);
+      setEmail(currentUser.email ?? '');
+      setIsLoadingProfile(true);
+      setIsProfileEmailValid(false);
+      setMessage(null);
 
-            if (!currentUser) {
-              router.replace('/auth/login');
-              return;
-            }
-
-            setUser(currentUser);
-            setEmail(currentUser.email ?? '');
-            setIsLoadingProfile(true);
-            setIsProfileEmailValid(false);
-            setMessage(null);
-
-            try {
-              const { getUserProfile } = await import('@/services/authService');
-              const profile = await getUserProfile(currentUser.uid);
-              if (
-                !currentUser.email ||
-                profile.email.trim().toLowerCase() !== currentUser.email.trim().toLowerCase()
-              ) {
-                throw new Error('The account email does not match the saved user profile.');
-              }
-              setIsProfileEmailValid(true);
-            } catch (error) {
-              if (isMounted) {
-                const detail = error instanceof Error ? error.message : 'Unknown error.';
-                setMessage({
-                  type: 'error',
-                  text: `Unable to load your account details. ${detail}`,
-                });
-              }
-            } finally {
-              if (isMounted) {
-                setIsLoadingProfile(false);
-              }
-            }
-          });
-        });
-      })
-      .catch((error: unknown) => {
+      try {
+        const profile = await getUserProfile(currentUser.uid);
+        if (
+          !currentUser.email ||
+          profile.email.trim().toLowerCase() !== currentUser.email.trim().toLowerCase()
+        ) {
+          throw new Error('The account email does not match the saved user profile.');
+        }
+        if (isMounted) {
+          setIsProfileEmailValid(true);
+        }
+      } catch (error) {
         if (isMounted) {
           const detail = error instanceof Error ? error.message : 'Unknown error.';
           setMessage({
             type: 'error',
-            text: `Unable to initialize your account. ${detail}`,
+            text: `Unable to load your account details. ${detail}`,
           });
+        }
+      } finally {
+        if (isMounted) {
           setIsLoadingProfile(false);
         }
-      });
+      }
+    });
 
     return () => {
       isMounted = false;
-      unsubscribe?.();
+      unsubscribe();
     };
   }, [isPreview]);
 
@@ -108,7 +91,6 @@ export default function VerifyEmailScreen() {
     setMessage(null);
 
     try {
-      const { resendVerificationEmail } = await import('@/services/authService');
       await resendVerificationEmail();
       setMessage({
         type: 'success',
