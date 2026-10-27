@@ -1,7 +1,7 @@
 import { doc, serverTimestamp, setDoc } from 'firebase/firestore';
 import { getDownloadURL, ref, uploadString } from 'firebase/storage';
 import { auth, db, storage } from '@/firebase';
-import { birthdayToIso, validateAccountStep, type AccountForm } from '@/components/auth/createAccountValidation';
+import { birthdayToIso, validateAccountStep, type AccountForm } from '@/utils/validation';
 
 export type AccountPhoto = { base64: string; mimeType: string } | null;
 

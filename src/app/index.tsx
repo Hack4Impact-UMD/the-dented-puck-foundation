@@ -30,6 +30,9 @@ export default function HomeScreen() {
       <Link href="/auth/signup" className="text-sky-400 mt-3">
         Sign up
       </Link>
+      <Link href="/auth/create-account" className="text-sky-400 mt-3">
+        Create account dev
+      </Link>
     </View>
   );
 }

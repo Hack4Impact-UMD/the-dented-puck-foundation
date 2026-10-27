@@ -18,6 +18,10 @@ import {
   TextInput,
   View,
   useWindowDimensions,
+  type PressableInstance,
+  type TextInputInstance,
+  type TextInstance,
+  type ViewInstance,
 } from 'react-native';
 import { router } from 'expo-router';
 import { onAuthStateChanged } from 'firebase/auth';
@@ -45,7 +49,7 @@ import {
   type AccountErrors,
   type AccountField,
   type AccountForm,
-} from './createAccountValidation';
+} from '@/utils/validation';
 
 const GOLD = '#FFD101';
 const FONT_REGULAR = 'AtkinsonRegular';
@@ -55,7 +59,7 @@ const STEPS = [1, 2, 3] as const;
 // VoiceOver and TalkBack drop focus requests sent before a press, step change,
 // or sheet transition settles. Tune on device if focus lands late or not at all.
 const SCREEN_READER_FOCUS_DELAY_MS = 300;
-type FocusTarget = View | Text | TextInput;
+type FocusTarget = ViewInstance | TextInstance | TextInputInstance | PressableInstance;
 
 function focusAccessibility(target: FocusTarget | null) {
   if (!target) return;
@@ -73,7 +77,7 @@ const EMPTY_FORM: AccountForm = {
 // All three frames share /auth/create-account; local state selects the step.
 // Render order follows the Figma reading-order annotations.
 
-function AccountProgress({ step, progressRef }: { step: 1 | 2 | 3; progressRef: Ref<View> }) {
+function AccountProgress({ step, progressRef }: { step: 1 | 2 | 3; progressRef: Ref<ViewInstance> }) {
   return (
     <View
       style={styles.progress}
@@ -111,7 +115,7 @@ type FieldProps = {
   keyboardType?: 'default' | 'phone-pad' | 'number-pad';
   editable?: boolean;
   testID: string;
-  inputRef?: Ref<TextInput>;
+  inputRef?: Ref<TextInputInstance>;
   active?: boolean;
   onSubmitEditing?: () => void;
 };
@@ -159,7 +163,7 @@ type SheetProps = {
   onClose: () => void;
   onShow: () => void;
   onDismiss: () => void;
-  titleRef: Ref<Text>;
+  titleRef: Ref<TextInstance>;
   children: React.ReactNode;
 };
 
@@ -244,14 +248,14 @@ export default function CreateAccountForm() {
   const [complete, setComplete] = useState(false);
   const [busy, setBusy] = useState(false);
   const reduceMotion = useReducedMotion();
-  const titleRef = useRef<Text>(null);
-  const progressRef = useRef<View>(null);
-  const completionRef = useRef<Text>(null);
-  const photoButtonRef = useRef<View>(null);
-  const genderButtonRef = useRef<View>(null);
-  const photoSheetTitleRef = useRef<Text>(null);
-  const genderSheetTitleRef = useRef<Text>(null);
-  const fieldRefs = useRef<Partial<Record<AccountField, TextInput | null>>>({});
+  const titleRef = useRef<TextInstance>(null);
+  const progressRef = useRef<ViewInstance>(null);
+  const completionRef = useRef<TextInstance>(null);
+  const photoButtonRef = useRef<PressableInstance>(null);
+  const genderButtonRef = useRef<PressableInstance>(null);
+  const photoSheetTitleRef = useRef<TextInstance>(null);
+  const genderSheetTitleRef = useRef<TextInstance>(null);
+  const fieldRefs = useRef<Partial<Record<AccountField, TextInputInstance | null>>>({});
   const returnFocusRef = useRef<RefObject<FocusTarget | null> | null>(null);
   const pendingPhotoSource = useRef<'camera' | 'library' | null>(null);
   const focusTimer = useRef<ReturnType<typeof setTimeout> | null>(null);

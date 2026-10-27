@@ -1,4 +1,4 @@
-import type { AccountForm } from '../createAccountValidation';
+import type { AccountForm } from '@/utils/validation';
 
 // Test-only fixture: a complete, valid onboarding form.
 export const SAMPLE_ACCOUNT: AccountForm = {
