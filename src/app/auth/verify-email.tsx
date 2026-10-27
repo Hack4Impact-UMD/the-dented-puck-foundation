@@ -107,5 +107,3 @@ export default function VerifyEmailScreen() {
     </SafeAreaView>
   );
 }
-
-}

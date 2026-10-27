@@ -9,6 +9,7 @@ import {
 import { Platform } from 'react-native';
 import { auth, db } from '@/firebase';
 import type { Role } from '@/types';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 
 export interface UserProfile {
   age: number;

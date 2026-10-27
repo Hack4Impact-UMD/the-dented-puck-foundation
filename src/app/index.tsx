@@ -26,6 +26,9 @@ export default function HomeScreen() {
       <Link href="/auth/signup" className="text-sky-400 mt-3">
         Sign up
       </Link>
+      <Link href="/auth/verify-email" className="text-sky-400 mt-3">
+        email verification check
+      </Link>
     </View>
   );
 }
