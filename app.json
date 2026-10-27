@@ -16,6 +16,7 @@
     },
     "plugins": [
       "expo-router",
+      "expo-font",
       "@react-native-vector-icons/ionicons"
     ]
   }

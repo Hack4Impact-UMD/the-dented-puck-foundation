@@ -1,11 +1,10 @@
-import { Stack } from 'expo-router';
+import { Stack } from "expo-router";
 import {
   AtkinsonHyperlegible_400Regular,
   AtkinsonHyperlegible_700Bold,
   useFonts,
-} from '@expo-google-fonts/atkinson-hyperlegible';
-import '../../global.css';
-
+} from "@expo-google-fonts/atkinson-hyperlegible";
+import "../../global.css";
 
 export default function RootLayout() {
   const [fontsLoaded, fontError] = useFonts({
@@ -21,6 +20,7 @@ export default function RootLayout() {
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="index" />
+      <Stack.Screen name="auth" />
     </Stack>
   );
 }
