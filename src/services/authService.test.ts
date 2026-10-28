@@ -2,7 +2,7 @@ import { auth } from '@/firebase';
 import { doc, setDoc } from 'firebase/firestore';
 import { getDownloadURL, ref, uploadString } from 'firebase/storage';
 import { SAMPLE_ACCOUNT } from '@/components/auth/__fixtures__/sampleAccount';
-import { saveAccountProfile } from './profileService';
+import { saveAccountProfile } from './authService';
 
 jest.mock('@/firebase', () => ({ auth: { currentUser: null }, db: {}, storage: {} }));
 jest.mock('firebase/firestore', () => ({
@@ -27,7 +27,7 @@ describe('account profile persistence', () => {
 
   it('merges the profile under the authenticated UID and uses its trusted email', async () => {
     await saveAccountProfile({ ...SAMPLE_ACCOUNT, usaHockeyNumber: '' }, null);
-    expect(doc).toHaveBeenCalledWith(expect.anything(), 'accountProfiles', 'test-user');
+    expect(doc).toHaveBeenCalledWith(expect.anything(), 'Users', 'test-user');
     expect(setDoc).toHaveBeenCalledWith('profile-document', expect.objectContaining({
       firstName: 'Alex', birthDate: '2002-06-14', email: 'verified@example.com',
       phoneNumber: '3015550142', usaHockeyNumber: null,

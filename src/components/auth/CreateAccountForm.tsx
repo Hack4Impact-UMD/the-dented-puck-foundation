@@ -28,7 +28,7 @@ import * as ImagePicker from 'expo-image-picker';
 import * as Location from 'expo-location';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { auth } from '@/firebase';
-import { saveAccountProfile, type AccountPhoto } from '@/services/profileService';
+import { saveAccountProfile, type AccountPhoto } from '@/services/authService';
 import useReducedMotion from '@/hooks/useReducedMotion';
 import BackIcon from '@/assets/create-account/back.svg';
 import CloseIcon from '@/assets/create-account/close.svg';

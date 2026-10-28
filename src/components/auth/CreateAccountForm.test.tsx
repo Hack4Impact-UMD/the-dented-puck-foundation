@@ -5,7 +5,7 @@ import { onAuthStateChanged } from 'firebase/auth';
 import * as ImagePicker from 'expo-image-picker';
 import * as Location from 'expo-location';
 import { auth } from '@/firebase';
-import { saveAccountProfile } from '@/services/profileService';
+import { saveAccountProfile } from '@/services/authService';
 import CreateAccountForm from './CreateAccountForm';
 
 jest.mock('expo-router', () => ({
@@ -14,7 +14,7 @@ jest.mock('expo-router', () => ({
 jest.mock('expo-font', () => ({ useFonts: () => [true, null] }));
 jest.mock('@/firebase', () => ({ auth: { currentUser: null } }));
 jest.mock('firebase/auth', () => ({ onAuthStateChanged: jest.fn() }));
-jest.mock('@/services/profileService', () => ({ saveAccountProfile: jest.fn() }));
+jest.mock('@/services/authService', () => ({ saveAccountProfile: jest.fn() }));
 jest.mock('expo-image-picker', () => ({
   requestCameraPermissionsAsync: jest.fn(),
   requestMediaLibraryPermissionsAsync: jest.fn(),
