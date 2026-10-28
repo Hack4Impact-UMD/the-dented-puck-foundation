@@ -1,5 +1,5 @@
-import { act, fireEvent, isHiddenFromAccessibility, render, waitFor } from '@testing-library/react-native';
-import { AccessibilityInfo, BackHandler, Modal, Platform, TextInput } from 'react-native';
+import { act, fireEvent, isHiddenFromAccessibility, render, waitFor, type RenderResult } from '@testing-library/react-native';
+import { AccessibilityInfo, BackHandler, Platform } from 'react-native';
 import { router } from 'expo-router';
 import { onAuthStateChanged } from 'firebase/auth';
 import * as ImagePicker from 'expo-image-picker';
@@ -43,25 +43,24 @@ describe('three-step account onboarding', () => {
     jest.restoreAllMocks();
   });
 
-  async function renderForm() {
-    const screen = render(<CreateAccountForm />);
-    await act(async () => {});
+  async function renderForm(): Promise<RenderResult> {
+    const screen = await render(<CreateAccountForm />);
     return screen;
   }
 
-  function readingOrder(screen: ReturnType<typeof render>) {
-    return screen.UNSAFE_root.findAll(node => (
-      typeof node.type === 'string' && node.props.nativeID?.startsWith('account-') &&
-      (node.props.accessible === true || node.props.accessibilityRole) && !isHiddenFromAccessibility(node)
+  function readingOrder(screen: RenderResult) {
+    return screen.container.queryAll(node => (
+      typeof node.type === 'string' && Boolean(node.props.nativeID?.startsWith('account-')) &&
+      Boolean(node.props.accessible === true || node.props.accessibilityRole) && !isHiddenFromAccessibility(node as any)
     )).map(node => node.props.nativeID);
   }
 
   // Sheets stay presented while they slide out; waiting keeps their exit inside act().
-  async function waitForSheetsToClose(screen: ReturnType<typeof render>) {
-    await waitFor(() => expect(screen.UNSAFE_getAllByType(Modal).some(node => node.props.visible)).toBe(false));
+  async function waitForSheetsToClose(screen: RenderResult) {
+    await waitFor(() => expect(screen.container.queryAll(node => node.type === 'Modal' && node.props.visible).length).toBe(0));
   }
 
-  async function completeStepTwo(screen: ReturnType<typeof render>) {
+  async function completeStepTwo(screen: RenderResult) {
     fireEvent.press(screen.getByTestId('gender-select'));
     fireEvent.press(screen.getByText('Woman'));
     await waitForSheetsToClose(screen);
@@ -138,7 +137,7 @@ describe('three-step account onboarding', () => {
 
   it('keeps placeholders out of speech and describes formats with hints', async () => {
     const screen = await goToStepThree();
-    for (const input of screen.UNSAFE_getAllByType(TextInput)) expect(input.props.placeholder).toBeUndefined();
+    for (const input of screen.container.queryAll(node => node.type === 'TextInput')) expect(input.props.placeholder).toBeUndefined();
     const placeholder = screen.getByText('(###) ###-####', { includeHiddenElements: true });
     expect(isHiddenFromAccessibility(placeholder)).toBe(true);
     expect(screen.getByTestId('phone-number').props.accessibilityHint).toBe('10-digit phone number.');
@@ -163,8 +162,9 @@ describe('three-step account onboarding', () => {
     Object.defineProperty(Platform, 'OS', { configurable: true, value: os });
     const announce = jest.spyOn(AccessibilityInfo, 'announceForAccessibilityWithOptions');
     const screen = await renderForm();
-    const firstName = screen.UNSAFE_getAllByType(TextInput).find(node => node.props.testID === 'first-name')!.instance as TextInput;
-    const lastName = screen.UNSAFE_getAllByType(TextInput).find(node => node.props.testID === 'last-name')!.instance as TextInput;
+    const textInputs = screen.container.queryAll(node => node.type === 'TextInput');
+    const firstName = textInputs.find(node => node.props.testID === 'first-name')! as any;
+    const lastName = textInputs.find(node => node.props.testID === 'last-name')! as any;
     const focusFirst = jest.fn();
     const focusLast = jest.fn();
     firstName.focus = focusFirst;
@@ -192,7 +192,7 @@ describe('three-step account onboarding', () => {
     fireEvent.press(screen.getByRole('button', { name: 'Add photo' }));
     expect(screen.queryByRole('button', { name: 'Next' })).toBeNull();
     expect(screen.getByRole('header', { name: 'Profile photo' })).toBeTruthy();
-    const modal = screen.UNSAFE_getAllByType(Modal).find(node => node.props.visible)!;
+    const modal = screen.container.queryAll(node => node.type === 'Modal').find(node => node.props.visible)!;
     fireEvent(modal, 'show');
     await waitFor(() => expect(focus).toHaveBeenLastCalledWith(focusedOn({ accessibilityRole: 'header', children: 'Profile photo' }), 'focus'));
     fireEvent.press(screen.getByRole('button', { name: 'Cancel' }));
@@ -226,7 +226,7 @@ describe('three-step account onboarding', () => {
     const selected = screen.getByRole('radio', { name: 'Woman' });
     expect(selected.props.accessibilityState.checked).toBe(true);
     expect(screen.getByRole('radio', { name: 'Man' }).props.accessibilityState.checked).toBe(false);
-    const modal = screen.UNSAFE_getAllByType(Modal).find(node => node.props.visible)!;
+    const modal = screen.container.queryAll(node => node.type === 'Modal').find(node => node.props.visible)!;
     fireEvent(modal, 'show');
     await waitFor(() => expect(focus).toHaveBeenLastCalledWith(focusedOn({ accessibilityRole: 'header', children: 'Gender' }), 'focus'));
     fireEvent(selected, 'accessibilityEscape');
@@ -320,7 +320,7 @@ describe('three-step account onboarding', () => {
     } as ImagePicker.ImagePickerResult);
     const screen = await renderForm();
     fireEvent.press(screen.getByTestId('profile-photo-button'));
-    const modal = screen.UNSAFE_getAllByType(Modal).find(node => node.props.visible)!;
+    const modal = screen.container.queryAll(node => node.type === 'Modal').find(node => node.props.visible)!;
     fireEvent.press(screen.getByText('Choose from library'));
     await waitForSheetsToClose(screen);
     expect(ImagePicker.requestMediaLibraryPermissionsAsync).not.toHaveBeenCalled();

@@ -1,10 +1,10 @@
-import { SAMPLE_ACCOUNT } from './__fixtures__/sampleAccount';
+import { SAMPLE_ACCOUNT } from '@/components/auth/__fixtures__/sampleAccount';
 import {
   birthdayToIso,
   formatBirthday,
   formatPhone,
   validateAccountStep,
-} from './createAccountValidation';
+} from './validation';
 
 describe('account onboarding validation', () => {
   it('requires names and the second-step details but permits optional fields', () => {
