@@ -18,6 +18,7 @@ export default function TeamInfo() {
   const [result, setResult] = useState<{ id: string; team: TeamWithId | null } | null>(null);
   const loading = result?.id !== teamId;
   const team = loading ? null : result.team;
+  console.log(team);
 
   // fetch team from Firestore whenever teamId changes then update results
   useEffect(() => {
@@ -65,21 +66,21 @@ export default function TeamInfo() {
           <TeamInfoCard name={team.name} season={getSeasonLabel()}>
             <View className={`${pairRow} gap-4 w-full mt-8`}>
               <AppButton
-                title="View roster"
+                title="Roster"
                 onPress={view_roster_button}
                 variant="outline"
                 icon="list"
                 className={`${pairItem} px-2`}
-                accessibilityLabel="View roster"
+                accessibilityLabel="Roster"
                 accessibilityHint={`Opens the ${team.name} roster`}
               />
               <AppButton
-                title="View schedule"
+                title="Schedule"
                 onPress={view_schedule_button}
                 variant="outline"
                 icon="calendar-outline"
                 className={`${pairItem} px-2`}
-                accessibilityLabel="View schedule"
+                accessibilityLabel="Schedule"
                 accessibilityHint={`Opens the ${team.name} schedule`}
               />
             </View>
