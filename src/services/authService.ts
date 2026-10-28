@@ -49,7 +49,7 @@ function userProfileRef(uid: string) {
     throw new Error('A Firebase Auth UID is required to access a user profile.');
   }
 
-  return doc(db, 'users', uid);
+  return doc(db, 'Users', uid);
 }
 
 export async function createUserProfile(uid: string, profile: UserProfile): Promise<void> {

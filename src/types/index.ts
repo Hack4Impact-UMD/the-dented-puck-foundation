@@ -21,7 +21,7 @@ export interface Team {
   supervisorId: string;
   status: Status;
   wins: number;
-  losses: number;       
+  losses: number;
 }
 
 export interface UserToTeam {
