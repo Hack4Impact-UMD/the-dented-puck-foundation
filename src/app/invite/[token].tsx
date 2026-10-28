@@ -1,3 +1,1 @@
-export default function InviteScreen() {
-  return null;
-}
+export { default } from './index';
