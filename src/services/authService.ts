@@ -62,9 +62,11 @@ export async function createUserProfile(uid: string, profile: UserProfile): Prom
 
 // Ensures a verified user is registered in Firestore 'Users' with a default role
 export async function initializeVerifiedUser(user: FirebaseUser): Promise<void> {
-  if (!user?.uid) {
+  if (!user?.uid || !user.emailVerified) {
     return;
   }
+
+  await user.getIdToken(true);
 
   const userRef = userProfileRef(user.uid);
   const userSnapshot = await getDoc(userRef);

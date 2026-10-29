@@ -5,7 +5,7 @@ import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import VerifyEmailContent from '@/components/auth/VerifyEmailContent';
 import { auth } from '@/firebase';
-import { initializeVerifiedUser, resendVerificationEmail } from '@/services/authService';
+import { resendVerificationEmail } from '@/services/authService';
 
 type ScreenMessage = { type: 'error' | 'success'; text: string };
 
@@ -40,11 +40,10 @@ export default function VerifyEmailScreen() {
         await currentUser.reload();
         if (currentUser.emailVerified && isMounted && !isNavigatingRef.current) {
           isNavigatingRef.current = true;
-          // Ensure the user document is added to Firestore 'Users' with a default role
-          await initializeVerifiedUser(currentUser);
-          router.replace('/auth/finish-setup');
+          router.replace('/auth/create-account');
         }
       } catch (err) {
+        isNavigatingRef.current = false;
         console.error('Error checking verification status:', err);
       }
     }
@@ -106,6 +105,4 @@ export default function VerifyEmailScreen() {
       />
     </SafeAreaView>
   );
-}
-
 }
