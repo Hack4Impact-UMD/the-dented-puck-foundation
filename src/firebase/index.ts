@@ -10,6 +10,7 @@ import {
 import { getFirestore, type Firestore } from 'firebase/firestore';
 import { getStorage, type FirebaseStorage } from 'firebase/storage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Platform } from 'react-native';
 
 const firebaseConfig = {
   apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
@@ -24,6 +25,10 @@ export const app: FirebaseApp =
   getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 
 export const auth: Auth = (() => {
+  // getReactNativePersistence only exists in Firebase's phone build, so it crashes on web.
+  // The web build already keeps users signed in on its own.
+  if (Platform.OS === 'web') return getAuth(app);
+
   try {
     return initializeAuth(app, {
       persistence: getReactNativePersistence(AsyncStorage),
