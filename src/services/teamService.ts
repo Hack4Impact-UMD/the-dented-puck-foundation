@@ -1,6 +1,20 @@
-import { collection, doc, getDocs, limit, query, setDoc, where } from 'firebase/firestore';
+import { collection, doc, getDoc, getDocs, limit, query, setDoc, where } from 'firebase/firestore';
 import { auth, db } from '@/firebase';
-import type { UserToTeam, UserToTeamWithId } from '@/types';
+import { Team, TeamWithId, UserToTeam, UserToTeamWithId } from '@/types';
+
+// get one team by document ID
+export async function getTeam(teamId: string): Promise<TeamWithId | null> {
+    if (!teamId) return null;
+    const snapshot = await getDoc(doc(db, 'Teams', teamId));
+    if (!snapshot.exists()) return null;
+    return { id: snapshot.id, ...(snapshot.data() as Team) };
+}
+
+// PLACEHOLDER for a team's season information
+export function getSeasonLabel(date = new Date()): string {
+    const startYear = date.getFullYear();
+    return `${startYear}-${startYear + 1}`;
+}
 
 function currentUserId() {
   if (!auth.currentUser) throw new Error('You need to be signed in.');
