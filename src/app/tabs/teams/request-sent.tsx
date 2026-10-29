@@ -1,9 +1,9 @@
 import { router } from 'expo-router';
 import { View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import AppButton from '@/components/team/AppButton';
 import { RequestSentMessage } from '@/components/teams/RequestSentMessage';
 import { SuccessBadge } from '@/components/teams/SuccessBadge';
-import { TeamsButton } from '@/components/teams/TeamsButton';
 
 export default function RequestSentScreen() {
   const insets = useSafeAreaInsets();
@@ -15,9 +15,10 @@ export default function RequestSentScreen() {
         <RequestSentMessage />
       </View>
       <View className="flex-1 justify-end">
-        <TeamsButton
-          label="Go to teams"
-          hint="Returns to the Teams tab"
+        <AppButton
+          title="Go to teams"
+          variant="secondary"
+          accessibilityHint="Returns to the Teams tab"
           onPress={() => router.navigate('/tabs/teams')}
         />
       </View>
