@@ -2,7 +2,7 @@ import { useState, type Ref } from "react";
 import {
   Pressable,
   Text,
-  type TextInput,
+  type TextInputInstance,
   type TextInputProps,
 } from "react-native";
 import { AuthTextField } from "./AuthTextField";
@@ -11,7 +11,7 @@ interface PasswordFieldProps extends TextInputProps {
   label: string;
   error?: string | null;
   helperText?: string;
-  ref?: Ref<TextInput>;
+  ref?: Ref<TextInputInstance>;
 }
 
 export function PasswordField({ value, ...props }: PasswordFieldProps) {

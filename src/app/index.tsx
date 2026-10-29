@@ -32,6 +32,9 @@ export default function HomeScreen() {
       <Link href="/tabs/teams/team_205" className="text-yellow-400 mt-3">
         Test Team Page (Not Found test)
       </Link>
+      <Link href="/auth/create-account" className="text-sky-400 mt-3">
+        Create account dev
+      </Link>
     </View>
   );
 }
