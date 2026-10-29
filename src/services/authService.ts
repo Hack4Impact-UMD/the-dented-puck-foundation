@@ -9,7 +9,7 @@ import {
 import { Platform } from 'react-native';
 import { auth, db } from '@/firebase';
 import type { Role } from '@/types';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore';
 
 export interface UserProfile {
   age: number;
@@ -54,6 +54,29 @@ function userProfileRef(uid: string) {
 
 export async function createUserProfile(uid: string, profile: UserProfile): Promise<void> {
   await setDoc(userProfileRef(uid), profile);
+}
+
+// Ensures a verified user is registered in Firestore 'Users' with a default role
+export async function initializeVerifiedUser(user: FirebaseUser): Promise<void> {
+  if (!user?.uid) {
+    return;
+  }
+
+  const userRef = userProfileRef(user.uid);
+  const userSnapshot = await getDoc(userRef);
+
+  if (!userSnapshot.exists()) {
+    await setDoc(
+      userRef,
+      {
+        email: user.email ?? '',
+        role: 'player' as Role,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      },
+      { merge: true },
+    );
+  }
 }
 
 export async function getUserProfile(uid: string): Promise<UserProfile> {

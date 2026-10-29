@@ -3,7 +3,6 @@ import { Pressable, ScrollView, Text, View } from 'react-native';
 interface VerifyEmailContentProps {
   email: string;
   isLoadingProfile: boolean;
-  isProfileEmailValid: boolean;
   isResending: boolean;
   message: { type: 'error' | 'success'; text: string } | null;
   onBack: () => void;
@@ -14,7 +13,6 @@ interface VerifyEmailContentProps {
 export default function VerifyEmailContent({
   email,
   isLoadingProfile,
-  isProfileEmailValid,
   isResending,
   message,
   onBack,
@@ -23,7 +21,7 @@ export default function VerifyEmailContent({
 }: VerifyEmailContentProps) {
   const instructions = 'A verification link has been sent to:';
   const emailLabel = email || (isLoadingProfile ? 'Loading email address' : 'Email unavailable');
-  const isResendDisabled = isResending || !email || !isProfileEmailValid;
+  const isResendDisabled = isResending || !email;
   const rootViewProps = {
     className: 'flex-1 bg-surface-dark',
     experimental_accessibilityOrder: [
