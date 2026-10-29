@@ -25,9 +25,9 @@ export const app: FirebaseApp =
   getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 
 export const auth: Auth = (() => {
-  // getReactNativePersistence only exists in Firebase's phone build, so it crashes on web.
-  // The web build already keeps users signed in on its own.
-  if (Platform.OS === 'web') return getAuth(app);
+  if (Platform.OS === 'web') {
+    return getAuth(app);
+  }
 
   try {
     return initializeAuth(app, {
