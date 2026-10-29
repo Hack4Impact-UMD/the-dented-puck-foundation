@@ -60,6 +60,31 @@ export async function createUserProfile(uid: string, profile: UserProfile): Prom
   await setDoc(userProfileRef(uid), profile);
 }
 
+// Ensures a verified user is registered in Firestore 'Users' with a default role
+export async function initializeVerifiedUser(user: FirebaseUser): Promise<void> {
+  if (!user?.uid || !user.emailVerified) {
+    return;
+  }
+
+  await user.getIdToken(true);
+
+  const userRef = userProfileRef(user.uid);
+  const userSnapshot = await getDoc(userRef);
+
+  if (!userSnapshot.exists()) {
+    await setDoc(
+      userRef,
+      {
+        email: user.email ?? '',
+        role: 'player' as Role,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      },
+      { merge: true },
+    );
+  }
+}
+
 export async function getUserProfile(uid: string): Promise<UserProfile> {
   const profileSnapshot = await getDoc(userProfileRef(uid));
   if (!profileSnapshot.exists()) {
