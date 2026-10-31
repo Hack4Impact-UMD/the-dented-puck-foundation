@@ -96,7 +96,7 @@ export default function VerifyEmailScreen() {
     <SafeAreaView className="flex-1 bg-black" edges={['top', 'bottom']}>
       <VerifyEmailContent
         email={email}
-        isLoadingProfile={isLoadingProfile}
+        isLoadingUser={isLoadingProfile}
         isResending={isResending}
         message={message}
         onBack={() => router.replace('/auth/signup')}
