@@ -1,4 +1,5 @@
 import { collection, doc, getDoc, getDocs, limit, query, setDoc, where } from 'firebase/firestore';
+import Fuse from 'fuse.js';
 import { auth, db } from '@/firebase';
 import { Team, TeamWithId, UserToTeam, UserToTeamWithId } from '@/types';
 
@@ -56,6 +57,8 @@ export async function fetchAllTeams(): Promise<Team[]> {
     const data = doc.data();
 
     return {
+      // manually map firestore fields onto Team object fields
+      // because they may have different names for the same field
       region: data.reigonId,
       name: data.name,
       supervisorId: data.supervisor.userId,
@@ -66,8 +69,16 @@ export async function fetchAllTeams(): Promise<Team[]> {
   })
 }
 
-// Sort a list of teams based on proximity to user's current
-// location
-export function sortTeamListByCurrLoc(teamList: Team[]): Team[] {
-    
+// creates a Fuse to search a teamlist
+export function createTeamSearch(teamList: Team[]){
+    return new Fuse<Team>(teamList, {
+      keys: ['name'],
+      threshold: 0.35,
+      ignoreLocation: true
+    })
+}
+
+// search a parameter list of Teams using a parameter Fuse
+export function searchProducts(fuse: Fuse<Team>, query: string): Team[]{
+  return fuse.search(query).map(result => result.item);
 }
