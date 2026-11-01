@@ -1,5 +1,5 @@
 import type { ReactNode, Ref } from "react";
-import { Text, TextInput, View, type TextInputProps } from "react-native";
+import { Text, TextInput, View, type TextInputProps, type TextInputInstance } from "react-native";
 import { AuthErrorMessage } from "./AuthErrorMessage";
 
 interface AuthTextFieldProps extends TextInputProps {
@@ -10,7 +10,7 @@ interface AuthTextFieldProps extends TextInputProps {
   accessory?: ReactNode;
   // Rendered below the error, e.g. "Log in instead"
   children?: ReactNode;
-  ref?: Ref<TextInput>;
+  ref?: Ref<TextInputInstance>;
 }
 
 export function AuthTextField({

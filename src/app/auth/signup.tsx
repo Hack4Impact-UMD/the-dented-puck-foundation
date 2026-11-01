@@ -5,8 +5,8 @@ import {
   Platform,
   ScrollView,
   Text,
-  TextInput,
   View,
+  type TextInputInstance,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
@@ -39,8 +39,8 @@ export default function SignupScreen() {
   const [formError, setFormError] = useState<string | null>(null);
   const [emailExists, setEmailExists] = useState(false);
   const [pending, setPending] = useState<"email" | "google" | null>(null);
-  const emailRef = useRef<TextInput>(null);
-  const passwordRef = useRef<TextInput>(null);
+  const emailRef = useRef<TextInputInstance>(null);
+  const passwordRef = useRef<TextInputInstance>(null);
 
   function handleClose() {
     if (router.canGoBack()) {

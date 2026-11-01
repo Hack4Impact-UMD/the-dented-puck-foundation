@@ -20,9 +20,6 @@ export default function HomeScreen() {
       <Text className="text-sm text-sky-400 text-center">
         {status}
       </Text>
-      <Link href="/auth/login" className="text-sky-400 mt-6">
-        Log in
-      </Link>
       <Link href="/auth/signup" className="text-sky-400 mt-3">
         Sign up
       </Link>
@@ -34,6 +31,9 @@ export default function HomeScreen() {
       </Link>
       <Link href="tabs/teams/find" className="text-sky-400 mt-3">
         Find Team
+      </Link>
+      <Link href="/auth/create-account" className="text-sky-400 mt-3">
+        Create account dev
       </Link>
     </View>
   );

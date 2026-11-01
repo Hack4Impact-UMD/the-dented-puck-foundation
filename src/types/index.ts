@@ -2,7 +2,7 @@ export type Role = "global-admin" | "super-admin" | "team-staff" | "player" | "c
 export type Status = "inactive" | "active" | "suspended";
 export type ConversationType = "group" | "dm";
 
-  
+
 
 
 export interface User {
@@ -11,7 +11,10 @@ export interface User {
   region: string;
   age: number;
   email: string;
-  phoneNumber: string;  
+  phoneNumber: string;
+  birthDate: Date;
+  usaHockeyNumber: number;
+  allowLocation: boolean;
   linkedPlayerId?: string; //for contacts
 }
 
@@ -34,10 +37,16 @@ export interface Event {
   region: string;
   teamIds: string[];
   title: string;
-  startTime: Date; 
+  startTime: Date;
   endTime: Date;
   location: string;
   result?: string;
+  notes: string;
+}
+
+export interface RSVP {
+  response: string;
+  userId: string;
 }
 
 export interface Conversation {
@@ -76,5 +85,9 @@ export interface ConversationWithId extends Conversation {
 }
 
 export interface MessageWithId extends Message {
+  id: string;
+}
+
+export interface RSVPWithId {
   id: string;
 }
