@@ -48,3 +48,26 @@ export async function requestToJoinTeam(teamId: string): Promise<UserToTeamWithI
   await setDoc(ref, request);
   return { id: ref.id, ...request };
 }
+
+// Fetch a list of all teams in firestore
+export async function fetchAllTeams(): Promise<Team[]> {
+  const snapshot = await getDocs(collection(db, "Teams"));
+  return snapshot.docs.map((doc) => {
+    const data = doc.data();
+
+    return {
+      region: data.reigonId,
+      name: data.name,
+      supervisorId: data.supervisor.userId,
+      status: data.status,
+      wins: data.wins,
+      losses: data.loses
+    };
+  })
+}
+
+// Sort a list of teams based on proximity to user's current
+// location
+export function sortTeamListByCurrLoc(teamList: Team[]): Team[] {
+    
+}
