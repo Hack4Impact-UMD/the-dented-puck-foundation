@@ -51,12 +51,13 @@ export async function requestToJoinTeam(teamId: string): Promise<UserToTeamWithI
 }
 
 // Fetch a list of all teams in firestore
-export async function fetchAllTeams(): Promise<Team[]> {
+export async function fetchAllTeams(): Promise<TeamWithId[]> {
   const snapshot = await getDocs(collection(db, "Teams"));
   return snapshot.docs.map((doc) => {
     const data = doc.data();
 
     return {
+      id: data.teamId,
       // manually map firestore fields onto Team object fields
       // because they may have different names for the same field
       region: data.reigonId,
@@ -70,8 +71,8 @@ export async function fetchAllTeams(): Promise<Team[]> {
 }
 
 // creates a Fuse to search a teamlist
-export function createTeamSearch(teamList: Team[]){
-    return new Fuse<Team>(teamList, {
+export function createTeamSearch(teamList: TeamWithId[]){
+    return new Fuse<TeamWithId>(teamList, {
       keys: ['name'],
       threshold: 0.35,
       ignoreLocation: true
@@ -79,6 +80,6 @@ export function createTeamSearch(teamList: Team[]){
 }
 
 // search a parameter list of Teams using a parameter Fuse
-export function searchProducts(fuse: Fuse<Team>, query: string): Team[]{
+export function searchProducts(fuse: Fuse<TeamWithId>, query: string): TeamWithId[]{
   return fuse.search(query).map(result => result.item);
 }
