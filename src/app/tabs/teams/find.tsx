@@ -76,7 +76,7 @@ export default function FindTeamScreen() {
         <Text className="mt-5 self-stretch font-sans text-lg leading-[26px] text-ink-subtle">
           {isError
             ? "Error: failed to fetch teams near College Park, MD"
-            : `${filteredTeams.length} teams near College Park, MD`}
+            : `${filteredTeams.length} teams near College Park, MD${search.trim() ? " match your search" : ""}`}
         </Text>
 
         {isLoading ? (
