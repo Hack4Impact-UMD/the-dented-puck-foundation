@@ -52,29 +52,46 @@ export async function requestToJoinTeam(teamId: string): Promise<UserToTeamWithI
 
 // Fetch a list of all teams in firestore
 export async function fetchAllTeams(): Promise<TeamWithId[]> {
-  const snapshot = await getDocs(collection(db, "Teams"));
-  return snapshot.docs.map((doc) => {
-    const data = doc.data();
+  const startedAt = Date.now();
+  console.info("[teamService] Fetching teams from Firestore.");
 
-    return {
-      id: data.teamId,
-      // manually map firestore fields onto Team object fields
-      // because they may have different names for the same field
-      region: data.reigonId,
-      name: data.name,
-      supervisorId: data.supervisor.userId,
-      status: data.status,
-      wins: data.wins,
-      losses: data.loses
-    };
-  })
+  try {
+    const snapshot = await getDocs(collection(db, "Teams"));
+    console.info(
+      `[teamService] Firestore returned ${snapshot.size} team documents in ${Date.now() - startedAt}ms.`,
+    );
+    const teams = snapshot.docs.map((doc) => {
+      const data = doc.data();
+
+      return {
+        id: data.teamId,
+        // manually map firestore fields onto Team object fields
+        // because they may have different names for the same field
+        region: data.reigonId,
+        name: data.name,
+        supervisorId: data.supervisor.userId,
+        status: data.status,
+        wins: data.wins,
+        losses: data.loses
+      };
+    });
+
+    console.info(`[teamService] Mapped ${teams.length} teams from Firestore.`);
+    return teams;
+  } catch (error) {
+    console.error(
+      `[teamService] Failed to fetch or map teams after ${Date.now() - startedAt}ms.`,
+      error,
+    );
+    throw error;
+  }
 }
 
 // creates a Fuse to search a teamlist
 export function createTeamSearch(teamList: TeamWithId[]){
     return new Fuse<TeamWithId>(teamList, {
       keys: ['name'],
-      threshold: 0.35,
+      threshold: 0.3,
       ignoreLocation: true
     })
 }
