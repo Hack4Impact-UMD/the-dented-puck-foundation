@@ -1,8 +1,10 @@
 import { Text, View } from 'react-native';
 
 export default function TeamBadge({ teamName }: { teamName: string }) {
-  const initials = teamName.trim().split(/\s+/).map((word) => word[0]).slice(0, 2).join('').toUpperCase(); //how I extract the initials from the team name
+  // Use the first letters of up to two words for the team badge.
+  const initials = teamName.trim().split(/\s+/).map((word) => word[0]).slice(0, 2).join('').toUpperCase();
 
+  // Read the team logo label once instead of reading the initials too.
   return (
     <View
       accessible

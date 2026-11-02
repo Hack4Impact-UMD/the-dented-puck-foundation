@@ -14,17 +14,22 @@ import TeamBadge from '@/components/invite/TeamBadge';
 // Placeholder until the invites collection and invitation flow are available.
 const PLACEHOLDER_TEAM_NAME = 'Baltimore Blades';
 
+
 export default function InviteScreen() {
+  // Load the bundled Atkinson Hyperlegible fonts.
   const [fontsLoaded, fontError] = useFonts({
     AtkinsonHyperlegibleRegular: require('../../components/invite/fonts/AtkinsonHyperlegible-Regular.ttf'),
     AtkinsonHyperlegibleBold: require('../../components/invite/fonts/AtkinsonHyperlegible-Bold.ttf'),
   });
   const { token } = useLocalSearchParams<{ token?: string | string[] }>();
+  // Use the first token if the URL has more than one, and remove extra spaces.
   const teamId = (Array.isArray(token) ? token[0] : token)?.trim() ?? '';
+  // Pass the team ID along when opening signup or login.
   const params = teamId ? { teamId } : {};
 
   if (fontError) throw fontError;
 
+  // Wait for the fonts so the text doesn't change fonts after it appears.
   if (!fontsLoaded) {
     return (
       <SafeAreaView className="flex-1 items-center justify-center bg-black">
