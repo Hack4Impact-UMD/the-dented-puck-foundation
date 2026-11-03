@@ -1,5 +1,5 @@
 export type Role = "global-admin" | "super-admin" | "team-staff" | "player" | "contact";
-export type Status = "inactive" | "active" | "suspended";
+export type Status = "inactive" | "active" | "suspended" | "pending";
 export type ConversationType = "group" | "dm";
 
 
@@ -31,6 +31,7 @@ export interface UserToTeam {
   userId: string;
   teamId: string;
   status: Status;
+  invitationId?: string; // set when joined through an invite, checked by the rules
 }
 
 export interface Event {
@@ -62,6 +63,13 @@ export interface Message {
   timeSent: Date;
 }
 
+export interface Invitation {
+  invitedBy: string;
+  status: Status;
+  teamId: string;
+  teamName: string;
+}
+
 // FRONTEND MODELS WITH FIRESTORE IDs
 
 export interface UserWithId extends User {
@@ -89,5 +97,9 @@ export interface MessageWithId extends Message {
 }
 
 export interface RSVPWithId {
+  id: string;
+}
+
+export interface InvitationWithId extends Invitation {
   id: string;
 }
