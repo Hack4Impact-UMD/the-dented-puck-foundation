@@ -1,35 +1,46 @@
-import { collection, doc, getDoc, getDocs, limit, query, setDoc, where } from 'firebase/firestore';
-import Fuse from 'fuse.js';
-import { auth, db } from '@/firebase';
-import { Team, TeamWithId, UserToTeam, UserToTeamWithId } from '@/types';
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  limit,
+  query,
+  setDoc,
+  where,
+} from "firebase/firestore";
+import Fuse from "fuse.js";
+import { auth, db } from "@/firebase";
+import { Team, TeamWithId, UserToTeam, UserToTeamWithId } from "@/types";
 
 // get one team by document ID
 export async function getTeam(teamId: string): Promise<TeamWithId | null> {
-    if (!teamId) return null;
-    const snapshot = await getDoc(doc(db, 'Teams', teamId));
-    if (!snapshot.exists()) return null;
-    return { id: snapshot.id, ...(snapshot.data() as Team) };
+  if (!teamId) return null;
+  const snapshot = await getDoc(doc(db, "Teams", teamId));
+  if (!snapshot.exists()) return null;
+  return { id: snapshot.id, ...(snapshot.data() as Team) };
 }
 
 // PLACEHOLDER for a team's season information
 export function getSeasonLabel(date = new Date()): string {
-    const startYear = date.getFullYear();
-    return `${startYear}-${startYear + 1}`;
+  const startYear = date.getFullYear();
+  return `${startYear}-${startYear + 1}`;
 }
 
 function currentUserId() {
-  if (!auth.currentUser) throw new Error('You need to be signed in.');
+  if (!auth.currentUser) throw new Error("You need to be signed in.");
   return auth.currentUser.uid;
 }
 
 // A query rather than a get by ID: the rules let players read their own memberships,
 // and a get on a doc that doesn't exist yet is denied instead of returning nothing.
-export async function getJoinRequest(teamId: string): Promise<UserToTeamWithId | null> {
+export async function getJoinRequest(
+  teamId: string,
+): Promise<UserToTeamWithId | null> {
   const snap = await getDocs(
     query(
-      collection(db, 'UserToTeam'),
-      where('userId', '==', currentUserId()),
-      where('teamId', '==', teamId),
+      collection(db, "UserToTeam"),
+      where("userId", "==", currentUserId()),
+      where("teamId", "==", teamId),
       limit(1),
     ),
   );
@@ -39,13 +50,15 @@ export async function getJoinRequest(teamId: string): Promise<UserToTeamWithId |
 
 // A join request is a UserToTeam doc left "inactive" until the coach approves it.
 // The doc ID is `${userId}_${teamId}` because that is how the rules look up memberships.
-export async function requestToJoinTeam(teamId: string): Promise<UserToTeamWithId> {
+export async function requestToJoinTeam(
+  teamId: string,
+): Promise<UserToTeamWithId> {
   const existing = await getJoinRequest(teamId);
   if (existing) return existing;
 
   const userId = currentUserId();
-  const request: UserToTeam = { userId, teamId, status: 'inactive' };
-  const ref = doc(db, 'UserToTeam', `${userId}_${teamId}`);
+  const request: UserToTeam = { userId, teamId, status: "inactive" };
+  const ref = doc(db, "UserToTeam", `${userId}_${teamId}`);
   await setDoc(ref, request);
   return { id: ref.id, ...request };
 }
@@ -72,7 +85,7 @@ export async function fetchAllTeams(): Promise<TeamWithId[]> {
         supervisorId: data.supervisor.userId,
         status: data.status,
         wins: data.wins,
-        losses: data.loses
+        losses: data.loses,
       };
     });
 
@@ -88,15 +101,30 @@ export async function fetchAllTeams(): Promise<TeamWithId[]> {
 }
 
 // creates a Fuse to search a teamlist
-export function createTeamSearch(teamList: TeamWithId[]){
-    return new Fuse<TeamWithId>(teamList, {
-      keys: ['name'],
-      threshold: 0.3,
-      ignoreLocation: true
-    })
+export function createTeamSearch(teamList: TeamWithId[]) {
+  return new Fuse<TeamWithId>(teamList, {
+    keys: ["name"],
+    threshold: 0.3,
+    ignoreLocation: true,
+  });
 }
 
 // search a parameter list of Teams using a parameter Fuse
-export function searchProducts(fuse: Fuse<TeamWithId>, query: string): TeamWithId[]{
-  return fuse.search(query).map(result => result.item);
+export function searchProducts(
+  fuse: Fuse<TeamWithId>,
+  query: string,
+): TeamWithId[] {
+  return fuse.search(query).map((result) => result.item);
+}
+
+// helper function to get the distance between two regions
+// (when given two region id's)
+function regionRegionDistance(regionId: number, regionId2: number) {
+  
+}
+
+// helper function to get the distance between a region and a location
+// (when given a region id and )
+function locationRegionDistance(regionId: number) {
+  
 }
