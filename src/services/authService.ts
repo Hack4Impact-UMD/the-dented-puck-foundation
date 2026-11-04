@@ -3,7 +3,9 @@ import {
   createUserWithEmailAndPassword,
   GoogleAuthProvider,
   sendEmailVerification,
+  signInWithEmailAndPassword,
   signInWithPopup,
+  signOut,
   type User as FirebaseUser,
 } from 'firebase/auth';
 import { Platform } from 'react-native';
@@ -98,6 +100,20 @@ export async function getUserProfile(uid: string): Promise<UserProfile> {
   }
 
   return profile;
+}
+
+// Resumes signup for an existing unverified account. Signs out verified accounts.
+export async function resumeUnverifiedSignup(
+  email: string,
+  password: string,
+): Promise<'unverified' | 'verified'> {
+  const { user } = await signInWithEmailAndPassword(auth, email.trim(), password);
+  await user.reload();
+  if (user.emailVerified) {
+    await signOut(auth);
+    return 'verified';
+  }
+  return 'unverified';
 }
 
 export async function resendVerificationEmail(
