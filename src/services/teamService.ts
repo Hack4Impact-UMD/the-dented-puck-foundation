@@ -11,6 +11,7 @@ import {
 import Fuse from "fuse.js";
 import { auth, db } from "@/firebase";
 import { Team, TeamWithId, UserToTeam, UserToTeamWithId } from "@/types";
+import { locationRegionDistance, regionRegionDistance } from "./locationService";
 
 // get one team by document ID
 export async function getTeam(teamId: string): Promise<TeamWithId | null> {
@@ -117,14 +118,18 @@ export function searchProducts(
   return fuse.search(query).map((result) => result.item);
 }
 
-// helper function to get the distance between two regions
-// (when given two region id's)
-function regionRegionDistance(regionId: number, regionId2: number) {
-  
+//sort a list of teams by proximity to region with given region id
+export function sortTeamsByProxToRegion(teamList: Team[], regionId: number) {
+  teamList.sort((team1, team2) => {
+    return regionRegionDistance(Number(team1.region), regionId) -
+      regionRegionDistance(Number(team2.region), regionId);
+  });
 }
 
-// helper function to get the distance between a region and a location
-// (when given a region id and )
-function locationRegionDistance(regionId: number) {
-  
+//sort a list of teams by proximity to a point with latitude and longitude coordinates
+export function sortTeamsByProxToCoords(teamList: Team[], lat: number, lon: number) {
+  teamList.sort((team1, team2) => {
+    return locationRegionDistance(Number(team1.region), lat, lon) -
+      locationRegionDistance(Number(team2.region), lat, lon);
+  });
 }
