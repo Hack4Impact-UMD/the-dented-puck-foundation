@@ -104,7 +104,7 @@ export async function fetchAllTeams(): Promise<TeamWithId[]> {
 // creates a Fuse to search a teamlist
 export function createTeamSearch(teamList: TeamWithId[]) {
   return new Fuse<TeamWithId>(teamList, {
-    keys: ["name"],
+    keys: ["name", "city"],
     threshold: 0.3,
     ignoreLocation: true,
   });
