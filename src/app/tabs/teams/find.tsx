@@ -32,6 +32,15 @@ export default function FindTeamScreen() {
     ? searchProducts(fuse, search.trim())
     : teams;
 
+  let sortedFilteredTeams;
+
+  // // sort the searched teams list based on the user's current location
+  // if(){
+  // // 
+  // } else {
+
+  // }
+
   return (
     <SafeAreaView edges={["top"]} className="flex-1 bg-black">
       {/* Top header */}
@@ -107,7 +116,7 @@ export default function FindTeamScreen() {
           >
             {filteredTeams.map((team, index) => (
               <TeamListRow
-                key={`${team.name}-${team.region}-${index}`}
+                key={`${team.name}`}
                 team={team}
               />
             ))}

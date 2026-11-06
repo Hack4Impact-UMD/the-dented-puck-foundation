@@ -12,6 +12,7 @@ import Fuse from "fuse.js";
 import { auth, db } from "@/firebase";
 import { Team, TeamWithId, UserToTeam, UserToTeamWithId } from "@/types";
 import { locationRegionDistance, regionRegionDistance } from "./locationService";
+import { regions } from "./locationService";
 
 // get one team by document ID
 export async function getTeam(teamId: string): Promise<TeamWithId | null> {
@@ -102,9 +103,10 @@ export async function fetchAllTeams(): Promise<TeamWithId[]> {
 }
 
 // creates a Fuse to search a teamlist
+// searches by team name and it's region's city name if the city property exists
 export function createTeamSearch(teamList: TeamWithId[]) {
   return new Fuse<TeamWithId>(teamList, {
-    keys: ["name", "city"],
+    keys: ["name", {name: "city", getFn: (team) => regions[Number(team.region) - 1]?.city ?? ""}],
     threshold: 0.3,
     ignoreLocation: true,
   });

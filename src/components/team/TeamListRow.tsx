@@ -3,6 +3,7 @@ import { Pressable, Text, View } from "react-native";
 import { Ionicons } from "@react-native-vector-icons/ionicons";
 import { TeamWithId } from "@/types";
 import TeamIcon from "@/components/team/TeamIcon";
+import { regions } from "@/services/locationService";
 
 type TeamListRowProps = {
   team: TeamWithId;
@@ -11,6 +12,8 @@ type TeamListRowProps = {
 // Functional component to use in the tabs/teams/find page.
 // It represents a row for one team in the grid of team results in the page.
 export default function TeamListRow({ team }: TeamListRowProps) {
+  const region = regions[Number(team.region) - 1];
+
   return (
     <Pressable
       accessibilityRole="button"
@@ -29,7 +32,10 @@ export default function TeamListRow({ team }: TeamListRowProps) {
           {team.name}
         </Text>
         <Text className="font-sans text-lg leading-[26px] text-ink-subtle">
-          {team.region}
+          {region.city},{" "}
+          {region.state
+            ? region.state
+            : region.country}
         </Text>
       </View>
       <Text className="font-sans-bold text-lg text-white">5 miles</Text>
