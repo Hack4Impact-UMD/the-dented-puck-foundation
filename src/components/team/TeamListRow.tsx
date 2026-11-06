@@ -18,7 +18,12 @@ export default function TeamListRow({ team, distanceMiles }: TeamListRowProps) {
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={`${team.name}, ${team.region}, ${distanceMiles} miles away`}
+      accessible={true}
+      accessibilityLabel={
+        `${team.name}, ${region.city}, ` +
+        (region.state ?? region.country) +
+        `, ${distanceMiles} miles away`
+      }
       onPress={() =>
         router.push({
           pathname: "/tabs/teams/[teamId]",
@@ -33,13 +38,12 @@ export default function TeamListRow({ team, distanceMiles }: TeamListRowProps) {
           {team.name}
         </Text>
         <Text className="font-sans text-xl leading-[30px] text-ink-subtle">
-          {region.city},{" "}
-          {region.state
-            ? region.state
-            : region.country}
+          {region.city}, {region.state ? region.state : region.country}
         </Text>
       </View>
-      <Text className="font-sans-bold text-xl text-white">{distanceMiles} mi</Text>
+      <Text className="font-sans-bold text-xl text-white">
+        {distanceMiles} mi
+      </Text>
       <Ionicons
         name="chevron-forward"
         size={24}

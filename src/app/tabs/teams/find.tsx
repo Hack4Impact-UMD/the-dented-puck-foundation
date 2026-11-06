@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ScrollView, Text, TextInput, View } from "react-native";
+import { AccessibilityInfo, Platform, ScrollView, Text, TextInput, View } from "react-native";
 import { router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useQuery } from "@tanstack/react-query";
@@ -34,14 +34,17 @@ export default function FindTeamScreen() {
     const loadUserLocationPreference = async () => {
       let profile: Pick<UserProfile, "allowLocation" | "regionId">;
 
-      // DELETE FOR PRODUCTION - TESTING LOGGED IN USER WHO ALLOWS LOCATION
+      // DELETE THE IF BLOCK AND KEEP ONLY THE CONTENTS OF THE ELSE BLOCK FOR PRODUCTION
+      //  - I AM DEV TESTING A LOGGED IN USER WHO ALLOWS LOCATION
       if (MOCK_SIGNED_IN_USER_WITH_LOCATION) {
         // Temporary local test mode: simulate a signed-in user who allows location.
-        profile = { allowLocation: true, regionId: 1 };
+        profile = { allowLocation: false, regionId: 1 };
       } else {
         const uid = auth.currentUser?.uid;
         if (!uid) {
-          throw new Error("A signed-in user is required to load location preferences.");
+          throw new Error(
+            "A signed-in user is required to load location preferences.",
+          );
         }
         profile = await getUserProfile(uid);
       }
@@ -66,13 +69,20 @@ export default function FindTeamScreen() {
     };
 
     void loadUserLocationPreference().catch((error: unknown) => {
-      console.error("Failed to load location preference for team search.", error);
+      console.error(
+        "Failed to load location preference for team search.",
+        error,
+      );
       setLocationPreferenceStatus("error");
     });
   }, []);
 
   // useQuery in order to store and fetch the list of teams
-  const { data: teams = [], isLoading: teamsLoading, isError } = useQuery<TeamWithId[]>({
+  const {
+    data: teams = [],
+    isLoading: teamsLoading,
+    isError,
+  } = useQuery<TeamWithId[]>({
     queryKey: ["teams"],
     queryFn: fetchAllTeams,
   });
@@ -90,7 +100,8 @@ export default function FindTeamScreen() {
     : teams;
 
   const sortedFilteredTeams = useMemo(
-    () => (searchOrigin ? sortTeamsByProximity(filteredTeams, searchOrigin) : []),
+    () =>
+      searchOrigin ? sortTeamsByProximity(filteredTeams, searchOrigin) : [],
     [filteredTeams, searchOrigin],
   );
   const originLabel =
@@ -104,6 +115,20 @@ export default function FindTeamScreen() {
             : "your region";
         })()
       : "your location";
+  const teamCountMessage =
+    locationPreferenceStatus === "error"
+      ? "Error: failed to load your location"
+      : isError
+        ? `Error: failed to fetch teams near ${originLabel}`
+        : `${filteredTeams.length} teams near ${originLabel}${search.trim() ? " match your search" : ""}`;
+
+  useEffect(() => {
+    if (Platform.OS === "ios") {
+      AccessibilityInfo.announceForAccessibilityWithOptions(teamCountMessage, {
+        queue: true,
+      });
+    }
+  }, [teamCountMessage]);
 
   return (
     <SafeAreaView edges={["top"]} className="flex-1 bg-black">
@@ -133,8 +158,9 @@ export default function FindTeamScreen() {
             <SearchIcon width={24} height={24} />
           </View>
           <TextInput
+            accessibilityRole="search field"
             accessibilityLabel="Search teams"
-            accessibilityHint="Search by team name or city"
+            accessibilityHint="Search for teams here by entering a team name or city"
             autoCapitalize="none"
             className="pb-1 ml-3 h-full min-w-0 flex-1 font-sans text-2xl text-white"
             onChangeText={setSearch}
@@ -146,12 +172,11 @@ export default function FindTeamScreen() {
           />
         </View>
 
-        <Text className="mt-5 self-stretch font-sans-bold text-2xl leading-9 text-ink-subtle">
-          {locationPreferenceStatus === "error"
-            ? "Error: failed to load your location"
-            : isError
-            ? `Error: failed to fetch teams near ${originLabel}`
-            : `${filteredTeams.length} teams near ${originLabel}${search.trim() ? " match your search" : ""}`}
+        <Text
+          className="mt-5 self-stretch font-sans-bold text-2xl leading-9 text-ink-subtle"
+          accessibilityLiveRegion="polite"
+        >
+          {teamCountMessage}
         </Text>
 
         {isPageLoading ? (
