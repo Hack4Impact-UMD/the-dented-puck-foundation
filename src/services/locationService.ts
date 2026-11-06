@@ -43,12 +43,12 @@ export const regions: Region[] = [
 export function regionRegionDistance(regionId1: number, regionId2: number) {
   return Math.round(getDistance(
     {
-      latitude: regions[regionId1 + 1].lat,
-      longitude: regions[regionId1 + 1].lon,
+      latitude: regions[regionId1 - 1].lat,
+      longitude: regions[regionId1 - 1].lon,
     },
     {
-      latitude: regions[regionId2 + 1].lat,
-      longitude: regions[regionId2 + 1].lon,
+      latitude: regions[regionId2 - 1].lat,
+      longitude: regions[regionId2 - 1].lon,
     },
   ) / 1609.344);
 }
@@ -56,10 +56,10 @@ export function regionRegionDistance(regionId1: number, regionId2: number) {
 // helper function to get the distance between a region and a location
 // (when given a region id and latitude/longitude coordinates) rounded to the nearest mile
 export function locationRegionDistance(regionId: number, lat: number, lon: number) {
-    return Math.round(getDistance(
+  return Math.round(getDistance(
     {
-      latitude: regions[regionId + 1].lat,
-      longitude: regions[regionId + 1].lon,
+      latitude: regions[regionId - 1].lat,
+      longitude: regions[regionId - 1].lon,
     },
     {
       latitude: lat,

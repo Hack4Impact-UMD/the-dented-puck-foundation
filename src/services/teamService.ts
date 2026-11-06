@@ -14,6 +14,15 @@ import { Team, TeamWithId, UserToTeam, UserToTeamWithId } from "@/types";
 import { locationRegionDistance, regionRegionDistance } from "./locationService";
 import { regions } from "./locationService";
 
+export type SearchOrigin =
+  | { type: "coordinates"; latitude: number; longitude: number }
+  | { type: "region"; regionId: number };
+
+export type TeamWithDistance = {
+  team: TeamWithId;
+  distanceMiles: number;
+};
+
 // get one team by document ID
 export async function getTeam(teamId: string): Promise<TeamWithId | null> {
   if (!teamId) return null;
@@ -120,18 +129,21 @@ export function searchProducts(
   return fuse.search(query).map((result) => result.item);
 }
 
-//sort a list of teams by proximity to region with given region id
-export function sortTeamsByProxToRegion(teamList: Team[], regionId: number) {
-  teamList.sort((team1, team2) => {
-    return regionRegionDistance(Number(team1.region), regionId) -
-      regionRegionDistance(Number(team2.region), regionId);
-  });
-}
-
-//sort a list of teams by proximity to a point with latitude and longitude coordinates
-export function sortTeamsByProxToCoords(teamList: Team[], lat: number, lon: number) {
-  teamList.sort((team1, team2) => {
-    return locationRegionDistance(Number(team1.region), lat, lon) -
-      locationRegionDistance(Number(team2.region), lat, lon);
-  });
+export function sortTeamsByProximity(
+  teamList: TeamWithId[],
+  origin: SearchOrigin,
+): TeamWithDistance[] {
+  return teamList
+    .map((team) => ({
+      team,
+      distanceMiles:
+        origin.type === "coordinates"
+          ? locationRegionDistance(
+              Number(team.region),
+              origin.latitude,
+              origin.longitude,
+            )
+          : regionRegionDistance(Number(team.region), origin.regionId),
+    }))
+    .sort((team1, team2) => team1.distanceMiles - team2.distanceMiles);
 }
