@@ -9,7 +9,7 @@ import { getUserProfile, type UserProfile } from "@/services/authService";
 import {
   createTeamSearch,
   fetchAllTeams,
-  searchProducts,
+  searchTeams,
   sortTeamsByProximity,
   type SearchOrigin,
 } from "@/services/teamService";
@@ -96,7 +96,7 @@ export default function FindTeamScreen() {
 
   // search the terms using a service function
   const filteredTeams = search.trim()
-    ? searchProducts(fuse, search.trim())
+    ? searchTeams(fuse, search.trim())
     : teams;
 
   const sortedFilteredTeams = useMemo(

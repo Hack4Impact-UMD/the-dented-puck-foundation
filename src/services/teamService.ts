@@ -122,7 +122,7 @@ export function createTeamSearch(teamList: TeamWithId[]) {
 }
 
 // search a parameter list of Teams using a parameter Fuse
-export function searchProducts(
+export function searchTeams(
   fuse: Fuse<TeamWithId>,
   query: string,
 ): TeamWithId[] {
