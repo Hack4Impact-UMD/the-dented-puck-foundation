@@ -28,6 +28,9 @@ export default function TeamIcon({ name, size = 140 }: TeamIconProps) {
             className="bg-brand items-center justify-center self-center"
         >
             <Text
+                aria-hidden
+                importantForAccessibility="no"
+                accessibilityElementsHidden
                 maxFontSizeMultiplier={1}
                 style={{ fontSize: Math.round(size * 0.34) }}
                 className="text-on-brand font-sans-bold"
