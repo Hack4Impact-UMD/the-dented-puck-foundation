@@ -23,6 +23,7 @@ export interface UserProfile {
   role: Role;
   userId: number;
   username: string;
+  allowLocation?: boolean;
 }
 
 const roles: Role[] = ['global-admin', 'super-admin', 'team-staff', 'player', 'contact'];

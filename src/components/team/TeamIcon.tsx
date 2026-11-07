@@ -21,7 +21,7 @@ export function getInitials(name: string) {
 export default function TeamIcon({ name, size = 140 }: TeamIconProps) {
     return (
         <View
-            accessible
+            accessible={false}
             accessibilityRole="image"
             accessibilityLabel={`${name} logo`}
             style={{ width: size, height: size, borderRadius: size / 2 }}
