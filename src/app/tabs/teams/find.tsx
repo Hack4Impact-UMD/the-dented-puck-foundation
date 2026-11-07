@@ -158,7 +158,7 @@ export default function FindTeamScreen() {
             <SearchIcon width={24} height={24} />
           </View>
           <TextInput
-            accessibilityRole="search field"
+            accessibilityRole="search"
             accessibilityLabel="Search teams"
             accessibilityHint="Search for teams here by entering a team name or city"
             autoCapitalize="none"
@@ -205,7 +205,7 @@ export default function FindTeamScreen() {
           </View>
         ) : (
           <ScrollView
-            accessibilityLabel="Nearby teams"
+            accessible={false}
             className="mt-3 w-full flex-1 min-h-0 border-b border-ink-subtle"
             contentContainerClassName="w-full"
             keyboardShouldPersistTaps="handled"
