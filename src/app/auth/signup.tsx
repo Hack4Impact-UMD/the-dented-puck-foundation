@@ -86,7 +86,7 @@ export default function SignupScreen() {
     setPending("email");
     try {
       await signUpWithEmail(email, password);
-      router.replace("/auth/verify-email");
+      router.replace("/auth/create-account");
     } catch (err) {
       const { field, code, message } = getAuthFormError(err);
       
