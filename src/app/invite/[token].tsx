@@ -17,7 +17,7 @@ export default function InviteScreen() {
   useEffect(() => onAuthStateChanged(auth, setUser), []);
 
   // fetches the invitation and caches it
-  const { data: invitation, isPending, isError, refetch } = useQuery({
+  const { data: invitation, isPending, isError, error, refetch } = useQuery({
     queryKey: ['invitation', token],
     queryFn: () => getInvitation(token),
     enabled: !!token,
@@ -36,8 +36,7 @@ export default function InviteScreen() {
     router.push(path);
   }
 
-  // PLACEHOLDER
-  // loading screen while the invitation is being fetched
+  // PLACEHOLDER: loading screen while the invitation is being fetched
   if (isPending) {
     return (
       <SafeAreaView className="flex-1 items-center justify-center bg-black">
@@ -46,21 +45,20 @@ export default function InviteScreen() {
     );
   }
 
-  // PLACEHOLDER
-  // error screen due to fetching invitation error
+  // PLACEHOLDER: error screen due to fetching invitation error
   if (isError) {
     return (
       <SafeAreaView className="flex-1 items-center justify-center gap-6 bg-black px-4">
         <Text accessibilityRole="alert" className="text-white text-xl text-center">
           Could not load this invite
         </Text>
+        <Text className="text-white">{String(error)}</Text>
         <AppButton title="Try again" onPress={() => refetch()} variant="outline" />
       </SafeAreaView>
     );
   }
 
-  // PLACEHOLDER
-  // missing invite screen
+  // PLACEHOLDER: missing invitation screen
   if (!invitation) {
     return (
       <SafeAreaView className="flex-1 items-center justify-center bg-black px-4">
@@ -71,12 +69,11 @@ export default function InviteScreen() {
     );
   }
 
-  // PLACEHOLDER
-  // invitation screen
+  // PLACEHOLDER: invitation screen
   return (
     <SafeAreaView className="flex-1 justify-center gap-6 bg-black px-4">
       <Text accessibilityRole="header" className="text-white text-2xl text-center">
-        You&apos;ve been invited to join {invitation.teamName}
+        You have been invited to join {invitation.teamName}
       </Text>
 
       {join.isError ? (
