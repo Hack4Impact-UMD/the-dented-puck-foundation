@@ -21,6 +21,7 @@ import { OrDivider } from "@/components/auth/OrDivider";
 import { PasswordField } from "@/components/auth/PasswordField";
 import {
   getAuthFormError,
+  resumeUnverifiedSignup,
   signInWithApple,
   signInWithGoogle,
   signUpWithEmail,
@@ -88,6 +89,20 @@ export default function SignupScreen() {
       router.replace("/auth/verify-email");
     } catch (err) {
       const { field, code, message } = getAuthFormError(err);
+      
+      if (code === "auth/email-already-in-use") {
+        try {
+          const status = await resumeUnverifiedSignup(email, password);
+          if (status === "unverified") {
+            router.replace("/auth/verify-email");
+            return;
+          }
+      // verified: fall through to the existing "log in instead" message
+        } catch {
+      // wrong password or other failure: fall through to the same message
+        }
+      }
+
       if (field === "email") {
         setEmailError(message);
         setEmailExists(code === "auth/email-already-in-use");
