@@ -37,6 +37,7 @@ module.exports = {
             dark: '#B3B3B3',
           },
           subtle: '#BDBDBD',
+          soft: '#D9D9D9',
         },
         line: {
           DEFAULT: '#767676',

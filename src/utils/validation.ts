@@ -6,8 +6,8 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 // Returns an error message, or null if the email is valid.
 export function validateEmail(email: string): string | null {
   const trimmed = email.trim();
-  if (!trimmed) return 'Enter your email address.';
-  if (!EMAIL_PATTERN.test(trimmed)) return 'Enter a valid email address, like name@example.com.';
+  if (!trimmed) return 'Enter your email.';
+  if (!EMAIL_PATTERN.test(trimmed)) return 'Enter an email like name@example.com.';
   return null;
 }
 
@@ -15,11 +15,19 @@ export function validateEmail(email: string): string | null {
 export function validatePassword(password: string): string | null {
   if (!password) return 'Enter a password.';
 
-  const missing: string[] = [];
-  if (password.length < PASSWORD_MIN_LENGTH) missing.push(`at least ${PASSWORD_MIN_LENGTH} characters`);
-  if (!/\d/.test(password)) missing.push('one number');
+  const tooShort = password.length < PASSWORD_MIN_LENGTH;
+  const noNumber = !/\d/.test(password);
+  if (tooShort && noNumber) return `Use at least ${PASSWORD_MIN_LENGTH} characters and add at least one number.`;
+  if (tooShort) return `Use at least ${PASSWORD_MIN_LENGTH} characters.`;
+  if (noNumber) return 'Add at least one number.';
+  return null;
+}
 
-  return missing.length ? `Password needs ${missing.join(' and ')}.` : null;
+export function validateLoginFields(email: string, password: string) {
+  return {
+    email: email.trim() ? null : 'Enter your email.',
+    password: password ? null : 'Enter your password.',
+  };
 }
 
 export type AccountForm = {

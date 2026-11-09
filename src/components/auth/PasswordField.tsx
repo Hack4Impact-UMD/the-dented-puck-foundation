@@ -11,25 +11,25 @@ interface PasswordFieldProps extends TextInputProps {
   label: string;
   error?: string | null;
   helperText?: string;
+  hint?: string;
   ref?: Ref<TextInputInstance>;
 }
 
 export function PasswordField({ value, ...props }: PasswordFieldProps) {
   const [visible, setVisible] = useState(false);
 
-  // Toggle only appears once there is password typed in
-  const toggle = value ? (
+  const toggle = (
     <Pressable
       onPress={() => setVisible((v) => !v)}
       accessibilityRole="button"
-      accessibilityLabel={visible ? "Hide" : "Show"}
+      accessibilityLabel={visible ? "Hide password" : "Show password"}
       className="min-h-12 justify-center px-3 active:opacity-70"
     >
       <Text className="font-sans-bold text-lg text-white underline">
         {visible ? "Hide" : "Show"}
       </Text>
     </Pressable>
-  ) : null;
+  );
 
   return (
     <AuthTextField
