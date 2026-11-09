@@ -170,6 +170,17 @@ export async function getPostSignInRoute(user: FirebaseUser): Promise<PostSignIn
   return typeof firstName === 'string' && firstName.trim() ? '/tabs/home' : '/auth/create-account';
 }
 
+// Google sign-in for the login and signup screens
+export async function continueWithGoogle(): Promise<PostSignInRoute | null> {
+  try {
+    const user = await signInWithGoogle();
+    return await getPostSignInRoute(user);
+  } catch (err) {
+    if (err instanceof FirebaseError && err.code === 'auth/popup-closed-by-user') return null;
+    throw err;
+  }
+}
+
 export type AuthErrorField = 'email' | 'credentials' | 'form';
 
 export interface AuthFormError {

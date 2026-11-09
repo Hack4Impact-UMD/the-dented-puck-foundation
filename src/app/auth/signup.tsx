@@ -6,7 +6,6 @@ import {
   type TextInputInstance,
 } from "react-native";
 import { router } from "expo-router";
-import { FirebaseError } from "firebase/app";
 import { AuthButton } from "@/components/auth/AuthButton";
 import { AuthErrorMessage } from "@/components/auth/AuthErrorMessage";
 import { AuthLinkButton } from "@/components/auth/AuthLinkButton";
@@ -15,9 +14,9 @@ import { AuthTextField } from "@/components/auth/AuthTextField";
 import { OrDivider } from "@/components/auth/OrDivider";
 import { PasswordField } from "@/components/auth/PasswordField";
 import {
+  continueWithGoogle,
   getAuthFormError,
   signInWithApple,
-  signInWithGoogle,
   signUpWithEmail,
 } from "@/services/authService";
 import {
@@ -101,14 +100,9 @@ export default function SignupScreen() {
     clearErrors();
     setPending("google");
     try {
-      await signInWithGoogle();
-      router.replace("/");
+      const route = await continueWithGoogle();
+      if (route) router.replace(route);
     } catch (err) {
-      if (
-        err instanceof FirebaseError &&
-        err.code === "auth/popup-closed-by-user"
-      )
-        return;
       showFormError(getAuthFormError(err).message);
     } finally {
       setPending(null);
