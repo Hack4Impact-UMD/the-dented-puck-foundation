@@ -60,6 +60,12 @@ EXPO_PUBLIC_FIREBASE_APP_ID=your-app-id
 
 ## Running the App
 
+### Fake login in Expo Go
+
+Open the app in Expo Go from the normal development server. On the Home sign-in prompt, tap **Fake login (dev)** to see 8 scheduled and 26 Discover events immediately. This development-only preview stays inside the app, needs no emulator setup, and leaves your real Firebase account alone. **Dev sign out** returns to the same prompt.
+
+For a preview backed by local Firestore instead, `npm run sandbox` starts the Auth/Firestore emulators; use the same Home button in Expo Go. No apps or windows open automatically. See [the preview and sandbox guide](./docs/sandbox.md).
+
 Start the development server with a fresh cache:
 
 ```bash

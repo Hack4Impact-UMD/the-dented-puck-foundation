@@ -28,6 +28,8 @@ module.exports = {
             dark: '#1C1C1C',
           },
           field: '#2D2E2F',
+          card: '#2E2E2E',
+          navigation: '#1A1A1A',
         },
         ink: {
           DEFAULT: '#010101',

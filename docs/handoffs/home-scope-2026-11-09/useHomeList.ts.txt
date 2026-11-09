@@ -1,0 +1,59 @@
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { homeErrorMessage, useHomeDashboard } from '@/hooks/useHomeDashboard';
+import { HOME_PAGE_SIZE, type HomeAnnouncement, type HomeCursor, type HomeEvent, type HomeSection } from '@/types/home';
+
+type Item = HomeEvent | HomeAnnouncement;
+
+export function useHomeList(section: HomeSection | 'announcements') {
+  const { state: dashboard, source, isCurrentViewer } = useHomeDashboard();
+  const { viewer, since } = dashboard;
+  const key = `${viewer?.uid ?? ''}:${since.getTime()}:${section}`;
+  const [state, setState] = useState({ key: '', items: [] as Item[], loading: true, error: null as string | null, hasMore: false });
+  const cursor = useRef<HomeCursor | undefined>(undefined);
+  const generation = useRef(0);
+  const busy = useRef(false);
+  const hasMore = useRef(true);
+
+  const load = useCallback(async (reset = false) => {
+    if (!viewer || (!reset && (busy.current || !hasMore.current))) return;
+    if (reset) { ++generation.current; cursor.current = undefined; hasMore.current = true; }
+    const current = generation.current;
+    busy.current = true;
+    setState((previous) => ({ ...previous, key, ...(reset ? { items: [] } : {}), loading: true, error: null }));
+    const isCurrent = () => current === generation.current && isCurrentViewer(viewer.uid);
+    try {
+      const page = section === 'announcements'
+        ? await source.announcements(viewer, HOME_PAGE_SIZE, cursor.current)
+        : await source.events(viewer, section, since, HOME_PAGE_SIZE, cursor.current);
+      if (!isCurrent()) return;
+      cursor.current = page.cursor;
+      hasMore.current = page.hasMore;
+      setState((previous) => {
+        const seen = new Set(reset ? [] : previous.items.map((item) => item.id));
+        const additions = page.items.filter((item) => {
+          if (seen.has(item.id)) return false;
+          seen.add(item.id);
+          return true;
+        });
+        return { key, items: reset ? additions : [...previous.items, ...additions], loading: false, error: null, hasMore: page.hasMore };
+      });
+    } catch (error) {
+      if (isCurrent()) setState((previous) => ({ ...previous, loading: false, error: homeErrorMessage(error) }));
+    } finally {
+      if (current === generation.current) busy.current = false;
+    }
+  }, [viewer, source, section, since, key, isCurrentViewer]);
+
+  const cancel = useCallback(() => { ++generation.current; busy.current = false; }, []);
+
+  useEffect(() => {
+    setState({ key, items: [], loading: !!viewer, error: null, hasMore: false });
+    hasMore.current = true;
+    if (viewer) void load(true);
+    return cancel;
+  }, [load, viewer, cancel, key]);
+
+  // Hide the previous account's items even before the new effect runs.
+  const current = state.key === key && viewer && isCurrentViewer(viewer.uid);
+  return { ...state, items: current ? state.items : [], error: current ? state.error : null, loading: !current || state.loading, hasMore: !!current && state.hasMore, loadMore: () => load(), reload: () => load(true) };
+}

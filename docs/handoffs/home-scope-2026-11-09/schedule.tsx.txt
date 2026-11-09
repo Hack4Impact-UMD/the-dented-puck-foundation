@@ -1,0 +1,52 @@
+import { FlatList, Pressable, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Stack, router, useLocalSearchParams } from 'expo-router';
+import { AnnouncementCard } from '@/components/home/AnnouncementCard';
+import { EventCard } from '@/components/home/EventCard';
+import { HomeMessage } from '@/components/home/HomeMessage';
+import { useHomeDashboard } from '@/hooks/useHomeDashboard';
+import { useHomeList } from '@/hooks/useHomeList';
+import { DevLoginButton } from '@/components/dev/DevLoginButton';
+import { HOME_TITLES, type HomeSection } from '@/types/home';
+
+function SectionList({ section }: { section: HomeSection | 'announcements' }) {
+  const { state: dashboard, destinations, refresh } = useHomeDashboard();
+  const list = useHomeList(section);
+  const title = section === 'announcements' ? 'Announcements' : HOME_TITLES[section];
+
+  return (
+    <SafeAreaView edges={['left', 'right']} className="flex-1 bg-black">
+      <Stack.Screen options={{ title }} />
+      {dashboard.phase !== 'ready' ? (
+        <View className="px-4">
+          {dashboard.phase === 'loading' ? <HomeMessage title="Loading your dashboard" loading />
+            : dashboard.phase === 'signed-out' ? <View><HomeMessage title="Sign in to see your events" action="Log in" onAction={() => router.push('/auth/login')} /><DevLoginButton /></View>
+            : <HomeMessage title="Unable to load your dashboard" message={dashboard.error ?? undefined} action="Try again" onAction={refresh} />}
+        </View>
+      ) : (
+        <FlatList
+          data={list.items}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={{ padding: 16, gap: 16, width: '100%', maxWidth: 680, alignSelf: 'center', paddingBottom: 40 }}
+          refreshing={list.loading && !list.items.length}
+          onRefresh={list.reload}
+          renderItem={({ item }) => 'startTime' in item
+            ? <EventCard event={item} viewer={dashboard.viewer} onPress={destinations.event ? () => router.push(destinations.event!(item.id)) : undefined} />
+            : <AnnouncementCard announcement={item} onPress={destinations.announcement ? () => router.push(destinations.announcement!(item.id)) : undefined} />}
+          ListEmptyComponent={!list.loading && !list.error ? <HomeMessage title={`No ${title.toLowerCase()} to show`} message="Check back for updates." /> : undefined}
+          ListFooterComponent={list.loading ? <HomeMessage title={`Loading ${title.toLowerCase()}`} loading />
+            : list.error ? <HomeMessage title="Unable to load more" message={list.error} action="Try again" onAction={list.loadMore} />
+            : list.hasMore ? <Pressable accessibilityRole="button" accessibilityLabel={`Load more ${title.toLowerCase()}`} onPress={list.loadMore} className="min-h-14 items-center justify-center rounded border border-brand px-4 py-3"><Text className="font-sans-bold text-xl text-brand">Load more</Text></Pressable> : undefined}
+        />
+      )}
+    </SafeAreaView>
+  );
+}
+
+export default function ScheduleScreen() {
+  const { section } = useLocalSearchParams<{ section?: string | string[] }>();
+  if (section !== 'schedule' && section !== 'upcoming' && section !== 'announcements') {
+    return <View className="flex-1 bg-black px-4"><Stack.Screen options={{ title: 'Events' }} /><HomeMessage title="This list is not available" action="Back to Home" onAction={() => router.replace('/tabs/home')} /></View>;
+  }
+  return <SectionList key={section} section={section} />;
+}

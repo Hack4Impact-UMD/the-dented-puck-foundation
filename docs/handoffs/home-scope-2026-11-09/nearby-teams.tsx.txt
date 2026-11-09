@@ -1,0 +1,20 @@
+import { ScrollView } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Stack, router } from 'expo-router';
+import { NearbyTeamsSection } from '@/components/home/NearbyTeamsSection';
+import { DiscoveryLocationControl } from '@/components/home/DiscoveryLocationControl';
+import { HomeMessage } from '@/components/home/HomeMessage';
+import { useHomeDashboard } from '@/hooks/useHomeDashboard';
+
+export default function NearbyTeamsScreen() {
+  const { state, refresh } = useHomeDashboard();
+  return <SafeAreaView edges={['left', 'right']} className="flex-1 bg-black">
+    <Stack.Screen options={{ title: 'Teams Nearby' }} />
+    <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: 16, paddingBottom: 40, gap: 24, width: '100%', maxWidth: 680, alignSelf: 'center' }}>
+      {state.phase === 'ready' ? <><DiscoveryLocationControl key={state.viewer?.uid} /><NearbyTeamsSection full /></>
+        : state.phase === 'loading' ? <HomeMessage loading title="Finding nearby teams" />
+        : state.phase === 'signed-out' ? <HomeMessage title="Sign in to discover teams" action="Back to Home" onAction={() => router.replace('/tabs/home/discover')} />
+        : <HomeMessage title="Unable to load nearby teams" action="Try again" onAction={refresh} />}
+    </ScrollView>
+  </SafeAreaView>;
+}
