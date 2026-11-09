@@ -62,6 +62,15 @@ export interface Message {
   timeSent: Date;
 }
 
+export interface Region {
+  regionId: number;
+  city: string;
+  state?: string;
+  country: string;
+  lat: number;
+  lon: number;
+}
+
 // FRONTEND MODELS WITH FIRESTORE IDs
 
 export interface UserWithId extends User {
