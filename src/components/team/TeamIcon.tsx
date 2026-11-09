@@ -21,13 +21,16 @@ export function getInitials(name: string) {
 export default function TeamIcon({ name, size = 140 }: TeamIconProps) {
     return (
         <View
-            accessible
+            accessible={false}
             accessibilityRole="image"
             accessibilityLabel={`${name} logo`}
             style={{ width: size, height: size, borderRadius: size / 2 }}
             className="bg-brand items-center justify-center self-center"
         >
             <Text
+                aria-hidden
+                importantForAccessibility="no"
+                accessibilityElementsHidden
                 maxFontSizeMultiplier={1}
                 style={{ fontSize: Math.round(size * 0.34) }}
                 className="text-on-brand font-sans-bold"

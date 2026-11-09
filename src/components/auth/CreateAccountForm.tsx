@@ -32,6 +32,7 @@ import * as Location from 'expo-location';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { auth } from '@/firebase';
 import { saveAccountProfile, type AccountPhoto } from '@/services/authService';
+import { acceptInvitation, getPendingInvite } from '@/services/inviteService';
 import useReducedMotion from '@/hooks/useReducedMotion';
 import BackIcon from '@/assets/create-account/back.svg';
 import CloseIcon from '@/assets/create-account/close.svg';
@@ -478,6 +479,10 @@ export default function CreateAccountForm() {
     setBusy(true);
     try {
       await saveAccountProfile(form, photo);
+      const inviteToken = await getPendingInvite();
+      if (inviteToken) {
+        await acceptInvitation(inviteToken).catch(err => console.error('Failed to accept invite', err));
+      }
       setComplete(true);
     } catch (error) {
       showFeedback(error instanceof Error ? error.message : 'Could not save your account. Please try again.');

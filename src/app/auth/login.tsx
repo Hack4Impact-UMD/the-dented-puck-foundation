@@ -21,7 +21,9 @@ import {
   getPostSignInRoute,
   signInWithApple,
   signInWithEmail,
+  type PostSignInRoute,
 } from "@/services/authService";
+import { acceptInvitation, getPendingInvite } from "@/services/inviteService";
 import { validateLoginFields } from "@/utils/validation";
 
 const WRONG_CREDENTIALS_TITLE = "Email or password is incorrect.";
@@ -66,6 +68,22 @@ export default function LoginScreen() {
     AccessibilityInfo.announceForAccessibility(message);
   }
 
+  // A team invite saved before logging in is accepted once the account is fully set up, then
+  // that team opens. New accounts accept it at the end of onboarding instead (CreateAccountForm).
+  async function goAfterSignIn(route: PostSignInRoute) {
+    const inviteToken = route === "/tabs/home" ? await getPendingInvite() : null;
+    if (inviteToken) {
+      try {
+        const teamId = await acceptInvitation(inviteToken);
+        router.replace(`/tabs/teams/${teamId}`);
+        return;
+      } catch (err) {
+        console.error("Failed to accept invite", err);
+      }
+    }
+    router.replace(route);
+  }
+
   async function handleLogin() {
     if (pending) return;
     clearErrors();
@@ -84,7 +102,7 @@ export default function LoginScreen() {
     setPending("email");
     try {
       const user = await signInWithEmail(email, password);
-      router.replace(await getPostSignInRoute(user));
+      await goAfterSignIn(await getPostSignInRoute(user));
     } catch (err) {
       const { field, message } = getAuthFormError(err);
       if (field === "credentials") {
@@ -115,7 +133,7 @@ export default function LoginScreen() {
     setPending("google");
     try {
       const route = await continueWithGoogle();
-      if (route) router.replace(route);
+      if (route) await goAfterSignIn(route);
     } catch (err) {
       showFormError(getAuthFormError(err).message);
     } finally {

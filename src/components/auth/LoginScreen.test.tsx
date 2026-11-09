@@ -4,6 +4,7 @@ import { router } from 'expo-router';
 import { FirebaseError } from 'firebase/app';
 import LoginScreen from '@/app/auth/login';
 import { getPostSignInRoute, signInWithEmail } from '@/services/authService';
+import { acceptInvitation, getPendingInvite } from '@/services/inviteService';
 
 jest.mock('expo-router', () => ({
   router: { replace: jest.fn(), push: jest.fn(), back: jest.fn(), canGoBack: jest.fn(() => false) },
@@ -18,6 +19,10 @@ jest.mock('@/services/authService', () => {
     signInWithApple: jest.fn(),
   };
 });
+jest.mock('@/services/inviteService', () => ({
+  getPendingInvite: jest.fn(() => Promise.resolve(null)),
+  acceptInvitation: jest.fn(),
+}));
 jest.mock('@/firebase', () => ({ auth: {}, db: {}, storage: {} }));
 
 describe('login screen (Figma 5100–5120)', () => {
@@ -62,6 +67,20 @@ describe('login screen (Figma 5100–5120)', () => {
 
     await waitFor(() => expect(router.replace).toHaveBeenCalledWith('/tabs/home'));
     expect(getPostSignInRoute).toHaveBeenCalledWith(user);
+  });
+
+  it('accepts a saved team invite and opens that team once the account is set up', async () => {
+    jest.mocked(signInWithEmail).mockResolvedValue({ uid: 'test-user' } as never);
+    jest.mocked(getPostSignInRoute).mockResolvedValue('/tabs/home');
+    jest.mocked(getPendingInvite).mockResolvedValueOnce('invite-token');
+    jest.mocked(acceptInvitation).mockResolvedValue('team-1');
+    const screen = await render(<LoginScreen />);
+    await fireEvent.changeText(screen.getByLabelText('Email'), 'jordan.lee@gmail.com');
+    await fireEvent.changeText(screen.getByLabelText('Password'), 'hockey2026');
+    await fireEvent.press(screen.getByRole('button', { name: 'Login' }));
+
+    await waitFor(() => expect(router.replace).toHaveBeenCalledWith('/tabs/teams/team-1'));
+    expect(acceptInvitation).toHaveBeenCalledWith('invite-token');
   });
 
   it('carries the typed email to Forgot password and sends Join now to signup', async () => {

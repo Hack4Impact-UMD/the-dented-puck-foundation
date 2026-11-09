@@ -16,6 +16,7 @@ import { PasswordField } from "@/components/auth/PasswordField";
 import {
   continueWithGoogle,
   getAuthFormError,
+  resumeUnverifiedSignup,
   signInWithApple,
   signUpWithEmail,
 } from "@/services/authService";
@@ -79,9 +80,23 @@ export default function SignupScreen() {
     setPending("email");
     try {
       await signUpWithEmail(email, password);
-      router.replace("/auth/verify-email");
+      router.replace("/auth/create-account");
     } catch (err) {
       const { field, code, message } = getAuthFormError(err);
+      
+      if (code === "auth/email-already-in-use") {
+        try {
+          const status = await resumeUnverifiedSignup(email, password);
+          if (status === "unverified") {
+            router.replace("/auth/verify-email");
+            return;
+          }
+      // verified: fall through to the existing "log in instead" message
+        } catch {
+      // wrong password or other failure: fall through to the same message
+        }
+      }
+
       if (field === "email") {
         setEmailError(message);
         setEmailExists(code === "auth/email-already-in-use");
