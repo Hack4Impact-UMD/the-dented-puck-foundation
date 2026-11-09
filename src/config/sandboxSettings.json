@@ -1,0 +1,11 @@
+{
+  "projectId": "demo-dented-puck",
+  "email": "dev@dentedpuck.test",
+  "password": "DentedPuckPreview123!",
+  "name": "Abir",
+  "region": "sandbox-northeast",
+  "authPort": 9099,
+  "firestorePort": 8080,
+  "uiPort": 4000,
+  "expoPort": 8082
+}

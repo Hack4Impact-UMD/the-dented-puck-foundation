@@ -1,0 +1,28 @@
+// Local emulator rules only. These are not production deployment rules.
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function owns(uid) {
+      return request.auth != null && request.auth.uid == uid;
+    }
+    match /Users/{uid} {
+      allow read: if owns(uid);
+    }
+    match /SandboxViewers/{uid} {
+      allow read: if owns(uid);
+      // Follow is the only client-writable viewer field. Feed documents remain
+      // immutable, including for their owner; no creates or deletes are allowed.
+      allow update: if owns(uid)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['followedTeamIds'])
+        && request.resource.data.followedTeamIds is list
+        && request.resource.data.followedTeamIds.size() <= 5
+        && request.resource.data.followedTeamIds.hasOnly(['sandbox-blades', 'sandbox-crew', 'sandbox-rockets', 'sandbox-ice', 'sandbox-foxes'])
+        && !request.resource.data.followedTeamIds.hasAny(resource.data.teamIds);
+      match /{section}/{eventId} {
+        allow read: if owns(uid) && section in ['schedule', 'upcoming'];
+      }
+    }
+    // Only the local seed script uses the emulator's admin REST credential.
+    // The app cannot create, edit, or delete events or joined-team memberships.
+  }
+}
