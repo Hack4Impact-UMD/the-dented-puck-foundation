@@ -3,6 +3,8 @@ import {
   createUserWithEmailAndPassword,
   GoogleAuthProvider,
   sendEmailVerification,
+  sendPasswordResetEmail,
+  signInWithEmailAndPassword,
   signInWithPopup,
   type User as FirebaseUser,
 } from 'firebase/auth';
@@ -143,7 +145,32 @@ export async function signUpWithEmail(email: string, password: string) {
   return user;
 }
 
-export type AuthErrorField = 'email' | 'form';
+export async function signInWithEmail(email: string, password: string) {
+  const { user } = await signInWithEmailAndPassword(auth, email.trim(), password);
+  return user;
+}
+
+// Sends the reset email
+export async function sendPasswordReset(email: string) {
+  try {
+    await sendPasswordResetEmail(auth, email.trim());
+  } catch (err) {
+    if (err instanceof FirebaseError && err.code === 'auth/user-not-found') return;
+    throw err;
+  }
+}
+
+export type PostSignInRoute = '/auth/verify-email' | '/auth/create-account' | '/tabs/home';
+
+export async function getPostSignInRoute(user: FirebaseUser): Promise<PostSignInRoute> {
+  if (!user.emailVerified) return '/auth/verify-email';
+
+  const snapshot = await getDoc(userProfileRef(user.uid));
+  const firstName = snapshot.exists() ? snapshot.data().firstName : undefined;
+  return typeof firstName === 'string' && firstName.trim() ? '/tabs/home' : '/auth/create-account';
+}
+
+export type AuthErrorField = 'email' | 'credentials' | 'form';
 
 export interface AuthFormError {
   field: AuthErrorField;
@@ -165,7 +192,11 @@ export function getAuthFormError(err: unknown): AuthFormError {
     case 'auth/email-already-in-use':
       return { field: 'email', code, message: 'An account with this email already exists.' };
     case 'auth/invalid-email':
-      return { field: 'email', code, message: 'Enter a valid email address, like name@example.com.' };
+      return { field: 'email', code, message: 'Enter an email like name@example.com.' };
+    case 'auth/invalid-credential':
+    case 'auth/wrong-password':
+    case 'auth/user-not-found':
+      return { field: 'credentials', code, message: 'Email or password is incorrect.' };
     case 'auth/network-request-failed':
       return { field: 'form', code, message: 'No internet connection. Check your connection and try again.' };
     case 'auth/too-many-requests':
