@@ -1,5 +1,12 @@
-import type { ReactNode } from "react";
-import { KeyboardAvoidingView, Platform, ScrollView, View } from "react-native";
+import { useEffect, useRef, type ReactNode } from "react";
+import {
+  AccessibilityInfo,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  View,
+  type TextInstance,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import { AuthHeader } from "./AuthHeader";
@@ -12,11 +19,19 @@ interface AuthScreenProps {
 
 // Shared shell for the auth form screens
 export function AuthScreen({ title, onClose, children }: AuthScreenProps) {
+  const titleRef = useRef<TextInstance>(null);
+
+  useEffect(() => {
+    if (Platform.OS !== "web" && titleRef.current) {
+      AccessibilityInfo.sendAccessibilityEvent(titleRef.current, "focus");
+    }
+  }, []);
+
   return (
     <View className="flex-1 bg-black">
       <StatusBar style="light" />
       <SafeAreaView style={{ flex: 1 }}>
-        <AuthHeader title={title} onClose={onClose} />
+        <AuthHeader title={title} onClose={onClose} titleRef={titleRef} />
 
         <KeyboardAvoidingView
           behavior={Platform.OS === "ios" ? "padding" : undefined}

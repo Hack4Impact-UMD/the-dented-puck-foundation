@@ -69,6 +69,15 @@ describe('forgot password (Figma 5200/5210)', () => {
 });
 
 describe('check your email (Figma 5300)', () => {
+  it('starts screen-reader focus on the confirmation instead of the title', async () => {
+    const focus = jest.spyOn(AccessibilityInfo, 'sendAccessibilityEvent').mockImplementation(() => {});
+    await render(<CheckEmailScreen />);
+    // AuthScreen focuses the title first; the confirmation takes over once the screen has opened
+    await waitFor(() => expect(focus).toHaveBeenCalledTimes(2));
+    const [target] = focus.mock.calls[1];
+    expect(String((target as unknown as { props: { children: string } }).props.children)).toMatch(/^If there’s a Dented Puck account/);
+  });
+
   it('shows the email as read-only text, not a text field', async () => {
     const screen = await render(<CheckEmailScreen />);
     const email = screen.getByLabelText('jordan.lee@gmail.com');

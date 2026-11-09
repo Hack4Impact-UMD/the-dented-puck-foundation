@@ -71,6 +71,6 @@ describe('login screen (Figma 5100–5120)', () => {
     expect(router.push).toHaveBeenCalledWith({ pathname: '/auth/forgot-password', params: { email: 'jordan.lee@gmail.com' } });
 
     await fireEvent.press(screen.getByRole('button', { name: 'Join now' }));
-    expect(router.replace).toHaveBeenCalledWith('/auth/signup');
+    expect(router.push).toHaveBeenCalledWith('/auth/signup');
   });
 });

@@ -45,7 +45,7 @@ export default function SignupScreen() {
   }
 
   function goToLogin() {
-    router.replace("/auth/login");
+    router.push("/auth/login");
   }
 
   function clearErrors() {

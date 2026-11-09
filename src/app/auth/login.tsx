@@ -25,7 +25,8 @@ import {
 import { validateLoginFields } from "@/utils/validation";
 
 const WRONG_CREDENTIALS_TITLE = "Email or password is incorrect.";
-const WRONG_CREDENTIALS_MESSAGE = "Check them and try again, or reset your password.";
+const WRONG_CREDENTIALS_MESSAGE =
+  "Check them and try again, or reset your password.";
 
 export default function LoginScreen() {
   const [email, setEmail] = useState("");
@@ -47,7 +48,10 @@ export default function LoginScreen() {
   }
 
   function goToForgotPassword() {
-    router.push({ pathname: "/auth/forgot-password", params: { email: email.trim() } });
+    router.push({
+      pathname: "/auth/forgot-password",
+      params: { email: email.trim() },
+    });
   }
 
   function clearErrors() {
@@ -133,7 +137,10 @@ export default function LoginScreen() {
     <AuthScreen title="Login" onClose={handleClose}>
       <View className="gap-2">
         {wrongCredentials ? (
-          <AuthAlert title={WRONG_CREDENTIALS_TITLE} message={WRONG_CREDENTIALS_MESSAGE} />
+          <AuthAlert
+            title={WRONG_CREDENTIALS_TITLE}
+            message={WRONG_CREDENTIALS_MESSAGE}
+          />
         ) : null}
         <AuthTextField
           ref={emailRef}
@@ -174,7 +181,11 @@ export default function LoginScreen() {
         onSubmitEditing={handleLogin}
       />
 
-      <AuthLinkButton label="Forgot password?" bold={false} onPress={goToForgotPassword} />
+      <AuthLinkButton
+        label="Forgot password?"
+        bold={false}
+        onPress={goToForgotPassword}
+      />
 
       {formError ? <AuthErrorMessage message={formError} /> : null}
 
@@ -206,8 +217,13 @@ export default function LoginScreen() {
 
       <View className="mt-6 flex-1 justify-end">
         <View className="flex-row flex-wrap items-center justify-center gap-x-1.5">
-          <Text className="font-sans text-lg leading-[26px] text-white">Not a member?</Text>
-          <AuthLinkButton label="Join now" onPress={() => router.replace("/auth/signup")} />
+          <Text className="font-sans text-lg leading-[26px] text-white">
+            Not a member?
+          </Text>
+          <AuthLinkButton
+            label="Join now"
+            onPress={() => router.push("/auth/signup")}
+          />
         </View>
       </View>
     </AuthScreen>
