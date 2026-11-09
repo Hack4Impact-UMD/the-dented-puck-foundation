@@ -18,7 +18,7 @@ import TeamHeader from "@/components/team/TeamHeader";
 import TeamListRow from "@/components/team/TeamListRow";
 import SearchIcon from "@/assets/icons/search.svg";
 import { TeamWithId } from "@/types";
-import { regions } from "@/services/locationService";
+import { regions } from "@/services/teamService";
 
 // DELETE FOR PRODUCTION - TESTING LOGGED IN USER WHO ALLOWS LOCATION
 const MOCK_SIGNED_IN_USER_WITH_LOCATION = true;

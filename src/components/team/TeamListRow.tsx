@@ -3,7 +3,7 @@ import { Pressable, Text, View } from "react-native";
 import { Ionicons } from "@react-native-vector-icons/ionicons";
 import { TeamWithId } from "@/types";
 import TeamIcon from "@/components/team/TeamIcon";
-import { regions } from "@/services/locationService";
+import { regions } from "@/services/teamService";
 
 type TeamListRowProps = {
   team: TeamWithId;
