@@ -11,6 +11,7 @@ interface PasswordFieldProps extends TextInputProps {
   label: string;
   error?: string | null;
   helperText?: string;
+  hint?: string;
   ref?: Ref<TextInputInstance>;
 }
 

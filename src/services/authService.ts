@@ -1,11 +1,13 @@
 import { FirebaseError } from 'firebase/app';
 import {
+  confirmPasswordReset,
   createUserWithEmailAndPassword,
   GoogleAuthProvider,
   sendEmailVerification,
   sendPasswordResetEmail,
   signInWithEmailAndPassword,
   signInWithPopup,
+  verifyPasswordResetCode,
   type User as FirebaseUser,
 } from 'firebase/auth';
 import { Platform } from 'react-native';
@@ -150,14 +152,30 @@ export async function signInWithEmail(email: string, password: string) {
   return user;
 }
 
+const APP_ID = 'org.thedentedpuckfoundation.app';
+
 // Sends the reset email
 export async function sendPasswordReset(email: string) {
   try {
-    await sendPasswordResetEmail(auth, email.trim());
+    await sendPasswordResetEmail(auth, email.trim(), {
+      url: `https://${process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN}`,
+      handleCodeInApp: true,
+      iOS: { bundleId: APP_ID },
+      android: { packageName: APP_ID, installApp: false },
+    });
   } catch (err) {
     if (err instanceof FirebaseError && err.code === 'auth/user-not-found') return;
     throw err;
   }
+}
+
+// Checks the code from the reset link and returns the account's email
+export async function verifyResetLink(code: string) {
+  return verifyPasswordResetCode(auth, code);
+}
+
+export async function resetPassword(code: string, newPassword: string) {
+  await confirmPasswordReset(auth, code, newPassword);
 }
 
 export type PostSignInRoute = '/auth/verify-email' | '/auth/create-account' | '/tabs/home';
@@ -181,7 +199,8 @@ export async function continueWithGoogle(): Promise<PostSignInRoute | null> {
   }
 }
 
-export type AuthErrorField = 'email' | 'credentials' | 'form';
+// 'link' is an expired or already-used reset link
+export type AuthErrorField = 'email' | 'credentials' | 'link' | 'form';
 
 export interface AuthFormError {
   field: AuthErrorField;
@@ -208,6 +227,9 @@ export function getAuthFormError(err: unknown): AuthFormError {
     case 'auth/wrong-password':
     case 'auth/user-not-found':
       return { field: 'credentials', code, message: 'Email or password is incorrect.' };
+    case 'auth/expired-action-code':
+    case 'auth/invalid-action-code':
+      return { field: 'link', code, message: 'This link has expired or was already used.' };
     case 'auth/network-request-failed':
       return { field: 'form', code, message: 'No internet connection. Check your connection and try again.' };
     case 'auth/too-many-requests':

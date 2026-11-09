@@ -135,7 +135,12 @@ describe('login and password reset', () => {
   it('sends the reset email and never reveals whether the account exists', async () => {
     jest.mocked(sendPasswordResetEmail).mockResolvedValueOnce(undefined);
     await sendPasswordReset(' sam@gmail.com ');
-    expect(sendPasswordResetEmail).toHaveBeenCalledWith(auth, 'sam@gmail.com');
+    // The link opens our app when it's installed (Figma 5400)
+    expect(sendPasswordResetEmail).toHaveBeenCalledWith(auth, 'sam@gmail.com', expect.objectContaining({
+      handleCodeInApp: true,
+      iOS: { bundleId: 'org.thedentedpuckfoundation.app' },
+      android: expect.objectContaining({ packageName: 'org.thedentedpuckfoundation.app' }),
+    }));
 
     jest.mocked(sendPasswordResetEmail).mockRejectedValueOnce(firebaseError('auth/user-not-found'));
     await expect(sendPasswordReset('nobody@gmail.com')).resolves.toBeUndefined();
@@ -163,6 +168,12 @@ describe('login and password reset', () => {
   it('shows one credentials alert for a wrong password or an unknown email', () => {
     for (const code of ['auth/invalid-credential', 'auth/wrong-password', 'auth/user-not-found']) {
       expect(getAuthFormError(firebaseError(code))).toEqual({ field: 'credentials', code, message: 'Email or password is incorrect.' });
+    }
+  });
+
+  it('treats expired and already-used reset links the same way', () => {
+    for (const code of ['auth/expired-action-code', 'auth/invalid-action-code']) {
+      expect(getAuthFormError(firebaseError(code))).toEqual({ field: 'link', code, message: 'This link has expired or was already used.' });
     }
   });
 });
