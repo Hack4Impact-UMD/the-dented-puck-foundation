@@ -1,21 +1,16 @@
 import { useRef, useState } from "react";
 import {
   AccessibilityInfo,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
   Text,
   View,
   type TextInputInstance,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { StatusBar } from "expo-status-bar";
 import { router } from "expo-router";
 import { FirebaseError } from "firebase/app";
 import { AuthButton } from "@/components/auth/AuthButton";
 import { AuthErrorMessage } from "@/components/auth/AuthErrorMessage";
-import { AuthHeader } from "@/components/auth/AuthHeader";
 import { AuthLinkButton } from "@/components/auth/AuthLinkButton";
+import { AuthScreen } from "@/components/auth/AuthScreen";
 import { AuthTextField } from "@/components/auth/AuthTextField";
 import { OrDivider } from "@/components/auth/OrDivider";
 import { PasswordField } from "@/components/auth/PasswordField";
@@ -131,98 +126,83 @@ export default function SignupScreen() {
   }
 
   return (
-    <View className="flex-1 bg-black">
-      <StatusBar style="light" />
-      <SafeAreaView style={{ flex: 1 }}>
-        <AuthHeader title="Create an account" onClose={handleClose} />
+    <AuthScreen title="Create an account" onClose={handleClose}>
+      <AuthTextField
+        ref={emailRef}
+        label="Email"
+        value={email}
+        onChangeText={(text) => {
+          setEmail(text);
+          setEmailError(null);
+          setEmailExists(false);
+        }}
+        error={emailError}
+        keyboardType="email-address"
+        autoCapitalize="none"
+        autoCorrect={false}
+        autoComplete="email"
+        textContentType="emailAddress"
+        returnKeyType="next"
+        submitBehavior="submit"
+        onSubmitEditing={() => passwordRef.current?.focus()}
+      >
+        {emailExists ? (
+          <AuthLinkButton label="Log in instead" onPress={goToLogin} />
+        ) : null}
+      </AuthTextField>
 
-        <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : undefined}
-          style={{ flex: 1 }}
-        >
-          <ScrollView
-            keyboardShouldPersistTaps="handled"
-            contentContainerClassName="flex-grow gap-5 px-4 pb-11 pt-6"
-          >
-            <AuthTextField
-              ref={emailRef}
-              label="Email"
-              value={email}
-              onChangeText={(text) => {
-                setEmail(text);
-                setEmailError(null);
-                setEmailExists(false);
-              }}
-              error={emailError}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoCorrect={false}
-              autoComplete="email"
-              textContentType="emailAddress"
-              returnKeyType="next"
-              submitBehavior="submit"
-              onSubmitEditing={() => passwordRef.current?.focus()}
-            >
-              {emailExists ? (
-                <AuthLinkButton label="Log in instead" onPress={goToLogin} />
-              ) : null}
-            </AuthTextField>
+      <PasswordField
+        ref={passwordRef}
+        label="Password"
+        value={password}
+        onChangeText={(text) => {
+          setPassword(text);
+          setPasswordError(null);
+        }}
+        error={passwordError}
+        helperText={PASSWORD_REQUIREMENT}
+        autoComplete="password"
+        textContentType="password"
+        returnKeyType="go"
+        onSubmitEditing={handleCreateAccount}
+      />
 
-            <PasswordField
-              ref={passwordRef}
-              label="Password"
-              value={password}
-              onChangeText={(text) => {
-                setPassword(text);
-                setPasswordError(null);
-              }}
-              error={passwordError}
-              helperText={PASSWORD_REQUIREMENT}
-              autoComplete="password"
-              textContentType="password"
-              returnKeyType="go"
-              onSubmitEditing={handleCreateAccount}
-            />
+      {formError ? <AuthErrorMessage message={formError} /> : null}
 
-            {formError ? <AuthErrorMessage message={formError} /> : null}
+      <AuthButton
+        label="Create account"
+        loadingLabel="Creating account…"
+        loading={pending === "email"}
+        disabled={pending === "google"}
+        onPress={handleCreateAccount}
+      />
 
-            <AuthButton
-              label="Create account"
-              loadingLabel="Creating account…"
-              loading={pending === "email"}
-              disabled={pending === "google"}
-              onPress={handleCreateAccount}
-            />
+      <OrDivider />
 
-            <OrDivider />
+      <AuthButton
+        variant="secondary"
+        label="Continue with Google"
+        icon={require("@/assets/icons/google.png")}
+        loading={pending === "google"}
+        disabled={pending === "email"}
+        onPress={handleGoogle}
+      />
+      <AuthButton
+        variant="secondary"
+        label="Continue with Apple"
+        icon={require("@/assets/icons/apple.png")}
+        disabled={pending !== null}
+        onPress={handleApple}
+      />
 
-            <AuthButton
-              variant="secondary"
-              label="Continue with Google"
-              icon={require("@/assets/icons/google.png")}
-              loading={pending === "google"}
-              disabled={pending === "email"}
-              onPress={handleGoogle}
-            />
-            <AuthButton
-              variant="secondary"
-              label="Continue with Apple"
-              icon={require("@/assets/icons/apple.png")}
-              disabled={pending !== null}
-              onPress={handleApple}
-            />
-
-            <View className="mt-6 flex-1 justify-end">
-              <View className="flex-row flex-wrap items-center justify-center gap-x-1.5">
-                <Text className="font-sans text-lg leading-[26px] text-white">
-                  Already have an account?
-                </Text>
-                <AuthLinkButton label="Log in" onPress={goToLogin} />
-              </View>
-            </View>
-          </ScrollView>
-        </KeyboardAvoidingView>
-      </SafeAreaView>
-    </View>
+      <View className="mt-6 flex-1 justify-end">
+        <View className="flex-row flex-wrap items-center justify-center gap-x-1.5">
+          <Text className="font-sans text-lg leading-[26px] text-white">
+            Already have an account?
+          </Text>
+          <AuthLinkButton label="Log in" onPress={goToLogin} />
+        </View>
+      </View>
+    </AuthScreen>
   );
 }
