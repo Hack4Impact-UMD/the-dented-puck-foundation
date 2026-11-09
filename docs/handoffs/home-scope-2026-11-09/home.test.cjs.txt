@@ -1,0 +1,268 @@
+// Run with: node --test tests/home.test.cjs
+// Uses the existing TypeScript compiler and React renderer; no test packages or
+// production fixtures are installed. All stored-field mappings below are test-only.
+const assert = require('node:assert/strict');
+const { test } = require('node:test');
+const fs = require('node:fs');
+const path = require('node:path');
+const Module = require('node:module');
+const ts = require('typescript');
+const React = require('react');
+const { act, create } = require('react-test-renderer');
+const { Timestamp } = require('firebase/firestore');
+
+global.IS_REACT_ACT_ENVIRONMENT = true;
+
+const auth = { currentUser: null };
+const listeners = new Set();
+const navigations = [];
+const modules = new Map();
+const profile = { username: 'Alex', userId: 7, regionId: 3 };
+let dimensions = { width: 412, height: 917, fontScale: 1, scale: 1 };
+const firestore = {
+  Timestamp,
+  limit: (size) => ({ size }),
+  startAfter: (after) => ({ after }),
+  query: (source, ...constraints) => ({ ...source, ...Object.assign({}, ...constraints) }),
+  getDocs: async (source) => {
+    const start = source.after ? source.rows.findIndex((row) => row.id === source.after.id) + 1 : 0;
+    return { docs: source.rows.slice(start, start + source.size) };
+  },
+};
+
+function load(relative) {
+  const filename = path.resolve(__dirname, '..', relative);
+  if (modules.has(filename)) return modules.get(filename).exports;
+  const compiled = ts.transpileModule(fs.readFileSync(filename, 'utf8'), {
+    compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX, esModuleInterop: true },
+  });
+  const loaded = new Module(filename, module);
+  modules.set(filename, loaded);
+  loaded.filename = filename;
+  loaded.paths = Module._nodeModulePaths(path.dirname(filename));
+  const baseRequire = loaded.require.bind(loaded);
+  loaded.require = (name) => {
+    if (name === '@/firebase') return { auth };
+    if (name === '@/services/authService') return { getUserProfile: async () => profile };
+    if (name === 'firebase/firestore') return firestore;
+    if (name === 'firebase/auth') return {
+      onAuthStateChanged: (_, callback) => {
+        listeners.add(callback);
+        queueMicrotask(() => { if (listeners.has(callback)) callback(auth.currentUser); });
+        return () => listeners.delete(callback);
+      },
+    };
+    if (name === 'react-native') return {
+      ...Object.fromEntries(['ActivityIndicator', 'Image', 'Pressable', 'RefreshControl', 'ScrollView', 'Text', 'TextInput', 'View'].map((tag) => [tag, tag])),
+      useWindowDimensions: () => dimensions,
+      Platform: { OS: 'web' },
+      AccessibilityInfo: { sendAccessibilityEvent() {}, announceForAccessibilityWithOptions() {} },
+    };
+    if (name === 'react-native-safe-area-context') return { SafeAreaView: 'SafeAreaView' };
+    if (name === 'expo-router') return { Link: 'Link', useFocusEffect() {}, useLocalSearchParams: () => ({}), router: { push: (href) => navigations.push(href), replace: (href) => navigations.push(href) } };
+    if (name.startsWith('@/')) {
+      const local = path.resolve(__dirname, '../src', name.slice(2));
+      if (name.endsWith('.png')) { assert.ok(fs.statSync(local).size > 0); return local; }
+      return load(path.relative(path.resolve(__dirname, '..'), ['.ts', '.tsx'].map((ext) => local + ext).find(fs.existsSync)));
+    }
+    return baseRequire(name);
+  };
+  loaded._compile(compiled.outputText, filename);
+  return loaded.exports;
+}
+
+const { readHomePage, readHomeEvent, createHomeDataSource, HomeSetupError } = load('src/services/homeService.ts');
+const { HomeProvider, useHomeDashboard } = load('src/hooks/useHomeDashboard.tsx');
+const { useHomeList } = load('src/hooks/useHomeList.ts');
+const ForYouScreen = load('src/app/tabs/home/index.tsx').default;
+const { EventCard } = load('src/components/home/EventCard.tsx');
+const epoch = new Date('2026-11-01T15:00:00Z');
+const event = (n, overrides = {}) => ({ id: `event-${String(n).padStart(3, '0')}`, title: `Practice ${n}`, startTime: new Date(+epoch + n * 3600000), endTime: new Date(+epoch + (n + 1) * 3600000), location: 'Rink, City', isTeamSpecific: true, teams: [{ id: 'team-a', name: 'Baltimore Blades' }], ...overrides });
+const row = (item) => ({ id: item.id, data: () => item });
+const source = (items) => ({ rows: items.map(row) });
+const readBatch = async (stream, after, size) => stream.rows.slice(after ? stream.rows.findIndex((item) => item.id === after.id) + 1 : 0).slice(0, size);
+const compare = (a, b) => a.startTime - b.startTime || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0);
+const page = (items = [], hasMore = false) => ({ items, hasMore, cursor: { after: [] } });
+const deferred = () => { let resolve, reject; const promise = new Promise((yes, no) => { resolve = yes; reject = no; }); return { promise, resolve, reject }; };
+const viewer = (uid) => ({ uid, name: uid, region: 'north', teamIds: ['team-a', 'team-b'], followedTeamIds: ['followed'] });
+const makeSource = (overrides = {}) => ({ loadViewer: async (uid) => viewer(uid), events: async () => page(), announcements: async () => page(), ...overrides });
+const signIn = (uid) => { auth.currentUser = uid ? { uid } : null; for (const listener of listeners) listener(auth.currentUser); };
+async function flush() { await act(async () => { await Promise.resolve(); }); }
+
+test('preview boundaries and complete cursor traversal: zero, one, five, six and many', async () => {
+  for (const count of [0, 1, 5, 6, 63]) {
+    const inputs = [source(Array.from({ length: count }, (_, i) => event(i)))];
+    let result = await readHomePage(inputs, readHomeEvent, compare, 5, undefined, readBatch);
+    assert.equal(result.items.length, Math.min(count, 5));
+    assert.equal(result.hasMore, count > 5);
+    const found = [...result.items];
+    while (result.hasMore) {
+      result = await readHomePage(inputs, readHomeEvent, compare, 20, result.cursor, readBatch);
+      found.push(...result.items);
+    }
+    assert.equal(found.length, count);
+    assert.equal(new Set(found.map((item) => item.id)).size, count);
+  }
+});
+
+test('membership streams merge by date and ID, deduplicate across page boundaries, and retain lookahead', async () => {
+  const items = Array.from({ length: 29 }, (_, i) => event(i, { startTime: epoch, endTime: new Date(+epoch + 3600000) }));
+  const inputs = [source(items.filter((_, i) => i % 2 === 0)), source(items.filter((_, i) => i % 3 === 0)), source(items)];
+  const found = [];
+  let cursor;
+  let hasMore = true;
+  while (hasMore) {
+    const result = await readHomePage(inputs, readHomeEvent, compare, 5, cursor, readBatch);
+    found.push(...result.items.map((item) => item.id));
+    cursor = result.cursor;
+    hasMore = result.hasMore;
+  }
+  assert.deepEqual(found, items.map((item) => item.id));
+});
+
+test('malformed records are skipped without truncating a preview; invalid query cursors reject', async () => {
+  const items = Array.from({ length: 15 }, (_, i) => event(i, i % 2 ? {} : { startTime: 'bad' }));
+  const inputs = [source(items)];
+  const result = await readHomePage(inputs, readHomeEvent, compare, 5, undefined, readBatch);
+  assert.deepEqual(result.items.map((item) => item.id), [1, 3, 5, 7, 9].map((n) => event(n).id));
+  assert.equal(result.hasMore, true);
+  const remaining = await readHomePage(inputs, readHomeEvent, compare, 20, result.cursor, readBatch);
+  assert.deepEqual(remaining.items.map((item) => item.id), [11, 13].map((n) => event(n).id));
+  await assert.rejects(readHomePage(inputs, readHomeEvent, compare, 5, { after: [] }, readBatch));
+  await assert.rejects(readHomePage(inputs, readHomeEvent, compare, 0, undefined, readBatch));
+  await assert.rejects(readHomePage([source(Array.from({ length: 200 }, (_, i) => event(i, { title: '' })))], readHomeEvent, compare, 5, undefined, readBatch), /invalid dashboard/);
+});
+
+test('Firestore timestamps normalize at the boundary; missing flags and invalid intervals do not become open events', () => {
+  const input = event(0, { startTime: Timestamp.fromDate(epoch), endTime: Timestamp.fromDate(new Date(+epoch + 3600000)) });
+  assert.ok(readHomeEvent(input.id, input).startTime instanceof Date);
+  for (const overrides of [{ isTeamSpecific: undefined }, { isTeamSpecific: 'false' }, { endTime: new Date(0) }, { startTime: new Date(NaN) }, { title: ' ' }, { location: null }]) {
+    assert.equal(readHomeEvent('event', event(0, overrides)), null);
+  }
+});
+
+test('missing contract fails closed; injected test adapter enforces region, active memberships, event flags and time', async () => {
+  await assert.rejects(createHomeDataSource().loadViewer('user'), HomeSetupError);
+  const events = [event(0), event(1, { region: 'south' }), event(2, { team: 'followed' }), event(3, { isTeamSpecific: false }), event(4, { team: 'inactive' }), event(-1), event(5, { isTeamSpecific: undefined })];
+  const adapter = {
+    loadViewer: async (uid, userProfile) => { assert.equal(userProfile, profile); return { ...viewer(uid), teamIds: ['team-a', 'team-a'] }; },
+    eventQueries: (user, section) => [source(events.filter((item) =>
+      (item.region ?? 'north') === user.region &&
+      (section === 'upcoming' || [...user.teamIds, ...user.followedTeamIds].includes(item.team ?? 'team-a'))
+    ))],
+    announcementQueries: () => [],
+    readEvent: (id, item) => readHomeEvent(id, item, [{ id: item.team ?? 'team-a', name: 'Test Team' }]),
+    readAnnouncement: () => null,
+  };
+  const data = createHomeDataSource(adapter);
+  const user = await data.loadViewer('user');
+  assert.deepEqual(user.teamIds, ['team-a']);
+  assert.deepEqual((await data.events(user, 'schedule', epoch, 5)).items.map((item) => item.id), [event(0).id, event(2).id, event(3).id]);
+  assert.deepEqual((await data.events(user, 'upcoming', epoch, 5)).items.map((item) => item.id), [event(4).id]);
+  assert.deepEqual((await data.events({ ...user, teamIds: [], followedTeamIds: [] }, 'schedule', epoch, 5)).items, []);
+  assert.deepEqual((await data.announcements({ ...user, teamIds: [] }, 5)).items, []);
+});
+
+test('a rejected query cannot produce a misleading partial page', async () => {
+  await assert.rejects(readHomePage([source([event(0)]), source([])], readHomeEvent, compare, 5, undefined, async () => { throw new Error('permission-denied'); }), /permission-denied/);
+});
+
+test('account changes discard pending requests and clear full lists; unmount removes auth subscription', async () => {
+  signIn('first');
+  const first = deferred();
+  const second = deferred();
+  let observed;
+  function Probe() { observed = { ...useHomeDashboard(), list: useHomeList('schedule') }; return null; }
+  const data = makeSource({ loadViewer: (uid) => uid === 'first' ? first.promise : second.promise, events: async (user) => page([event(0, { title: user.uid })]) });
+  let tree;
+  await act(async () => { tree = create(React.createElement(HomeProvider, { source: data }, React.createElement(Probe))); });
+  await act(async () => { signIn('second'); });
+  await act(async () => { first.resolve(viewer('first')); });
+  assert.equal(observed.state.viewer, null);
+  await act(async () => { second.resolve(viewer('second')); });
+  await flush();
+  assert.equal(observed.state.viewer.uid, 'second');
+  assert.equal(observed.list.items[0].title, 'second');
+  await act(async () => { signIn(null); });
+  assert.equal(observed.state.phase, 'signed-out');
+  assert.deepEqual(observed.list.items, []);
+  await act(async () => { tree.unmount(); });
+  assert.equal(listeners.size, 0);
+});
+
+test('independent section failures preserve other sections and retry recovers', async () => {
+  signIn('Alex');
+  let failed = true;
+  let observed;
+  function Probe() { observed = useHomeDashboard(); return null; }
+  const data = makeSource({ events: async (_, section) => { if (failed && section === 'schedule') throw { code: 'unavailable' }; return page([event(0)]); } });
+  let tree;
+  await act(async () => { tree = create(React.createElement(HomeProvider, { source: data }, React.createElement(Probe))); });
+  assert.match(observed.state.schedule.error, /internet/);
+  assert.equal(observed.state.upcoming.page.items.length, 1);
+  failed = false;
+  await act(async () => { observed.refresh(); });
+  assert.equal(observed.state.schedule.error, null);
+  assert.equal(observed.state.schedule.page.items.length, 1);
+  await act(async () => { tree.unmount(); });
+});
+
+test('full-list pagination retains rows on error, retries the same cursor, and never exposes the prior account', async () => {
+  signIn('first');
+  let observed;
+  const frames = [];
+  let rejectNext = true;
+  let requests = 0;
+  const data = makeSource({ events: async (user, _, __, size, cursor) => {
+    if (size === 5) return page();
+    if (!cursor) return page([event(0, { title: user.uid })], true);
+    requests++;
+    if (rejectNext) { rejectNext = false; throw { code: 'unavailable' }; }
+    return page([event(0, { title: user.uid }), event(1, { title: user.uid })]);
+  } });
+  function Probe() {
+    const dashboard = useHomeDashboard();
+    const list = useHomeList('schedule');
+    observed = list;
+    frames.push({ viewer: dashboard.state.viewer?.uid, titles: list.items.map((item) => item.title) });
+    return null;
+  }
+  let tree;
+  await act(async () => { tree = create(React.createElement(HomeProvider, { source: data }, React.createElement(Probe))); });
+  await act(async () => { await observed.loadMore(); });
+  assert.match(observed.error, /internet/);
+  assert.equal(observed.items.length, 1);
+  await act(async () => { await observed.loadMore(); });
+  assert.equal(observed.items.length, 2);
+  assert.equal(observed.hasMore, false);
+  assert.equal(requests, 2);
+  await act(async () => { signIn('second'); });
+  assert.ok(frames.filter((frame) => frame.viewer === 'second').every((frame) => !frame.titles.includes('first')));
+  assert.equal(observed.items[0].title, 'second');
+  await act(async () => { tree.unmount(); });
+});
+
+test('For You renders five Schedule rows, supports Discover navigation and exposes unavailable event destinations', async () => {
+  signIn('Alex');
+  const data = makeSource({ events: async (_, section) => page(Array.from({ length: 6 }, (_, i) => event(i, { isTeamSpecific: section === 'schedule' })), true) });
+  let tree;
+  await act(async () => { tree = create(React.createElement(HomeProvider, { source: data }, React.createElement(ForYouScreen))); });
+  assert.equal(tree.root.findAllByType(EventCard).length, 5);
+  const scheduleLink = tree.root.findByProps({ accessibilityLabel: 'See all schedule' });
+  scheduleLink.props.onPress();
+  assert.equal(navigations.at(-1).params.section, 'schedule');
+  tree.root.findByProps({ accessibilityLabel: 'Discover', accessibilityRole: 'tab' }).props.onPress();
+  assert.equal(navigations.at(-1).pathname, '/tabs/home/discover');
+  const buttons = tree.root.findAllByType('Pressable').filter((node) => node.props.accessibilityLabel?.startsWith('Practice'));
+  assert.equal(buttons.length, 5);
+  assert.ok(buttons.every((node) => node.props.accessibilityState.disabled));
+  assert.ok(buttons[0].props.accessibilityLabel.includes('2026'));
+  dimensions = { ...dimensions, width: 320, fontScale: 2 };
+  await act(async () => { tree.update(React.createElement(HomeProvider, { source: data, destinations: { event: (id) => `/events/${id}` } }, React.createElement(ForYouScreen))); });
+  const enabled = tree.root.findAllByType('Pressable').find((node) => node.props.accessibilityLabel?.startsWith('Practice'));
+  assert.equal(enabled.props.disabled, false);
+  enabled.props.onPress();
+  assert.match(navigations.at(-1), /^\/events\//);
+  await act(async () => { tree.unmount(); });
+  dimensions = { ...dimensions, width: 412, fontScale: 1 };
+});

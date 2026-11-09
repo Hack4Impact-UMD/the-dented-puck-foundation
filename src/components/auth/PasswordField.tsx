@@ -1,4 +1,4 @@
-import { useState, type Ref } from "react";
+import { useState, type ComponentRef, type Ref } from "react";
 import {
   Pressable,
   Text,
@@ -11,7 +11,7 @@ interface PasswordFieldProps extends TextInputProps {
   label: string;
   error?: string | null;
   helperText?: string;
-  ref?: Ref<TextInput>;
+  ref?: Ref<ComponentRef<typeof TextInput>>;
 }
 
 export function PasswordField({ value, ...props }: PasswordFieldProps) {

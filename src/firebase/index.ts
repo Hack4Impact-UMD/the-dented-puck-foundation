@@ -10,6 +10,7 @@ import {
 import { getFirestore, type Firestore } from 'firebase/firestore';
 import { getStorage, type FirebaseStorage } from 'firebase/storage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Platform } from 'react-native';
 
 const firebaseConfig = {
   apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
@@ -20,10 +21,11 @@ const firebaseConfig = {
   appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID,
 };
 
-export const app: FirebaseApp =
-  getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
+export const app: FirebaseApp = getApps().some((candidate) => candidate.name === '[DEFAULT]')
+  ? getApp() : initializeApp(firebaseConfig);
 
 export const auth: Auth = (() => {
+  if (Platform.OS === 'web') return getAuth(app);
   try {
     return initializeAuth(app, {
       persistence: getReactNativePersistence(AsyncStorage),

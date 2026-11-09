@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef, useState, type ComponentRef } from "react";
 import {
   AccessibilityInfo,
   KeyboardAvoidingView,
@@ -39,8 +39,8 @@ export default function SignupScreen() {
   const [formError, setFormError] = useState<string | null>(null);
   const [emailExists, setEmailExists] = useState(false);
   const [pending, setPending] = useState<"email" | "google" | null>(null);
-  const emailRef = useRef<TextInput>(null);
-  const passwordRef = useRef<TextInput>(null);
+  const emailRef = useRef<ComponentRef<typeof TextInput>>(null);
+  const passwordRef = useRef<ComponentRef<typeof TextInput>>(null);
 
   function handleClose() {
     if (router.canGoBack()) {

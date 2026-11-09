@@ -1,0 +1,486 @@
+{
+  "exportedOn": "2026-11-05",
+  "figmaFileKey": "qYrhB6rbv9R8NcdFj7JKTP",
+  "method": "Direct Figma Plugin API PNG density exports and SVG_STRING exports with contentsOnly=true and useAbsoluteBounds=true; original uploaded logo bytes. No local upscaling, tracing, or recompression.",
+  "scope": "Every static image rendered by HomeHeader and the shared dashboard bottom navigation.",
+  "assets": [
+    {
+      "name": "foundation-logo",
+      "nodeId": "1488:25060",
+      "figmaUrl": "https://www.figma.com/design/qYrhB6rbv9R8NcdFj7JKTP/Dented-Puck?node-id=1488-25060",
+      "displaySize": {
+        "width": 99,
+        "height": 40
+      },
+      "sourceType": "Figma cropped bitmap fill",
+      "files": [
+        {
+          "file": "foundation-logo.png",
+          "scale": 1,
+          "pixelSize": {
+            "width": 99,
+            "height": 40
+          },
+          "bytes": 8205,
+          "sha256": "d0a7d9a5e9491a308f980211136de103dbb126de8404d0a63944ea0438b37d5e"
+        },
+        {
+          "file": "foundation-logo@2x.png",
+          "scale": 2,
+          "pixelSize": {
+            "width": 198,
+            "height": 80
+          },
+          "bytes": 22768,
+          "sha256": "0be4267900e6023c5e0513733f1226a9a74e42b78c20546cc1232d271a826cb0"
+        },
+        {
+          "file": "foundation-logo@3x.png",
+          "scale": 3,
+          "pixelSize": {
+            "width": 297,
+            "height": 120
+          },
+          "bytes": 43252,
+          "sha256": "9ac62fa766093a7ca00a14d5942cf14f96d37d5b60b9b60990d5fd35c2afe4c6"
+        },
+        {
+          "file": "foundation-logo@4x.png",
+          "scale": 4,
+          "pixelSize": {
+            "width": 396,
+            "height": 160
+          },
+          "bytes": 67450,
+          "sha256": "9672be089ae082c1c25ad48cf6f9c88a3ea8f0b600f53a75b8ab802605bc1a65"
+        }
+      ],
+      "originalBitmapSize": {
+        "width": 1200,
+        "height": 480
+      },
+      "svgExport": {
+        "file": "svg/foundation-logo.svg",
+        "bytes": 553405,
+        "sha256": "675661aff121cab84dcbdb75fd3762d7b13c9d6af5a0a22dbeaa7f92990b192a",
+        "viewBox": [
+          0,
+          0,
+          99,
+          40
+        ],
+        "content": "Embedded original bitmap with Figma crop"
+      },
+      "originalSource": {
+        "file": "originals/foundation-logo.png",
+        "bytes": 414639,
+        "pixelSize": {
+          "width": 1200,
+          "height": 480
+        },
+        "figmaImageHash": "54521fe89cadc2407605c4c969dbccacf92ff485",
+        "sha256": "c856af073dcb156115acde8cc8ade4615945a0bfe2fa410f6b9c59bfb2c47a2f",
+        "imageToPatternMatrix": [
+          0.00126147,
+          0,
+          0,
+          0.003125,
+          -0.0321101,
+          -0.25
+        ]
+      },
+      "renderedSource": "originals/foundation-logo.png, cropped by HomeWordmark with the exported Figma matrix"
+    },
+    {
+      "name": "notification-bell",
+      "nodeId": "1488:25063",
+      "figmaUrl": "https://www.figma.com/design/qYrhB6rbv9R8NcdFj7JKTP/Dented-Puck?node-id=1488-25063",
+      "displaySize": {
+        "width": 24,
+        "height": 24
+      },
+      "sourceType": "Figma vector layer",
+      "files": [
+        {
+          "file": "notification-bell.png",
+          "scale": 1,
+          "pixelSize": {
+            "width": 24,
+            "height": 24
+          },
+          "bytes": 331,
+          "sha256": "f1234005d93845454566e16f043d3738c87fdb84c27c655742ea1fc5a0d70960"
+        },
+        {
+          "file": "notification-bell@2x.png",
+          "scale": 2,
+          "pixelSize": {
+            "width": 48,
+            "height": 48
+          },
+          "bytes": 448,
+          "sha256": "74169a72bf5b8f418abbc3b628094869d813f64ef7f648a4ecf41e6126e1dcdf"
+        },
+        {
+          "file": "notification-bell@3x.png",
+          "scale": 3,
+          "pixelSize": {
+            "width": 72,
+            "height": 72
+          },
+          "bytes": 675,
+          "sha256": "6a743c29cd804cd3a414827852b574c330d7f50edd2d83ed6778ef5239b2700b"
+        },
+        {
+          "file": "notification-bell@4x.png",
+          "scale": 4,
+          "pixelSize": {
+            "width": 96,
+            "height": 96
+          },
+          "bytes": 771,
+          "sha256": "8d1310922210aee427b3c00d888f655631929bb10de89cf224c851a9d16d5e8f"
+        }
+      ],
+      "svgExport": {
+        "file": "svg/notification-bell.svg",
+        "bytes": 393,
+        "sha256": "ceeb52c3a218e19139b8f6701e95c474397c6807eb041929e2ca7569e06b2b64",
+        "viewBox": [
+          0,
+          0,
+          24,
+          24
+        ],
+        "content": "Original vector paths"
+      },
+      "renderedSource": "notification-bell.png (density variants); native SVG rendering awaits the dependency exception required by AGENTS.md"
+    },
+    {
+      "name": "search",
+      "nodeId": "1488:25072",
+      "figmaUrl": "https://www.figma.com/design/qYrhB6rbv9R8NcdFj7JKTP/Dented-Puck?node-id=1488-25072",
+      "displaySize": {
+        "width": 24,
+        "height": 24
+      },
+      "sourceType": "Figma vector layer",
+      "files": [
+        {
+          "file": "search.png",
+          "scale": 1,
+          "pixelSize": {
+            "width": 24,
+            "height": 24
+          },
+          "bytes": 385,
+          "sha256": "210067fb426f08984f6c8a8056e86cf0f148ab908cefdd905028d08929234d43"
+        },
+        {
+          "file": "search@2x.png",
+          "scale": 2,
+          "pixelSize": {
+            "width": 48,
+            "height": 48
+          },
+          "bytes": 639,
+          "sha256": "0bd259df5d44ad1f520faf9ea1138a65c0c0a774c1731a7535c970b15f14b4c8"
+        },
+        {
+          "file": "search@3x.png",
+          "scale": 3,
+          "pixelSize": {
+            "width": 72,
+            "height": 72
+          },
+          "bytes": 945,
+          "sha256": "95b949600c75f8891774a58ec4f84cfd1bcebbb9be9f5d3cc250f3251823be73"
+        },
+        {
+          "file": "search@4x.png",
+          "scale": 4,
+          "pixelSize": {
+            "width": 96,
+            "height": 96
+          },
+          "bytes": 1198,
+          "sha256": "a6db93f76bdc70f8e755f981c71e7755efa9f4270f582853b9fa2e63863f6728"
+        }
+      ],
+      "svgExport": {
+        "file": "svg/search.svg",
+        "bytes": 382,
+        "sha256": "d024598d5a172852cee5be93e8b8a8ffd4b50a8b438d2e4b69b07ece6a306d32",
+        "viewBox": [
+          0,
+          0,
+          24,
+          24
+        ],
+        "content": "Original vector paths"
+      },
+      "renderedSource": "search.png (density variants); native SVG rendering awaits the dependency exception required by AGENTS.md"
+    },
+    {
+      "name": "home",
+      "nodeId": "1488:25133",
+      "figmaUrl": "https://www.figma.com/design/qYrhB6rbv9R8NcdFj7JKTP/Dented-Puck?node-id=1488-25133",
+      "displaySize": {
+        "width": 24,
+        "height": 24
+      },
+      "sourceType": "Figma vector layer",
+      "files": [
+        {
+          "file": "home.png",
+          "scale": 1,
+          "pixelSize": {
+            "width": 24,
+            "height": 24
+          },
+          "bytes": 522,
+          "sha256": "aebb5a30f15c541a0fe9ba47fc6d7ef052a4ba67cfc63af3f869deed84c8287c"
+        },
+        {
+          "file": "home@2x.png",
+          "scale": 2,
+          "pixelSize": {
+            "width": 48,
+            "height": 48
+          },
+          "bytes": 835,
+          "sha256": "4b80a93df6c74efd8488992b009fd24fc91925dc4c70c567d3fcc381aeddfc7d"
+        },
+        {
+          "file": "home@3x.png",
+          "scale": 3,
+          "pixelSize": {
+            "width": 72,
+            "height": 72
+          },
+          "bytes": 1087,
+          "sha256": "5b3cf6237089272f0786f16d8601af5499f0a1a0accf733156671bab899acca3"
+        },
+        {
+          "file": "home@4x.png",
+          "scale": 4,
+          "pixelSize": {
+            "width": 96,
+            "height": 96
+          },
+          "bytes": 1248,
+          "sha256": "dc05c275ef913199da2059549e3e638b1c1eb7f1ab0c12b922bf904259f87405"
+        }
+      ],
+      "svgExport": {
+        "file": "svg/home.svg",
+        "bytes": 383,
+        "sha256": "631d784ba34f2bf1f13326a5f7c5a3ddf231915d657389167ba923a125b8c6a7",
+        "viewBox": [
+          0,
+          0,
+          24,
+          24
+        ],
+        "content": "Original vector paths"
+      },
+      "renderedSource": "home.png (density variants); native SVG rendering awaits the dependency exception required by AGENTS.md"
+    },
+    {
+      "name": "teams",
+      "nodeId": "1488:25138",
+      "figmaUrl": "https://www.figma.com/design/qYrhB6rbv9R8NcdFj7JKTP/Dented-Puck?node-id=1488-25138",
+      "displaySize": {
+        "width": 24,
+        "height": 24
+      },
+      "sourceType": "Figma vector layer",
+      "files": [
+        {
+          "file": "teams.png",
+          "scale": 1,
+          "pixelSize": {
+            "width": 24,
+            "height": 24
+          },
+          "bytes": 476,
+          "sha256": "1ae6a4c61e08e9537ea35d27defda41ec1612e9a7573c3da7f62098a5fae52be"
+        },
+        {
+          "file": "teams@2x.png",
+          "scale": 2,
+          "pixelSize": {
+            "width": 48,
+            "height": 48
+          },
+          "bytes": 797,
+          "sha256": "9645439a557ec88b1a96ca64757156d3e72ba04e196da37d8abc5c8770040aea"
+        },
+        {
+          "file": "teams@3x.png",
+          "scale": 3,
+          "pixelSize": {
+            "width": 72,
+            "height": 72
+          },
+          "bytes": 1164,
+          "sha256": "b3eca296ce484b10089de57056173538330e58f1ee02b50fa1b0342e5bb04b71"
+        },
+        {
+          "file": "teams@4x.png",
+          "scale": 4,
+          "pixelSize": {
+            "width": 96,
+            "height": 96
+          },
+          "bytes": 1583,
+          "sha256": "5ff851d7fafeebed6209c1f52c7fe8938296d6eb7717283c066b0a60b62709c0"
+        }
+      ],
+      "svgExport": {
+        "file": "svg/teams.svg",
+        "bytes": 875,
+        "sha256": "179419d315c4324d590d691b8418175a41ca422ec1a458f09d4526f74e0e9559",
+        "viewBox": [
+          0,
+          0,
+          24,
+          24
+        ],
+        "content": "Original vector paths"
+      },
+      "renderedSource": "teams.png (density variants); native SVG rendering awaits the dependency exception required by AGENTS.md"
+    },
+    {
+      "name": "chats",
+      "nodeId": "1488:25146",
+      "figmaUrl": "https://www.figma.com/design/qYrhB6rbv9R8NcdFj7JKTP/Dented-Puck?node-id=1488-25146",
+      "displaySize": {
+        "width": 24,
+        "height": 24
+      },
+      "sourceType": "Figma vector layer",
+      "files": [
+        {
+          "file": "chats.png",
+          "scale": 1,
+          "pixelSize": {
+            "width": 24,
+            "height": 24
+          },
+          "bytes": 259,
+          "sha256": "e54dd769968f2e0c720407cab4eb97baaee5560815c038b7571a7b896fcccd70"
+        },
+        {
+          "file": "chats@2x.png",
+          "scale": 2,
+          "pixelSize": {
+            "width": 48,
+            "height": 48
+          },
+          "bytes": 370,
+          "sha256": "c5d97a395adb1746e6a9135b81fe45c344b6c42e3e1339852658fa1ebfdd0248"
+        },
+        {
+          "file": "chats@3x.png",
+          "scale": 3,
+          "pixelSize": {
+            "width": 72,
+            "height": 72
+          },
+          "bytes": 504,
+          "sha256": "f0706544b268452ad406ab5b62e92882341b00f90ca449391c0a3699572c74f0"
+        },
+        {
+          "file": "chats@4x.png",
+          "scale": 4,
+          "pixelSize": {
+            "width": 96,
+            "height": 96
+          },
+          "bytes": 606,
+          "sha256": "7bf67779f370106426ebaffeb979ce170303bebbdc76403610deff4f04d417a2"
+        }
+      ],
+      "svgExport": {
+        "file": "svg/chats.svg",
+        "bytes": 215,
+        "sha256": "2ff9e3569fa5b9771fee3d92e3ebccf193adf8c4b2335a459ed6d502636a58b0",
+        "viewBox": [
+          0,
+          0,
+          24,
+          24
+        ],
+        "content": "Original vector paths"
+      },
+      "renderedSource": "chats.png (density variants); native SVG rendering awaits the dependency exception required by AGENTS.md"
+    },
+    {
+      "name": "account",
+      "nodeId": "1488:25151",
+      "figmaUrl": "https://www.figma.com/design/qYrhB6rbv9R8NcdFj7JKTP/Dented-Puck?node-id=1488-25151",
+      "displaySize": {
+        "width": 24,
+        "height": 24
+      },
+      "sourceType": "Figma vector layer",
+      "files": [
+        {
+          "file": "account.png",
+          "scale": 1,
+          "pixelSize": {
+            "width": 24,
+            "height": 24
+          },
+          "bytes": 385,
+          "sha256": "0ed7059f87822fb4cf1b4209f8d5052232331e7d60da5a5bea863b3e9130418d"
+        },
+        {
+          "file": "account@2x.png",
+          "scale": 2,
+          "pixelSize": {
+            "width": 48,
+            "height": 48
+          },
+          "bytes": 706,
+          "sha256": "20d9443379efe62e5d129d4393ac53ab9b5a38a1ec161d6cc31c6dd0a86916b0"
+        },
+        {
+          "file": "account@3x.png",
+          "scale": 3,
+          "pixelSize": {
+            "width": 72,
+            "height": 72
+          },
+          "bytes": 1028,
+          "sha256": "1ebd6bd7560af94186c74ca9c7c84e64b6020ece48d2ec8aaf564b02cf0555b4"
+        },
+        {
+          "file": "account@4x.png",
+          "scale": 4,
+          "pixelSize": {
+            "width": 96,
+            "height": 96
+          },
+          "bytes": 1344,
+          "sha256": "76220a5884534bc377c42ee330a2e7d3176d4941d7a56a67935a45ce7d17a7fb"
+        }
+      ],
+      "svgExport": {
+        "file": "svg/account.svg",
+        "bytes": 445,
+        "sha256": "14177e4dc677bd11f189b1ab7eb4ee3d58514640e2df3cd9bfd77ca9b8ae5a4e",
+        "viewBox": [
+          0,
+          0,
+          24,
+          24
+        ],
+        "content": "Original vector paths"
+      },
+      "renderedSource": "account.png (density variants); native SVG rendering awaits the dependency exception required by AGENTS.md"
+    }
+  ],
+  "svgRenderingStatus": "Exact SVG source files saved; native icon rendering is pending authorization to install react-native-svg and react-native-svg-transformer."
+}
