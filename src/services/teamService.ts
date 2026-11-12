@@ -10,8 +10,7 @@ import {
 } from "firebase/firestore";
 import Fuse from "fuse.js";
 import { auth, db } from "@/firebase";
-import { Team, TeamWithId, UserToTeam, UserToTeamWithId } from "@/types";
-
+import { Role, ShortUserInfo, Team, TeamWithId, UserToTeam, UserToTeamWithId } from "@/types";
 
 import { Region } from "@/types";
 import { getDistance } from "geolib";
@@ -56,33 +55,40 @@ export const regions: Region[] = [
 // helper function to get the distance between two regions
 // (when given two region id's) ronuded to the nearest mile
 export function regionRegionDistance(regionId1: number, regionId2: number) {
-  return Math.round(getDistance(
-    {
-      latitude: regions[regionId1 - 1].lat,
-      longitude: regions[regionId1 - 1].lon,
-    },
-    {
-      latitude: regions[regionId2 - 1].lat,
-      longitude: regions[regionId2 - 1].lon,
-    },
-  ) / 1609.344);
+  return Math.round(
+    getDistance(
+      {
+        latitude: regions[regionId1 - 1].lat,
+        longitude: regions[regionId1 - 1].lon,
+      },
+      {
+        latitude: regions[regionId2 - 1].lat,
+        longitude: regions[regionId2 - 1].lon,
+      },
+    ) / 1609.344,
+  );
 }
 
 // helper function to get the distance between a region and a location
 // (when given a region id and latitude/longitude coordinates) rounded to the nearest mile
-export function locationRegionDistance(regionId: number, lat: number, lon: number) {
-  return Math.round(getDistance(
-    {
-      latitude: regions[regionId - 1].lat,
-      longitude: regions[regionId - 1].lon,
-    },
-    {
-      latitude: lat,
-      longitude: lon,
-    },
-  ) / 1609.344);
+export function locationRegionDistance(
+  regionId: number,
+  lat: number,
+  lon: number,
+) {
+  return Math.round(
+    getDistance(
+      {
+        latitude: regions[regionId - 1].lat,
+        longitude: regions[regionId - 1].lon,
+      },
+      {
+        latitude: lat,
+        longitude: lon,
+      },
+    ) / 1609.344,
+  );
 }
-
 
 export type SearchOrigin =
   | { type: "coordinates"; latitude: number; longitude: number }
@@ -112,7 +118,7 @@ function currentUserId() {
   return auth.currentUser.uid;
 }
 
-// A query rather than a get by ID: the rules let players read their own memberships,
+// A query rather than a get by ID: the rules let players read their own teamMemberships,
 // and a get on a doc that doesn't exist yet is denied instead of returning nothing.
 export async function getJoinRequest(
   teamId: string,
@@ -130,7 +136,7 @@ export async function getJoinRequest(
 }
 
 // A join request is a UserToTeam doc left "inactive" until the coach approves it.
-// The doc ID is `${userId}_${teamId}` because that is how the rules look up memberships.
+// The doc ID is `${userId}_${teamId}` because that is how the rules look up teamMemberships.
 export async function requestToJoinTeam(
   teamId: string,
 ): Promise<UserToTeamWithId> {
@@ -185,7 +191,13 @@ export async function fetchAllTeams(): Promise<TeamWithId[]> {
 // searches by team name and it's region's city name if the city property exists
 export function createTeamSearch(teamList: TeamWithId[]) {
   return new Fuse<TeamWithId>(teamList, {
-    keys: ["name", {name: "city", getFn: (team) => regions[Number(team.region) - 1]?.city ?? ""}],
+    keys: [
+      "name",
+      {
+        name: "city",
+        getFn: (team) => regions[Number(team.region) - 1]?.city ?? "",
+      },
+    ],
     threshold: 0.3,
     ignoreLocation: true,
   });
@@ -216,4 +228,42 @@ export function sortTeamsByProximity(
           : regionRegionDistance(Number(team.region), origin.regionId),
     }))
     .sort((team1, team2) => team1.distanceMiles - team2.distanceMiles);
+}
+
+// Fetch the active teams that a user belongs to.
+export async function getUsersTeams(userId: number): Promise<number[]> {
+  const snapshot = await getDocs(
+    query(
+      collection(db, "UserToTeam"),
+      where("userId", "==", userId),
+      where("status", "==", "active"),
+    ),
+  );
+  return snapshot.docs.map(
+    (teamMembership) => teamMembership.data().teamId as number,
+  );
+}
+
+// Fetch a specific user's name and role
+// (using username for now until name is added into schema)
+export async function getUsersNameRole(userId: number): Promise<ShortUserInfo> {
+  const snapshot = await getDoc(doc(db, "Users", `user_${userId}`));
+  if (!snapshot.exists()) {
+    throw new Error("User document doesn't exist.");
+  }
+  return {username: snapshot.data().username, role: snapshot.data().role as Role};
+}
+
+// Fetch the id's of the active members of a specific team
+export async function getTeamsMembers(teamId: number): Promise<number[]> {
+  const snapshot = await getDocs(
+    query(
+      collection(db, "UserToTeam"),
+      where("teamId", "==", teamId),
+      where("status", "==", "active"),
+    ),
+  );
+  return snapshot.docs.map(
+    (teamMembership) => teamMembership.data().userId as number,
+  );
 }
