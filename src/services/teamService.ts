@@ -211,6 +211,8 @@ export function searchTeams(
   return fuse.search(query).map((result) => result.item);
 }
 
+// Sort a parameter teams list by proximity to a searchOrigin
+// (coordinates or region)
 export function sortTeamsByProximity(
   teamList: TeamWithId[],
   origin: SearchOrigin,
@@ -266,4 +268,41 @@ export async function getTeamsMembers(teamId: number): Promise<number[]> {
   return snapshot.docs.map(
     (teamMembership) => teamMembership.data().userId as number,
   );
+}
+
+// Returns a boolean of whether a user belongs to a specific team or not
+export async function isUserInTeam(
+  userId: number,
+  teamId: number,
+): Promise<boolean> {
+  const snapshot = await getDocs(
+    query(
+      collection(db, "UserToTeam"),
+      where("userId", "==", userId),
+      where("teamId", "==", teamId),
+      where("status", "==", "active"),
+      limit(1),
+    ),
+  );
+  return !snapshot.empty;
+}
+
+// creates a Fuse to search a ShortUserInfo list
+// searches by name of user
+export function createShortUserInfoSearch(userList: ShortUserInfo[]) {
+  return new Fuse<ShortUserInfo>(userList, {
+    keys: [
+      "username"
+    ],
+    threshold: 0.3,
+    ignoreLocation: true,
+  });
+}
+
+// search a parameter list of ShortUserInfo using a parameter Fuse
+export function searchShortUserInfoList(
+  fuse: Fuse<ShortUserInfo>,
+  query: string,
+): ShortUserInfo[] {
+  return fuse.search(query).map((result) => result.item);
 }
