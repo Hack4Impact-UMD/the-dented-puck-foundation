@@ -50,6 +50,7 @@ function readTeam(id: string, data: DocumentData): LiveTeam | null {
  */
 export function createFirebaseHomeSource(): HomeDataSource {
   let catalog: { uid: string; teams: LiveTeam[] } | null = null;
+  let loadSequence = 0;
 
   function teamsFor(viewer: HomeViewer) {
     current(viewer.uid);
@@ -81,6 +82,7 @@ export function createFirebaseHomeSource(): HomeDataSource {
   const source: HomeDataSource = {
     async loadViewer(uid) {
       current(uid);
+      const sequence = ++loadSequence;
       const [profile, memberships, teamSnapshot] = await Promise.all([
         getDoc(doc(db, 'Users', uid)),
         getDocs(query(collection(db, 'UserToTeam'), where('userId', '==', uid), limit(MEMBERSHIP_LIMIT + 1))),
@@ -107,7 +109,7 @@ export function createFirebaseHomeSource(): HomeDataSource {
         throw new Error('Your saved followed teams have an invalid format.');
       }
       const followed = ((data.followedTeamIds ?? []) as string[]).filter((id) => teams.some((team) => team.id === id));
-      catalog = { uid, teams };
+      if (sequence === loadSequence) catalog = { uid, teams };
       return { uid, name, region, teamIds: [...new Set(joined)].sort(), followedTeamIds: [...new Set(followed)].sort() };
     },
     async events(viewer, section, since, size, cursor) {
@@ -123,10 +125,9 @@ export function createFirebaseHomeSource(): HomeDataSource {
           where('isTeamSpecific', '==', false), where('startTime', '>=', since),
           orderBy('startTime', 'asc'), orderBy(documentId(), 'asc')));
       }
-      const page = await readHomePage(sources, (id, data) => {
-        const event = decodeEvent(id, data, teams);
-        return event && event.startTime >= since && eventBelongsInSection(event, viewer, section) ? event : null;
-      }, compareEvents, size, cursor);
+      const page = await readHomePage(sources, (id, data) => decodeEvent(id, data, teams),
+        compareEvents, size, cursor, undefined,
+        (event) => event.startTime >= since && eventBelongsInSection(event, viewer, section));
       current(viewer.uid);
       return page;
     },

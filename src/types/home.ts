@@ -66,6 +66,8 @@ export interface HomePage<T> {
   items: T[];
   cursor: HomeCursor;
   hasMore: boolean;
+  /** More candidates remain after a bounded scan; resume with cursor. */
+  scanIncomplete?: boolean;
 }
 
 export interface HomeSearchCatalog {

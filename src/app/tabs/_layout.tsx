@@ -28,20 +28,22 @@ function DashboardTabs() {
               const routeName = label === 'Home' ? 'home' : label.toLowerCase();
               const selected = state.routes[state.index]?.name === routeName;
               const href = label === 'Home' ? '/tabs/home' as const : destinations[label.toLowerCase() as 'teams' | 'chats' | 'account'];
+              const usesTabRoute = label === 'Home' || label === 'Teams';
+              const route = state.routes.find((item) => item.name === routeName);
+              const unavailable = usesTabRoute ? !route : !href;
               return (
                 <Pressable
                   key={label}
                   accessibilityRole={Platform.OS === 'ios' ? 'button' : 'tab'}
                   accessibilityLabel={label}
-                  accessibilityState={{ selected, disabled: !href }}
-                  accessibilityHint={href ? undefined : `${label} navigation is not available yet`}
-                  disabled={!href}
+                  accessibilityState={{ selected, disabled: unavailable }}
+                  accessibilityHint={unavailable ? `${label} navigation is not available yet` : undefined}
+                  disabled={unavailable}
                   onPress={() => {
-                    const route = state.routes.find((item) => item.name === routeName);
-                    if (route && (label === 'Home' || label === 'Teams')) {
+                    if (route && usesTabRoute) {
                       const event = emitter.emit({ type: 'tabPress', target: route.key, canPreventDefault: true });
                       if (!event.defaultPrevented) navigateToTab(route.key);
-                    } else if (href) router.navigate(href);
+                    } else if (!usesTabRoute && href) router.navigate(href);
                   }}
                   className="min-h-16 items-center gap-0.5 px-1 pb-2 active:opacity-70"
                   style={{ width: fontScale > 1.6 ? '50%' : '25%' }}

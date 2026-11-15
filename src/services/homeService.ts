@@ -75,7 +75,8 @@ const readBatch: ReadBatch = async (source, after, size) => {
 /** Merge ordered membership streams without dropping unconsumed rows. Every
  * cursor advances only past consumed documents; the sixth valid item stays for
  * the next page. Duplicates across team queries are consumed together.
- * A read budget prevents malformed data from causing an unbounded mobile read.
+ * Each scan is bounded and resumable. Malformed rows are counted separately
+ * from valid rows excluded by eligibility (for example, distance).
  */
 export async function readHomePage<T extends { id: string }>(
   sources: Query<DocumentData>[],
@@ -84,11 +85,12 @@ export async function readHomePage<T extends { id: string }>(
   size: number,
   cursor?: HomeCursor,
   fetchBatch: ReadBatch = readBatch,
+  eligible: (value: T) => boolean = () => true,
 ): Promise<HomePage<T>> {
   if (!Number.isInteger(size) || size < 1 || size > 100) throw new Error('Invalid dashboard page size.');
   if (cursor && cursor.after.length !== sources.length) throw new Error('The dashboard cursor no longer matches its queries.');
   const after = sources.map((_, i) => cursor?.after[i] ?? null);
-  const streams = sources.map(() => ({ rows: [] as Snapshot[], offset: 0, exhausted: false, read: 0 }));
+  const streams = sources.map(() => ({ rows: [] as Snapshot[], offset: 0, exhausted: false, read: 0, invalid: 0, paused: false }));
   const batchSize = size + 1;
   const readBudget = Math.max(100, batchSize * 5);
 
@@ -97,16 +99,18 @@ export async function readHomePage<T extends { id: string }>(
     while (true) {
       if (stream.offset === stream.rows.length) {
         if (stream.exhausted) return null;
-        if (stream.read >= readBudget) throw new Error('Too many invalid dashboard records.');
-        stream.rows = await fetchBatch(sources[i], after[i], batchSize);
+        if (stream.read >= readBudget) { stream.paused = true; return null; }
+        const count = Math.min(batchSize, readBudget - stream.read);
+        stream.rows = await fetchBatch(sources[i], after[i], count);
         stream.offset = 0;
         stream.read += stream.rows.length;
-        stream.exhausted = stream.rows.length < batchSize;
+        stream.exhausted = stream.rows.length < count;
         if (!stream.rows.length) return null;
       }
       const row = stream.rows[stream.offset];
       const value = decode(row.id, row.data());
-      if (value) return { row, value };
+      if (value && eligible(value)) return { row, value };
+      if (!value && ++stream.invalid >= readBudget) throw new Error('Too many invalid dashboard records.');
       after[i] = row;
       stream.offset++;
     }
@@ -114,7 +118,9 @@ export async function readHomePage<T extends { id: string }>(
 
   const items: T[] = [];
   const heads = await Promise.all(sources.map((_, i) => head(i)));
-  while (items.length < size) {
+  // An unknown head could precede the other streams' candidates. Pause the
+  // merge too, retaining those candidates behind their unconsumed cursors.
+  while (items.length < size && !streams.some((stream) => stream.paused)) {
     let best: T | null = null;
     for (const candidate of heads) {
       if (candidate && (!best || compare(candidate.value, best) < 0)) best = candidate.value;
@@ -128,8 +134,9 @@ export async function readHomePage<T extends { id: string }>(
       heads[i] = await head(i);
     }));
   }
-  const hasMore = heads.some(Boolean);
-  return { items, cursor: { after }, hasMore };
+  const scanIncomplete = streams.some((stream) => stream.paused);
+  const hasMore = scanIncomplete || heads.some(Boolean);
+  return { items, cursor: { after }, hasMore, ...(scanIncomplete ? { scanIncomplete: true } : {}) };
 }
 
 export function createHomeDataSource(contract: HomeBackendContract | null = homeBackendContract): HomeDataSource {
@@ -158,11 +165,9 @@ export function createHomeDataSource(contract: HomeBackendContract | null = home
       if (section === 'schedule' && !viewer.teamIds.length && !viewer.followedTeamIds.length) return { items: [], cursor: { after: [] }, hasMore: false };
       return readHomePage(
         adapter.eventQueries(viewer, section, since),
-        (id, data) => {
-          const event = adapter.readEvent(id, data);
-          return event && event.startTime >= since && eventBelongsInSection(event, viewer, section) ? event : null;
-        },
-        compareEvents, size, cursor,
+        (id, data) => adapter.readEvent(id, data),
+        compareEvents, size, cursor, undefined,
+        (event) => event.startTime >= since && eventBelongsInSection(event, viewer, section),
       );
     },
     async announcements(viewer, size, cursor) {
