@@ -7,12 +7,13 @@ interface Props {
   loading?: boolean;
   action?: string;
   onAction?: () => void;
+  announce?: boolean;
 }
 
-export function HomeMessage({ title, message, loading, action, onAction }: Props) {
-  useHomeAnnouncement([title, message].filter(Boolean).join('. '));
+export function HomeMessage({ title, message, loading, action, onAction, announce = true }: Props) {
+  useHomeAnnouncement(announce ? [title, message].filter(Boolean).join('. ') : null);
   return (
-    <View className="gap-3 py-6" accessibilityLiveRegion={Platform.OS === 'web' ? 'polite' : undefined}>
+    <View className="gap-3 py-6" accessibilityLiveRegion={Platform.OS === 'web' && announce ? 'polite' : undefined}>
       {loading && <ActivityIndicator color="#FFD101" accessible={false} accessibilityElementsHidden importantForAccessibility="no" />}
       <Text accessibilityRole={loading ? undefined : 'header'} className="font-sans-bold text-xl text-white">{title}</Text>
       {message && <Text className="font-sans text-lg leading-7 text-ink-muted-dark">{message}</Text>}

@@ -1,5 +1,16 @@
 # Dented Puck Figma reference
 
+## VoiceOver entry and search focus — November 14, 2026
+
+The user reported that opening the app spoke events before the title, then authorized fixes and a further Home accessibility review. Rechecked the live search/event/segment annotations (`1488:26362`, `1488:26364`, `1488:26367`, `1739:32764`) and title reading-order pin (`1488:25286`) through Figma MCP. Figma's normal traversal still starts at the logo and notifications; the user's explicit entry preference now starts on the **Welcome…** heading. Figma itself was not edited.
+
+- Home now requests native screen-reader focus on its greeting/title after layout and the initial account check. Other Home header/feed elements wait outside the accessibility tree until that handoff finishes, and child status speech waits too. Visual layout stays the same. Ordinary users receive no forced keyboard focus. Requests are cancelled on blur/account changes; a real background/reopen returns to the title, while an iOS inactive/active permission prompt does not. An active search keeps its focus.
+- Passive dashboard loading, signed-out explanation, and empty-feed messages remain readable by swiping but no longer auto-announce on entry. Errors, deliberate search feedback, location changes, Follow/Unfollow, and notification changes retain feedback. iOS status/count feedback now uses low-priority, unqueued announcements rather than accumulating obsolete messages behind current speech. This does not claim cancellation of speech already delivered to the operating system.
+- Cancel, Android Back, and VoiceOver escape return reader focus to the original search field without reopening its keyboard/results on native. Clear also returns reader focus when its button disappears. Web keyboard return avoids immediately reopening search. Segment focus handoffs clear their route flag after delivery so a later search close does not replay a completed handoff.
+- Full event names, dates/times, team names, Joined/Followed, segment positions/selection, and unknown notification counts remain intact. A remaining data limitation is that some event location strings contain only a venue. The approved model has team-city metadata, but that does not establish the event's venue city; the UI does not invent one. Unavailable sibling destinations remain an explicit difference from the Figma happy path.
+
+Validation: focused Home host tests, lint, typecheck, and iOS/Android/web exports pass. The tests cover entry/layout/auth timing, reopen and blur handling, speech gating, Cancel/Clear return, and one-shot segment focus. These checks verify dispatch and bundling, not audible VoiceOver/TalkBack output. Native reader acceptance remains open. No simulator/browser/device, backend/Notion changes, or dependency installation was used.
+
 ## Keyword search fixes — November 14, 2026
 
 The user reported overly restrictive Home search and requested keyword filtering. Rechecked live For You `1488:25041` and Discover `1739:32476` screenshots; the original field and Home layout remain the reference. This update changes matching only.

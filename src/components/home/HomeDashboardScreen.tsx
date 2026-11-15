@@ -19,22 +19,25 @@ import { HomeTransition } from '@/components/home/HomeTransition';
 import { HomeSearchFilters } from '@/components/home/HomeSearchFilters';
 import { HomeSearchResults } from '@/components/home/HomeSearchResults';
 import type { HomeSearchScope } from '@/utils/homeSearch';
+import { useHomeTitleFocus } from '@/hooks/useHomeTitleFocus';
+import { HomeAnnouncementContext } from '@/hooks/useHomeAnnouncement';
 
 export function HomeDashboardScreen({ tab, initialSearch = false }: { tab: 'for-you' | 'discover'; initialSearch?: boolean }) {
   const { state, destinations, refresh, pullRefresh } = useHomeDashboard();
   const announcements = state.announcements;
   const { selectedTab, displayedTab, selectTab, indicator, contentStyle } = useHomeTabTransition(tab);
   const uid = state.viewer?.uid;
-  const [search, setSearch] = useState({ uid, initialSearch, active: initialSearch, query: '', scope: 'all' as HomeSearchScope });
+  const [search, setSearch] = useState({ uid, initialSearch, active: initialSearch, query: '', scope: 'all' as HomeSearchScope, returnFocusRequest: 0 });
   const resetSearch = search.uid !== uid || search.initialSearch !== initialSearch;
-  const currentSearch = resetSearch ? { uid, initialSearch, active: initialSearch, query: '', scope: 'all' as HomeSearchScope } : search;
+  const currentSearch = resetSearch ? { uid, initialSearch, active: initialSearch, query: '', scope: 'all' as HomeSearchScope, returnFocusRequest: 0 } : search;
   // Reset before rendering another account, including a later return to this UID.
   if (resetSearch) setSearch(currentSearch);
   const searching = state.phase === 'ready' && currentSearch.active;
+  const entryFocus = useHomeTitleFocus({ ready: state.phase !== 'loading', identity: uid ?? 'signed-out', blocked: searching });
   const cancelSearch = useCallback(() => {
     Keyboard.dismiss();
-    setSearch({ uid, initialSearch, active: false, query: '', scope: 'all' });
-  }, [uid, initialSearch]);
+    setSearch({ uid, initialSearch, active: false, query: '', scope: 'all', returnFocusRequest: currentSearch.returnFocusRequest + 1 });
+  }, [uid, initialSearch, currentSearch.returnFocusRequest]);
   useFocusEffect(useCallback(() => {
     if (!searching) return;
     const subscription = BackHandler.addEventListener('hardwareBackPress', () => { cancelSearch(); return true; });
@@ -42,6 +45,7 @@ export function HomeDashboardScreen({ tab, initialSearch = false }: { tab: 'for-
   }, [cancelSearch, searching]));
 
   return (
+    <HomeAnnouncementContext.Provider value={!entryFocus.pending}>
     <SafeAreaView edges={['top', 'left', 'right']} onAccessibilityEscape={searching ? cancelSearch : undefined} className="flex-1 bg-black">
       <LayoutAnimationConfig key={uid ?? state.phase} skipEntering skipExiting>
       <HomeSearchResults enabled={searching} query={currentSearch.query} scope={currentSearch.scope}
@@ -50,19 +54,19 @@ export function HomeDashboardScreen({ tab, initialSearch = false }: { tab: 'for-
           onRefresh={searching ? undefined : pullRefresh} tintColor="#FFD101" colors={['#FFD101']} />}
         header={
         <View className="w-full max-w-[680px] self-center">
-          <HomeHeader search={{ query: currentSearch.query, active: searching,
+          <HomeHeader entryFocus={entryFocus} search={{ query: currentSearch.query, active: searching, returnFocusRequest: currentSearch.returnFocusRequest,
             onFocus: () => setSearch({ ...currentSearch, active: true }),
             onChangeQuery: (query) => setSearch({ ...currentSearch, active: true, query }), onCancel: cancelSearch }} />
-          <View className="gap-6 px-4">
+          <View accessibilityElementsHidden={entryFocus.pending} importantForAccessibility={entryFocus.pending ? 'no-hide-descendants' : 'auto'} className="gap-6 px-4">
             {searching ? <HomeTransition key="search-filters" presence fromBottom className="pb-4">
               <HomeSearchFilters scope={currentSearch.scope} onChangeScope={(scope) => setSearch({ ...currentSearch, scope })} />
             </HomeTransition> : <HomeTransition key="dashboard" presence className="gap-6">
             <HomeViewTabs tab={selectedTab} indicator={indicator} onSelect={selectTab} />
             <Animated.View style={contentStyle}>
             <HomeTransition className="gap-6">
-            {state.phase === 'loading' ? <HomeMessage title="Loading your dashboard" loading />
+            {state.phase === 'loading' ? <HomeMessage title="Loading your dashboard" loading announce={false} />
               : state.phase === 'signed-out' ? <View>
-                <HomeMessage title="Your community, in one place" message="Sign in to see your team schedule, announcements, and events in your region." action="Log in" onAction={() => router.push('/auth/login')} />
+                <HomeMessage announce={false} title="Your community, in one place" message="Sign in to see your team schedule, announcements, and events in your region." action="Log in" onAction={() => router.push('/auth/login')} />
                 <Link href="/auth/signup" asChild><Text accessibilityRole="link" className="min-h-12 py-3 font-sans-bold text-lg text-brand underline">Create an account</Text></Link>
               </View>
               : state.phase === 'error' ? <HomeMessage title="Unable to load your dashboard" message={state.error ?? undefined} action="Try again" onAction={refresh} />
@@ -77,7 +81,7 @@ export function HomeDashboardScreen({ tab, initialSearch = false }: { tab: 'for-
                       <Text accessibilityRole="header" className="font-sans-bold text-[26px] leading-[34px] text-white">Announcements</Text>
                       {announcements.page?.hasMore && <HomeSeeAll label="See all announcements" href={destinations.announcementList} />}
                     </View>
-                    {announcements.loading ? <HomeMessage title="Loading announcements" loading />
+                    {announcements.loading ? <HomeMessage title="Loading announcements" loading announce={false} />
                       : announcements.error ? <HomeMessage title="Unable to load announcements" message={announcements.error} action="Try again" onAction={refresh} />
                       : announcements.page?.items.slice(0, HOME_PREVIEW_SIZE).map((announcement) => <HomeTransition key={announcement.id} presence><AnnouncementCard announcement={announcement} onPress={destinations.announcement ? () => router.push(destinations.announcement!(announcement.id)) : undefined} /></HomeTransition>)}
                   </HomeTransition>
@@ -91,5 +95,6 @@ export function HomeDashboardScreen({ tab, initialSearch = false }: { tab: 'for-
       } />
       </LayoutAnimationConfig>
     </SafeAreaView>
+    </HomeAnnouncementContext.Provider>
   );
 }

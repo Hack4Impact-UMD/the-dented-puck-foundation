@@ -1,6 +1,6 @@
 import { useCallback, useRef, useState, type ComponentRef } from 'react';
 import { AccessibilityInfo, Animated, Platform, Pressable, Text, View } from 'react-native';
-import { useFocusEffect, useLocalSearchParams } from 'expo-router';
+import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import type { HomeTab } from '@/hooks/useHomeTabTransition';
 
 export function HomeViewTabs({ tab, indicator, onSelect }: { tab: HomeTab; indicator: Animated.Value; onSelect: (tab: HomeTab) => void }) {
@@ -18,6 +18,8 @@ export function HomeViewTabs({ tab, indicator, onSelect }: { tab: HomeTab; indic
       if (!selectedTab.current) return;
       if (Platform.OS === 'web') selectedTab.current.focus();
       else AccessibilityInfo.sendAccessibilityEvent(selectedTab.current, 'focus');
+      // Consume this handoff; remounting after search must not replay it.
+      router.setParams({ focusTab: undefined });
     });
     return () => cancelAnimationFrame(frame);
   }, [focusTab, selectedTab]));

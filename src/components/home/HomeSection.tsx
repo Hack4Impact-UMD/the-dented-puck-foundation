@@ -19,9 +19,9 @@ export function HomeSection({ section, result }: { section: Section; result: Hom
             href={destinations.eventList?.(section)} />
         )}
       </View>
-      {result.loading ? <HomeTransition key="loading" presence><HomeMessage loading title={`Loading ${HOME_TITLES[section].toLowerCase()}`} /></HomeTransition>
+      {result.loading ? <HomeTransition key="loading" presence><HomeMessage announce={false} loading title={`Loading ${HOME_TITLES[section].toLowerCase()}`} /></HomeTransition>
         : result.error ? <HomeTransition key="error" presence><HomeMessage title="Unable to load events" message={result.error} action="Try again" onAction={refresh} /></HomeTransition>
-        : !result.page?.items.length ? <HomeTransition key="empty" presence><HomeMessage
+        : !result.page?.items.length ? <HomeTransition key="empty" presence><HomeMessage announce={false}
           title={section === 'schedule' ? 'No upcoming team events' : 'No upcoming regional events'}
           message={section === 'upcoming' ? 'Events from teams you join or follow appear in For You. Check back for more regional events.'
             : !state.viewer?.teamIds.length && !state.viewer?.followedTeamIds.length ? 'Your schedule will appear here when you join or follow a team.' : 'Check back for new events.'}

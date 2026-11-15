@@ -26,6 +26,7 @@ let searchParams = {};
 let platform = 'web';
 let dimensions = { width: 412, height: 917, fontScale: 1, scale: 1 };
 let dashboard;
+let entryPending = false;
 
 function host(type, tag = 'div') {
   return function Host({ children, ...props }) {
@@ -91,6 +92,7 @@ function load(relative) {
     if (name === 'react-native-reanimated') return reanimatedHost(host);
     if (name === 'react-native-safe-area-context') return { SafeAreaView: host('SafeAreaView') };
     if (name === '@/hooks/useHomeDashboard') return { useHomeDashboard: () => dashboard };
+    if (name === '@/hooks/useHomeTitleFocus') return { useHomeTitleFocus: () => ({ title: { current: null }, onTitleLayout() {}, pending: entryPending }) };
     if (name === '@/hooks/useHomeSearch') return { useHomeSearch: () => ({ available: false, loading: false, catalog: null }) };
     if (name === 'expo-router') return {
       Link: host('Link', 'a'), Redirect: host('Redirect'), useFocusEffect(callback) {
@@ -368,6 +370,7 @@ test('switching focuses the selected segment after layout and cancels a pending 
     flushFrames();
     if (os === 'web') assert.equal(focused, 1);
     else assert.deepEqual(focusEvents, [{ node, event: 'focus' }]);
+    assert.deepEqual(navigation.at(-1), { params: { focusTab: undefined } }, 'segment focus consumes its navigation handoff');
     cleanup();
     const onBlur = focusEffects.at(-1)();
     onBlur();
@@ -409,7 +412,7 @@ test('iOS announces an increased known count through a refresh without comparing
   update(0);
   update(null, null);
   update(2);
-  assert.deepEqual(announcements, [{ message: 'Notifications, 2 new notifications', options: { queue: true } }]);
+  assert.deepEqual(announcements, [{ message: 'Notifications, 2 new notifications', options: { queue: false, priority: 'low' } }]);
   update(2);
   update(1);
   update(5, 'another-account');
@@ -417,5 +420,11 @@ test('iOS announces an increased known count through a refresh without comparing
   update(6, 'another-account');
   assert.equal(announcements.at(-1).message, 'Notifications, 6 new notifications');
   assert.equal(announcements.length, 2);
+  entryPending = true;
+  update(7, 'another-account');
+  assert.equal(announcements.length, 2, 'notifications cannot speak ahead of entry title focus');
+  entryPending = false;
+  update(7, 'another-account');
+  assert.equal(announcements.length, 2, 'unlocking entry does not replay a stale count');
   platform = 'web';
 });

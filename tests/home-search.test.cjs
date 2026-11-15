@@ -143,7 +143,11 @@ test('search drops stale account/location reads, supports retry and ignores resp
   assert.equal(mounted.current.catalog, null);
 });
 
-test('the original Home search field opens results in place and preserves filters, typing, keyboard controls and account isolation', () => {
+test('the original Home search field opens results in place and preserves filters, typing, keyboard controls and account isolation', (t) => {
+  global.requestAnimationFrame ??= () => {};
+  global.cancelAnimationFrame ??= () => {};
+  t.mock.method(global, 'requestAnimationFrame', () => 1);
+  t.mock.method(global, 'cancelAnimationFrame', () => {});
   for (const platform of ['ios', 'android']) {
     const controls = [];
     const navigations = [];
@@ -185,6 +189,7 @@ test('the original Home search field opens results in place and preserves filter
       '@/assets/home/search.png': { uri: 'search' }, '@/assets/home/notification-bell.png': { uri: 'bell' },
       '@/hooks/useHomeDashboard': { useHomeDashboard: () => dashboard },
       '@/hooks/useHomeSearch': { useHomeSearch: () => search },
+      '@/hooks/useHomeTitleFocus': { useHomeTitleFocus: () => ({ title: { current: null }, onTitleLayout() {} }) },
       '@/hooks/useHomeTabTransition': { useHomeTabTransition: (tab) => ({ selectedTab: tab, displayedTab: tab }) },
       '@/components/home/HomeWordmark': { HomeWordmark: () => null },
       '@/components/home/HomeViewTabs': { HomeViewTabs: ({ tab }) => React.createElement('span', null, `Selected ${tab}`) },
