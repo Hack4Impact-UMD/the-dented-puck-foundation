@@ -1,8 +1,8 @@
 export type Role = "global-admin" | "super-admin" | "team-staff" | "player" | "contact";
-export type Status = "inactive" | "active" | "suspended";
+export type Status = "inactive" | "active" | "suspended" | "pending";
 export type ConversationType = "group" | "dm";
 
-  
+
 
 
 export interface User {
@@ -11,7 +11,10 @@ export interface User {
   region: string;
   age: number;
   email: string;
-  phoneNumber: string;  
+  phoneNumber: string;
+  birthDate: Date;
+  usaHockeyNumber: number;
+  allowLocation: boolean;
   linkedPlayerId?: string; //for contacts
 }
 
@@ -28,16 +31,23 @@ export interface UserToTeam {
   userId: string;
   teamId: string;
   status: Status;
+  invitationId?: string; // set when joined through an invite, checked by the rules
 }
 
 export interface Event {
   region: string;
   teamIds: string[];
   title: string;
-  startTime: Date; 
+  startTime: Date;
   endTime: Date;
   location: string;
   result?: string;
+  notes: string;
+}
+
+export interface RSVP {
+  response: string;
+  userId: string;
 }
 
 export interface Conversation {
@@ -51,6 +61,22 @@ export interface Message {
   senderId: string;
   recipientId?: string;
   timeSent: Date;
+}
+
+export interface Region {
+  regionId: number;
+  city: string;
+  state?: string;
+  country: string;
+  lat: number;
+  lon: number;
+}
+
+export interface Invitation {
+  invitedBy: string;
+  status: Status;
+  teamId: string;
+  teamName: string;
 }
 
 // FRONTEND MODELS WITH FIRESTORE IDs
@@ -76,5 +102,13 @@ export interface ConversationWithId extends Conversation {
 }
 
 export interface MessageWithId extends Message {
+  id: string;
+}
+
+export interface RSVPWithId {
+  id: string;
+}
+
+export interface InvitationWithId extends Invitation {
   id: string;
 }

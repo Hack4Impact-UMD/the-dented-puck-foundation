@@ -3,7 +3,9 @@ import { Button, Platform, Text, View } from 'react-native';
 import { FirebaseError } from 'firebase/app';
 import { onAuthStateChanged, type User } from 'firebase/auth';
 import { auth } from '@/firebase';
+import { router } from 'expo-router';
 import { signInWithGoogle } from '@/services/authService';
+import { acceptInvitation, getPendingInvite } from '@/services/inviteService';
 
 export default function LoginScreen() {
   const [user, setUser] = useState<User | null>(auth.currentUser);
@@ -18,6 +20,12 @@ export default function LoginScreen() {
 
     try {
       await signInWithGoogle();
+      // upon the user signing in or signing up, finish an invitation by adding the user to the UserToTeam collection
+      const inviteToken = await getPendingInvite();
+      if (inviteToken) {
+        const teamId = await acceptInvitation(inviteToken);
+        router.replace(`/tabs/teams/${teamId}`);
+      }
     } catch (err) {
       if (err instanceof FirebaseError && err.code === 'auth/popup-closed-by-user') {
         return;

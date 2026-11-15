@@ -5,8 +5,8 @@ import {
   Platform,
   ScrollView,
   Text,
-  TextInput,
   View,
+  type TextInputInstance,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
@@ -21,6 +21,7 @@ import { OrDivider } from "@/components/auth/OrDivider";
 import { PasswordField } from "@/components/auth/PasswordField";
 import {
   getAuthFormError,
+  resumeUnverifiedSignup,
   signInWithApple,
   signInWithGoogle,
   signUpWithEmail,
@@ -39,8 +40,8 @@ export default function SignupScreen() {
   const [formError, setFormError] = useState<string | null>(null);
   const [emailExists, setEmailExists] = useState(false);
   const [pending, setPending] = useState<"email" | "google" | null>(null);
-  const emailRef = useRef<ComponentRef<typeof TextInput>>(null);
-  const passwordRef = useRef<ComponentRef<typeof TextInput>>(null);
+  const emailRef = useRef<TextInputInstance>(null);
+  const passwordRef = useRef<TextInputInstance>(null);
 
   function handleClose() {
     if (router.canGoBack()) {
@@ -85,9 +86,23 @@ export default function SignupScreen() {
     setPending("email");
     try {
       await signUpWithEmail(email, password);
-      router.replace("/auth/verify-email");
+      router.replace("/auth/create-account");
     } catch (err) {
       const { field, code, message } = getAuthFormError(err);
+      
+      if (code === "auth/email-already-in-use") {
+        try {
+          const status = await resumeUnverifiedSignup(email, password);
+          if (status === "unverified") {
+            router.replace("/auth/verify-email");
+            return;
+          }
+      // verified: fall through to the existing "log in instead" message
+        } catch {
+      // wrong password or other failure: fall through to the same message
+        }
+      }
+
       if (field === "email") {
         setEmailError(message);
         setEmailExists(code === "auth/email-already-in-use");

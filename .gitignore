@@ -3,6 +3,9 @@
 # dependencies
 node_modules/
 
+# local agent instructions
+AGENTS.md
+
 # Expo
 .expo/
 dist/
@@ -29,6 +32,9 @@ yarn-error.*
 /firestore-debug.log
 /ui-debug.log
 /.sandbox/
+
+# Firebase emulator logs (firestore-debug.log, firebase-debug.log, ui-debug.log, ...)
+*-debug.log
 
 # macOS
 .DS_Store

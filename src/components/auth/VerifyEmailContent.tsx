@@ -2,8 +2,7 @@ import { Pressable, ScrollView, Text, View } from 'react-native';
 
 interface VerifyEmailContentProps {
   email: string;
-  isLoadingProfile: boolean;
-  isProfileEmailValid: boolean;
+  isLoadingUser: boolean;
   isResending: boolean;
   message: { type: 'error' | 'success'; text: string } | null;
   onBack: () => void;
@@ -13,8 +12,7 @@ interface VerifyEmailContentProps {
 
 export default function VerifyEmailContent({
   email,
-  isLoadingProfile,
-  isProfileEmailValid,
+  isLoadingUser: isLoadingProfile,
   isResending,
   message,
   onBack,
@@ -23,7 +21,7 @@ export default function VerifyEmailContent({
 }: VerifyEmailContentProps) {
   const instructions = 'A verification link has been sent to:';
   const emailLabel = email || (isLoadingProfile ? 'Loading email address' : 'Email unavailable');
-  const isResendDisabled = isResending || !email || !isProfileEmailValid;
+  const isResendDisabled = isResending;
   const rootViewProps = {
     className: 'flex-1 bg-surface-dark',
     experimental_accessibilityOrder: [
@@ -103,11 +101,7 @@ export default function VerifyEmailContent({
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={isResending ? 'Sending verification email' : 'Resend verification email'}
-          accessibilityHint={
-            isLoadingProfile
-              ? 'Available after account details finish loading'
-              : 'Sends another verification link to this email address'
-          }
+          accessibilityHint={'Sends another verification link to this email address'}
           accessibilityState={{ disabled: isResendDisabled, busy: isResending }}
           className={`mt-9 min-h-14 items-center justify-center rounded-sm px-4 ${
             isResendDisabled ? 'bg-brand/70' : 'bg-brand'

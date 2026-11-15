@@ -3,13 +3,19 @@ import {
   createUserWithEmailAndPassword,
   GoogleAuthProvider,
   sendEmailVerification,
+  signInWithEmailAndPassword,
   signInWithPopup,
+  signOut,
   type User as FirebaseUser,
 } from 'firebase/auth';
 import { Platform } from 'react-native';
-import { auth, db } from '@/firebase';
+import { auth, db, storage } from '@/firebase';
+import { getDownloadURL, ref, uploadString } from 'firebase/storage';
+import { birthdayToIso, validateAccountStep, type AccountForm } from '@/utils/validation';
 import type { Role } from '@/types';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore';
+
+export type AccountPhoto = { base64: string; mimeType: string } | null;
 
 export interface UserProfile {
   age: number;
@@ -19,6 +25,7 @@ export interface UserProfile {
   role: Role;
   userId: number;
   username: string;
+  allowLocation?: boolean;
 }
 
 const roles: Role[] = ['global-admin', 'super-admin', 'team-staff', 'player', 'contact'];
@@ -56,6 +63,31 @@ export async function createUserProfile(uid: string, profile: UserProfile): Prom
   await setDoc(userProfileRef(uid), profile);
 }
 
+// Ensures a verified user is registered in Firestore 'Users' with a default role
+export async function initializeVerifiedUser(user: FirebaseUser): Promise<void> {
+  if (!user?.uid || !user.emailVerified) {
+    return;
+  }
+
+  await user.getIdToken(true);
+
+  const userRef = userProfileRef(user.uid);
+  const userSnapshot = await getDoc(userRef);
+
+  if (!userSnapshot.exists()) {
+    await setDoc(
+      userRef,
+      {
+        email: user.email ?? '',
+        role: 'player' as Role,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      },
+      { merge: true },
+    );
+  }
+}
+
 export async function getUserProfile(uid: string): Promise<UserProfile> {
   const profileSnapshot = await getDoc(userProfileRef(uid));
   if (!profileSnapshot.exists()) {
@@ -68,6 +100,20 @@ export async function getUserProfile(uid: string): Promise<UserProfile> {
   }
 
   return profile;
+}
+
+// Resumes signup for an existing unverified account. Signs out verified accounts.
+export async function resumeUnverifiedSignup(
+  email: string,
+  password: string,
+): Promise<'unverified' | 'verified'> {
+  const { user } = await signInWithEmailAndPassword(auth, email.trim(), password);
+  await user.reload();
+  if (user.emailVerified) {
+    await signOut(auth);
+    return 'verified';
+  }
+  return 'unverified';
 }
 
 export async function resendVerificationEmail(
@@ -144,4 +190,35 @@ export function getAuthFormError(err: unknown): AuthFormError {
     default:
       return { field: 'form', code, message: 'Something went wrong. Please try again.' };
   }
+}
+
+// Saves the authenticated user's onboarding profile and optional photo.
+export async function saveAccountProfile(form: AccountForm, photo: AccountPhoto) {
+  const user = auth.currentUser;
+  if (!user?.email) throw new Error('Sign in before saving your account.');
+  const profile = { ...form, email: user.email };
+  for (const step of [1, 2, 3] as const) {
+    const error = Object.values(validateAccountStep(profile, step))[0];
+    if (error) throw new Error(error);
+  }
+
+  let photoURL: string | undefined;
+  if (photo) {
+    const photoRef = ref(storage, `profile-photos/${user.uid}/avatar`);
+    await uploadString(photoRef, photo.base64, 'base64', { contentType: photo.mimeType });
+    photoURL = await getDownloadURL(photoRef);
+  }
+
+  await setDoc(doc(db, 'Users', user.uid), {
+    firstName: profile.firstName.trim(),
+    lastName: profile.lastName.trim(),
+    gender: profile.gender,
+    birthDate: birthdayToIso(profile.birthday),
+    email: user.email,
+    phoneNumber: profile.phoneNumber.replace(/\D/g, ''),
+    usaHockeyNumber: profile.usaHockeyNumber.trim() || null,
+    allowLocation: profile.allowLocation,
+    ...(photoURL ? { photoURL } : {}),
+    updatedAt: serverTimestamp(),
+  }, { merge: true });
 }
