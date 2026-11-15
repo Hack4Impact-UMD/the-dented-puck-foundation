@@ -19,6 +19,7 @@ export interface User {
 }
 
 export interface ShortUserInfo {
+  userId: string;
   username: string;
   role: Role;
 }

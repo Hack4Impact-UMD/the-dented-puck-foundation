@@ -10,7 +10,14 @@ import {
 } from "firebase/firestore";
 import Fuse from "fuse.js";
 import { auth, db } from "@/firebase";
-import { Role, ShortUserInfo, Team, TeamWithId, UserToTeam, UserToTeamWithId } from "@/types";
+import {
+  Role,
+  ShortUserInfo,
+  Team,
+  TeamWithId,
+  UserToTeam,
+  UserToTeamWithId,
+} from "@/types";
 
 import { Region } from "@/types";
 import { getDistance } from "geolib";
@@ -248,16 +255,20 @@ export async function getUsersTeams(userId: number): Promise<number[]> {
 
 // Fetch a specific user's name and role
 // (using username for now until name is added into schema)
-export async function getUsersNameRole(userId: number): Promise<ShortUserInfo> {
+export async function getShortUserInfo(userId: number): Promise<ShortUserInfo> {
   const snapshot = await getDoc(doc(db, "Users", `user_${userId}`));
   if (!snapshot.exists()) {
     throw new Error("User document doesn't exist.");
   }
-  return {username: snapshot.data().username, role: snapshot.data().role as Role};
+  return {
+    username: snapshot.data().username,
+    role: snapshot.data().role as Role,
+    userId: snapshot.data().userId.toString(),
+  };
 }
 
 // Fetch the id's of the active members of a specific team
-export async function getTeamsMembers(teamId: number): Promise<number[]> {
+export async function getTeamsUserIds(teamId: string): Promise<number[]> {
   const snapshot = await getDocs(
     query(
       collection(db, "UserToTeam"),
@@ -272,8 +283,8 @@ export async function getTeamsMembers(teamId: number): Promise<number[]> {
 
 // Returns a boolean of whether a user belongs to a specific team or not
 export async function isUserInTeam(
-  userId: number,
-  teamId: number,
+  userId: string,
+  teamId: string,
 ): Promise<boolean> {
   const snapshot = await getDocs(
     query(
@@ -291,9 +302,7 @@ export async function isUserInTeam(
 // searches by name of user
 export function createShortUserInfoSearch(userList: ShortUserInfo[]) {
   return new Fuse<ShortUserInfo>(userList, {
-    keys: [
-      "username"
-    ],
+    keys: ["username"],
     threshold: 0.3,
     ignoreLocation: true,
   });
