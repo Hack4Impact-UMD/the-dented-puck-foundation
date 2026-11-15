@@ -10,7 +10,9 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "org.thedentedpuckfoundation.app",
-      "associatedDomains": ["applinks:denton-puck.firebaseapp.com"],
+      "associatedDomains": [
+        "applinks:denton-puck.firebaseapp.com"
+      ],
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }
@@ -32,7 +34,10 @@
               "pathPrefix": "/__/auth/links"
             }
           ],
-          "category": ["BROWSABLE", "DEFAULT"]
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
         }
       ]
     },
@@ -54,7 +59,8 @@
       ],
       "expo-asset",
       "expo-font",
-      "@react-native-vector-icons/ionicons"
+      "@react-native-vector-icons/ionicons",
+      "expo-status-bar"
     ],
     "extra": {
       "router": {
