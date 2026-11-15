@@ -26,6 +26,8 @@ export interface HomeEventTeam {
   id: string;
   name: string;
   acronym?: string;
+  /** Approved display metadata; search must not depend on Nearby eligibility. */
+  city?: string;
 }
 
 export interface HomeEvent {

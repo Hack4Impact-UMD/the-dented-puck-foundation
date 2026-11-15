@@ -1,5 +1,15 @@
 # Dented Puck Figma reference
 
+## Keyword search fixes — November 14, 2026
+
+The user reported overly restrictive Home search and requested keyword filtering. Rechecked live For You `1488:25041` and Discover `1739:32476` screenshots; the original field and Home layout remain the reference. This update changes matching only.
+
+- Confirmed the existing matcher already accepts partial words across event titles, team names/acronyms, venues, and cities in any order. Queries now ignore common English connecting words when other keywords exist: `clinic at frederick ice` and `clinic for the ff` find the clinic without requiring those complete phrases in a name. Every meaningful keyword must still match, and scope, visibility, and date ordering remain enforced. Connector-only queries retain literal matching.
+- Straight/curly apostrophes normalize consistently, so `johns` finds `John’s` or `John's`. Existing case, accent, and punctuation normalization remains.
+- Fixed city matching depending on Nearby eligibility. Search now reads the already-approved optional city metadata carried by event teams, with the existing catalog fallback. A visible event can match `ellicott` without a selected location or Nearby card; Nearby itself still requires coordinates. No new Firestore fields, queries, or writes were added.
+
+Validation: standalone keyword regressions, the committed Home test suite, lint, and typecheck pass. No Firestore fields, queries, writes, or dependencies were added.
+
 ## Committed Home scope
 
 Home uses Firebase Auth and the live `firebaseHomeService.ts` adapter for profiles, memberships, events, teams, search, and per-user Follow preferences. Discovery uses foreground device coordinates from `expo-location`; it has no preset city selector or default coordinates. Schedule shows up to five events, Discover up to two events, and Nearby up to two teams. Missing optional team/event coordinates remain missing; no location is inferred.
