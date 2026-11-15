@@ -10,10 +10,9 @@ import {
 } from "firebase/firestore";
 import Fuse from "fuse.js";
 import { auth, db } from "@/firebase";
-import { Team, TeamWithId, UserToTeam, UserToTeamWithId } from "@/types";
+import { Team, TeamWithId, UserToTeam, UserToTeamWithId , Region } from "@/types";
 
 
-import { Region } from "@/types";
 import { getDistance } from "geolib";
 
 // array of region objects representing a hardcoded mapping of region id's (array indices) onto

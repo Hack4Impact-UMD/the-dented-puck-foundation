@@ -65,7 +65,7 @@ export default function ForgotPasswordScreen() {
       onClose={() => router.dismissTo("/auth/login")}
     >
       <Text className="font-sans text-lg text-white">
-        Enter the email you use for Dented Puck. We'll send you a link to set a
+        Enter the email you use for Dented Puck. Well send you a link to set a
         new password.
       </Text>
 
