@@ -1,4 +1,4 @@
-import { useRef, useState, type ComponentRef } from "react";
+import { useRef, useState } from "react";
 import {
   AccessibilityInfo,
   Text,

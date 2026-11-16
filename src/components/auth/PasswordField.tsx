@@ -1,4 +1,4 @@
-import { useState, type ComponentRef, type Ref } from "react";
+import { useState, type Ref } from "react";
 import {
   Pressable,
   Text,
