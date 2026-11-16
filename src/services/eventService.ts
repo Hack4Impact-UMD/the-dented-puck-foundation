@@ -11,16 +11,28 @@ import {
 import { db } from '@/firebase';
 import { EventWithId, Team, TeamWithId } from '@/types';
 
-// Firestore stores times as Timestamps; the Event type uses Date.
+// Firestore stores times as Timestamps. Some events have no endTime.
+function toDate(value: unknown): Date | undefined {
+  if (value instanceof Date) return value;
+  if (value && typeof value === 'object' && 'toDate' in value) {
+    const maybe = value as { toDate?: () => Date };
+    if (typeof maybe.toDate === 'function') return maybe.toDate();
+  }
+  return undefined;
+}
+
 function mapEvent(snapshot: DocumentSnapshot): EventWithId | null {
   if (!snapshot.exists()) return null;
   const data = snapshot.data();
   if (!data) return null;
+  const startTime = toDate(data.startTime);
+  if (!startTime) return null;
   return {
     ...data,
     id: snapshot.id,
-    startTime: data.startTime.toDate(),
-    endTime: data.endTime.toDate(),
+    startTime,
+    // If the doc has no endTime, reuse startTime so later UI can still take a Date.
+    endTime: toDate(data.endTime) ?? startTime,
   } as EventWithId;
 }
 

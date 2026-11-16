@@ -37,7 +37,7 @@ async function getUserTeamIds(userId: string): Promise<number[]> {
 
 // Fallback when the user has no UserToTeam memberships.
 async function getEventsUserHasRsvp(userId: string): Promise<EventWithId[]> {
-  const snap = await getDocs(query(collectionGroup(db, 'RSVP'), where('userId', '==', userId)));
+  const snap = await getDocs(query(collectionGroup(db, 'RSVPs'), where('userId', '==', userId)));
   const eventIds = [
     ...new Set(
       snap.docs
