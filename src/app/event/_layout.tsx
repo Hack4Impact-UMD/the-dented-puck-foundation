@@ -1,5 +1,6 @@
 import { View } from 'react-native';
 import { Stack } from 'expo-router';
+import { HeaderBackButton } from '@/components/HeaderBackButton';
 import { QueryCache, QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 // Scoped to the event screens so the shared root layout stays untouched. If the app gets a
@@ -21,6 +22,7 @@ export default function EventLayout() {
             headerShown: true,
             title: 'Event Details',
             headerBackButtonDisplayMode: 'minimal',
+            headerLeft: () => <HeaderBackButton />,
             headerTintColor: '#FFFFFF',
             headerStyle: { backgroundColor: '#010101' },
             headerTitleStyle: { fontFamily: 'AtkinsonHyperlegible_700Bold' },

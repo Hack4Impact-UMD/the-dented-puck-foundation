@@ -1,5 +1,6 @@
 import { View } from 'react-native';
 import { Stack } from 'expo-router';
+import { HeaderBackButton } from '@/components/HeaderBackButton';
 
 export default function TeamsNearbyLayout() {
   return (
@@ -11,6 +12,7 @@ export default function TeamsNearbyLayout() {
           headerShown: true,
           title: 'Teams Nearby',
           headerBackButtonDisplayMode: 'minimal',
+            headerLeft: () => <HeaderBackButton />,
           headerTintColor: '#FFFFFF',
           headerStyle: { backgroundColor: '#010101' },
           headerTitleStyle: { fontFamily: 'AtkinsonHyperlegible_700Bold' },

@@ -1,5 +1,5 @@
 import { SAMPLE_EVENT } from './__fixtures__/sampleEvent';
-import { getEventWhen, getInitials, splitLocation } from './eventFormat';
+import { getEventWhen, getInitials, getVenueAndCity, splitLocation } from './eventFormat';
 
 describe('getEventWhen', () => {
   it('builds the visible text and the spoken label from the same times', () => {
@@ -46,5 +46,14 @@ describe('getInitials', () => {
     expect(getInitials('Baltimore Blades')).toBe('BB');
     expect(getInitials('harbor hawks juniors')).toBe('HH');
     expect(getInitials('Comets')).toBe('C');
+  });
+});
+
+describe('getVenueAndCity', () => {
+  it('keeps the venue and the city, like the design\'s "Rink name, City"', () => {
+    expect(getVenueAndCity('Quiet Waters Park, Field 2, Annapolis, MD')).toBe('Quiet Waters Park, Annapolis');
+    expect(getVenueAndCity('Truxtun Park, Annapolis, MD')).toBe('Truxtun Park, Annapolis');
+    expect(getVenueAndCity('Main Rink, Annapolis')).toBe('Main Rink, Annapolis');
+    expect(getVenueAndCity('Main Rink')).toBe('Main Rink');
   });
 });

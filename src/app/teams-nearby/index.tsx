@@ -1,5 +1,6 @@
-import { AccessibilityInfo, ActivityIndicator, Platform, Text, View } from 'react-native';
+import { AccessibilityInfo, Platform } from 'react-native';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { ScreenMessage } from '@/components/ScreenMessage';
 import { NearbyTeamsGrid } from '@/components/teams/NearbyTeamsGrid';
 import { getViewer, setTeamFollowed, type Viewer } from '@/services/followService';
 import { getTeamsInRegion } from '@/services/teamService';
@@ -38,18 +39,14 @@ export default function TeamsNearbyScreen() {
   });
 
   if (viewerQuery.isPending || (regionId !== null && teamsQuery.isPending)) {
-    return (
-      <View className="flex-1 items-center justify-center bg-black">
-        <ActivityIndicator color="#FFD101" accessibilityLabel="Loading teams" />
-      </View>
-    );
+    return <ScreenMessage loading label="Loading teams" />;
   }
 
-  if (viewerQuery.isError || teamsQuery.isError) return <Message alert text="Couldn't load teams. Try again later." />;
-  if (!viewer) return <Message text="Sign in to see teams near you." />;
-  if (!viewer.hasProfile) return <Message text="We couldn't find your profile. Finish creating your account first." />;
-  if (regionId === null) return <Message text="Add your region to your profile to see teams near you." />;
-  if (!teamsQuery.data?.length) return <Message text="No teams in your region yet." />;
+  if (viewerQuery.isError || teamsQuery.isError) return <ScreenMessage alert text="Couldn't load teams. Try again later." />;
+  if (!viewer) return <ScreenMessage text="Sign in to see teams near you." />;
+  if (!viewer.hasProfile) return <ScreenMessage text="We couldn't find your profile. Finish creating your account first." />;
+  if (regionId === null) return <ScreenMessage text="Add your region to your profile to see teams near you." />;
+  if (!teamsQuery.data?.length) return <ScreenMessage text="No teams in your region yet." />;
 
   const teams = teamsQuery.data;
   return (
@@ -62,15 +59,5 @@ export default function TeamsNearbyScreen() {
         follow.mutate({ teamId, followed, teamName: teams.find((team) => team.id === teamId)?.name ?? '' })
       }
     />
-  );
-}
-
-function Message({ text, alert = false }: { text: string; alert?: boolean }) {
-  return (
-    <View className="flex-1 items-center justify-center bg-black px-4">
-      <Text accessibilityRole={alert ? 'alert' : 'text'} className="text-center font-sans text-xl text-white">
-        {text}
-      </Text>
-    </View>
   );
 }
