@@ -28,6 +28,10 @@ expo-env.d.ts
 npm-debug.*
 yarn-debug.*
 yarn-error.*
+/firebase-debug.log
+/firestore-debug.log
+/ui-debug.log
+/.sandbox/
 
 # Firebase emulator logs (firestore-debug.log, firebase-debug.log, ui-debug.log, ...)
 *-debug.log

@@ -129,6 +129,7 @@ describe('existing profile and verification APIs after merging onboarding', () =
     expect(setDoc).toHaveBeenCalledWith('profile-document', expect.objectContaining({
       email: 'player@example.com',
       role: 'player',
+      regionId: 1,
     }), { merge: true });
   });
 

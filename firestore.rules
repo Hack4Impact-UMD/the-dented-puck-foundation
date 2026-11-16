@@ -1,0 +1,248 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function currentRole() {
+      return signedIn()
+        && exists(
+          /databases/$(database)/documents/Users/$(request.auth.uid)
+        )
+        ? get(
+            /databases/$(database)/documents/Users/$(request.auth.uid)
+          ).data.get("role", "")
+        : "";
+    }
+
+    function isGlobalAdmin() {
+      return currentRole() == "global-admin";
+    }
+
+    function isTeamStaff() {
+      return currentRole() in ["super-admin", "team-staff"];
+    }
+
+    function isPlayer() {
+      return currentRole() == "player";
+    }
+
+    function isContact() {
+      return currentRole() == "contact";
+    }
+
+    function canReadTeams() {
+      return isPlayer() || isTeamStaff();
+    }
+
+    function membershipId(teamId) {
+      return request.auth.uid + "_" + teamId;
+    }
+
+    function belongsToTeam(teamId) {
+      return signedIn()
+        && exists(
+          /databases/$(database)/documents/UserToTeam/$(membershipId(teamId))
+        )
+        && get(
+          /databases/$(database)/documents/UserToTeam/$(membershipId(teamId))
+        ).data.get("status", "") == "active";
+    }
+
+    // GLOBAL ADMIN: full access, including role management.
+    match /{document=**} {
+      allow read, write: if isGlobalAdmin();
+    }
+
+    // USERS
+    match /Users/{userId} {
+
+      // Players and contacts can read themselves.
+      // Staff can read all users.
+      allow read:
+        if signedIn() && (request.auth.uid == userId || isTeamStaff()) && request.auth.token.email_verified == true;
+      allow create:
+        if signedIn() && request.auth.uid == userId
+        && request.resource.data.get("role", "player") in ["player", "contact"];
+
+      // Players can edit themselves without changing role or region.
+      allow update:
+        if isPlayer()
+        && request.auth.uid == userId
+        && !request.resource.data.diff(resource.data)
+          .affectedKeys().hasAny(["role", "regionId"]);
+
+      // Staff can edit users without changing their roles.
+      allow update:
+        if isTeamStaff()
+        && !request.resource.data.diff(resource.data)
+          .affectedKeys().hasAny(["role"]);
+
+      allow delete:
+        if isTeamStaff();
+    }
+
+    // USER TO TEAM
+    match /UserToTeam/{userToTeamId} {
+
+      // Players can read their own memberships.
+      allow read:
+        if isPlayer()
+        && resource.data.userId == request.auth.uid;
+
+      // Staff can manage memberships.
+      allow read, create, update, delete:
+        if isTeamStaff();
+
+      // Signed-in users get added to a team by accepting an invite.
+      allow create:
+        if signedIn()
+        && userToTeamId == membershipId(request.resource.data.teamId)
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.status == "active"
+        && get(/databases/$(database)/documents/Invitations/$(request.resource.data.invitationId)).data.status == "pending"
+        && get(/databases/$(database)/documents/Invitations/$(request.resource.data.invitationId)).data.teamId == request.resource.data.teamId;
+    }
+
+    // TEAMS
+    match /Teams/{teamId} {
+
+      // Players and staff can read every team.
+      // Global admins are covered by the rule above.
+      allow read:
+        if true;
+
+      // Staff can manage teams they belong to.
+      allow create, update, delete:
+        if isTeamStaff()
+        && belongsToTeam(teamId);
+    }
+
+    // EVENTS
+    match /Events/{eventId} {
+
+      allow read:
+        if isPlayer();
+
+      allow read, create, update, delete:
+        if isTeamStaff();
+
+      // RSVPs  (Events/{eventId}/RSVP/{rsvpId})
+      match /RSVP/{rsvpId} {
+
+        // Players can read and write only their own RSVP.
+        allow read:
+          if isPlayer()
+          && resource.data.userId == request.auth.uid;
+
+        allow create:
+          if isPlayer()
+          && request.resource.data.userId == request.auth.uid
+          && request.resource.data.response in ["yes", "no", "maybe"];
+
+        // Players can change their response, but not who it belongs to.
+        allow update:
+          if isPlayer()
+          && resource.data.userId == request.auth.uid
+          && request.resource.data.userId == request.auth.uid
+          && request.resource.data.response in ["yes", "no", "maybe"];
+
+        allow delete:
+          if isPlayer()
+          && resource.data.userId == request.auth.uid;
+
+        // Staff can manage all RSVPs.
+        allow read, create, update, delete:
+          if isTeamStaff();
+      }
+    }
+
+    // INVITATIONS
+    match /Invitations/{invitationId} {
+
+      // Staff can manage invitations for teams they belong to.
+      allow read:
+        if isTeamStaff()
+        && belongsToTeam(resource.data.teamId);
+
+      allow create:
+        if isTeamStaff()
+        && belongsToTeam(request.resource.data.teamId)
+        && request.resource.data.invitedBy == request.auth.uid
+        && request.resource.data.status == "pending";
+
+      allow update, delete:
+        if isTeamStaff()
+        && belongsToTeam(resource.data.teamId);
+
+      // Anyone with the link can view the invite.
+      allow get: if true;
+
+      // Only a signed-in user can only mark a pending invite as used.
+      allow update:
+        if signedIn()
+        && resource.data.status == "pending"
+        && request.resource.data.status in ["active", "inactive"]
+        && request.resource.data.diff(resource.data)
+        .affectedKeys().hasOnly(["status"]);
+    }
+
+    // CONVERSATIONS
+    match /Conversations/{conversationId} {
+
+      // Staff
+      allow read:
+        if isTeamStaff()
+        && belongsToTeam(resource.data.teamId);
+
+      allow create:
+        if isTeamStaff()
+        && belongsToTeam(request.resource.data.teamId);
+
+      allow update, delete:
+        if isTeamStaff()
+        && belongsToTeam(resource.data.teamId);
+
+      // Players
+      allow read:
+        if isPlayer()
+        && belongsToTeam(resource.data.teamId)
+        && request.auth.uid in resource.data.participantIds;
+
+      allow create:
+        if isPlayer()
+        && belongsToTeam(request.resource.data.teamId)
+        && request.auth.uid in request.resource.data.participantIds;
+
+      allow update:
+        if isPlayer()
+        && belongsToTeam(resource.data.teamId)
+        && request.auth.uid in resource.data.participantIds;
+
+      // MESSAGES
+      match /messages/{messageId} {
+
+        function conversation() {
+          return get(
+            /databases/$(database)/documents/Conversations/$(conversationId)
+          ).data;
+        }
+
+        allow read:
+          if (isPlayer() || isTeamStaff())
+          && request.auth.uid in conversation().participantIds;
+
+        allow create:
+          if (isPlayer() || isTeamStaff())
+          && request.auth.uid in conversation().participantIds
+          && request.resource.data.senderId == request.auth.uid;
+
+        // Global admins retain access through the global rule.
+        allow update, delete: if false;
+      }
+    }
+  }
+}

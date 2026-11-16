@@ -88,6 +88,7 @@ export async function initializeVerifiedUser(
       {
         email: user.email ?? '',
         role: 'player' as Role,
+        regionId: 1,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       },
