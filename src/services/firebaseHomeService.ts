@@ -93,9 +93,9 @@ export function createFirebaseHomeSource(): HomeDataSource {
       current(uid);
       if (!profile.exists()) throw new Error('User profile not found for the signed-in account.');
       const data = profile.data();
-      const region = data.regionId ?? data.reigonId;
+      const region = numericId(data.regionId) ? data.regionId : numericId(data.reigonId) ? data.reigonId : 1;
       const name = text(data.username) || [text(data.firstName), text(data.lastName)].filter(Boolean).join(' ');
-      if (!numericId(region) || !name) throw new Error('Your profile needs a name and numeric regionId before Home can load.');
+      if (!name) throw new Error('Your profile needs a name before Home can load.');
       if (memberships.size > MEMBERSHIP_LIMIT || teamSnapshot.size > CATALOG_LIMIT) {
         throw new Error('The dashboard team catalog exceeds its supported size.');
       }
