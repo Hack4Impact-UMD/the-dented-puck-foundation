@@ -65,6 +65,7 @@ export interface Message {
   senderId: string;
   recipientId?: string;
   timeSent: Date;
+  editedAt?: Date;
 }
 
 export interface Region {

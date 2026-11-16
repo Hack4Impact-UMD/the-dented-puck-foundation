@@ -1,10 +1,11 @@
 import { getDocs, onSnapshot, writeBatch } from 'firebase/firestore';
 import { auth } from '@/firebase';
-import { getMessages, sendMessage, subscribeToMessages } from './messageService';
+import { editMessage, getMessages, sendMessage, subscribeToMessages } from './messageService';
 
 jest.mock('@/firebase', () => ({ db: {}, auth: { currentUser: { uid: 'user_1' } } }));
 
 const mockBatch = { set: jest.fn(), update: jest.fn(), commit: jest.fn() };
+const mockTransaction = { get: jest.fn(), update: jest.fn() };
 
 jest.mock('firebase/firestore', () => ({
   collection: jest.fn((_db, ...path: string[]) => path.join('/')),
@@ -18,6 +19,7 @@ jest.mock('firebase/firestore', () => ({
   orderBy: jest.fn((field, direction) => `orderBy ${field} ${direction}`),
   getDocs: jest.fn(),
   onSnapshot: jest.fn(),
+  runTransaction: jest.fn((_db, update) => update(mockTransaction)),
 }));
 
 const sentAt = new Date(2026, 10, 16, 19, 5);
@@ -122,5 +124,52 @@ describe('subscribeToMessages', () => {
     const error = { code: 'permission-denied' };
     (onSnapshot as jest.Mock).mock.calls[0][2](error);
     expect(onError).toHaveBeenCalledWith(error);
+  });
+});
+
+describe('editMessage', () => {
+  const messageRef = { path: 'Conversations/conversation_401/messages/msg_1' };
+  const conversationRef = { path: 'Conversations/conversation_401' };
+
+  // the transaction reads the message first, then the conversation
+  function storedDocs(senderId: string, lastMessageId: string) {
+    mockTransaction.get
+      .mockResolvedValueOnce({ data: () => ({ senderId, text: 'Practice Thursday' }) })
+      .mockResolvedValueOnce({ data: () => ({ lastMessage: { id: lastMessageId } }) });
+  }
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    (auth as { currentUser: { uid: string } | null }).currentUser = { uid: 'user_1' };
+  });
+
+  it('saves the new text with an edited time and updates the preview of the newest message', async () => {
+    storedDocs('user_1', 'msg_1');
+    await editMessage('conversation_401', 'msg_1', 'Practice Friday');
+
+    expect(mockTransaction.update).toHaveBeenCalledWith(messageRef, {
+      text: 'Practice Friday',
+      editedAt: 'server-time',
+    });
+    expect(mockTransaction.update).toHaveBeenCalledWith(conversationRef, {
+      'lastMessage.text': 'Practice Friday',
+    });
+  });
+
+  it('leaves the preview alone when an older message is edited', async () => {
+    storedDocs('user_1', 'msg_2');
+    await editMessage('conversation_401', 'msg_1', 'Practice Friday');
+
+    expect(mockTransaction.update).toHaveBeenCalledTimes(1);
+    expect(mockTransaction.update).toHaveBeenCalledWith(messageRef, expect.anything());
+  });
+
+  it('rejects without writing when the message belongs to someone else', async () => {
+    storedDocs('user_2', 'msg_1');
+
+    await expect(editMessage('conversation_401', 'msg_1', 'Practice Friday')).rejects.toThrow(
+      'You can only edit your own messages.',
+    );
+    expect(mockTransaction.update).not.toHaveBeenCalled();
   });
 });

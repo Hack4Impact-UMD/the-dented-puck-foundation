@@ -5,6 +5,7 @@ import {
   onSnapshot,
   orderBy,
   query,
+  runTransaction,
   serverTimestamp,
   writeBatch,
   type FirestoreError,
@@ -31,7 +32,12 @@ function messagesQuery(conversationId: string) {
 
 function toMessage(snapshot: QueryDocumentSnapshot): MessageWithId {
   const data = snapshot.data({ serverTimestamps: 'estimate' });
-  return { ...data, id: snapshot.id, timeSent: data.timeSent.toDate() } as MessageWithId;
+  return {
+    ...data,
+    id: snapshot.id,
+    timeSent: data.timeSent.toDate(),
+    editedAt: data.editedAt?.toDate(),
+  } as MessageWithId;
 }
 
 export async function getMessages(conversationId: string): Promise<MessageWithId[]> {
@@ -70,4 +76,26 @@ export async function sendMessage(conversationId: string, text: string): Promise
     lastMessage: { id: messageRef.id, senderId, text, timeSent: serverTimestamp() },
   });
   await batch.commit();
+}
+
+// Edits the current user's own message and updates the chat list preview if it's the newest message
+export async function editMessage(
+  conversationId: string,
+  messageId: string,
+  text: string,
+): Promise<void> {
+  const userId = currentUserId();
+  const messageRef = doc(db, 'Conversations', conversationId, 'messages', messageId);
+  const conversationRef = doc(db, 'Conversations', conversationId);
+
+  await runTransaction(db, async (transaction) => {
+    const message = await transaction.get(messageRef);
+    if (message.data()?.senderId !== userId) throw new Error('You can only edit your own messages.');
+    const conversation = await transaction.get(conversationRef);
+
+    transaction.update(messageRef, { text, editedAt: serverTimestamp() });
+    if (conversation.data()?.lastMessage?.id === messageId) {
+      transaction.update(conversationRef, { 'lastMessage.text': text });
+    }
+  });
 }
