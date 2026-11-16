@@ -1,0 +1,34 @@
+import { ScrollView, Text, View } from 'react-native';
+import { NotificationEventCard } from '@/components/notifications/NotificationEventCard';
+import { formatNotificationDetailDate } from '@/components/notifications/notificationFormat';
+import { EventWithId } from '@/types';
+
+type Props = {
+  event: EventWithId;
+  teamName?: string;
+};
+
+export function NotificationDetail({ event, teamName }: Props) {
+  const when = formatNotificationDetailDate(event.startTime);
+
+  return (
+    <ScrollView className="flex-1 bg-black" contentContainerClassName="px-4 pb-10 pt-2">
+      <Text accessibilityRole="header" className="font-sans-bold text-3xl text-white">
+        {event.title}
+      </Text>
+      <Text className="mt-2 font-sans text-base text-ink-muted-dark">{when}</Text>
+      {teamName ? (
+        <Text className="mt-1 font-sans text-base text-ink-muted-dark">{teamName}</Text>
+      ) : null}
+
+      {event.notes ? (
+        <Text className="mt-6 font-sans text-lg leading-7 text-white">{event.notes}</Text>
+      ) : null}
+
+      <View className="mt-8 gap-6">
+        <View className="h-px bg-line-dark" />
+        <NotificationEventCard event={event} teamName={teamName || 'Team'} />
+      </View>
+    </ScrollView>
+  );
+}
