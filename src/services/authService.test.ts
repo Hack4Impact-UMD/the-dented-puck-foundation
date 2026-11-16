@@ -13,6 +13,7 @@ import {
   getAuthFormError,
   getPostSignInRoute,
   getUserProfile,
+  initializeVerifiedUser,
   resendVerificationEmail,
   saveAccountProfile,
   sendPasswordReset,
@@ -50,6 +51,7 @@ describe('account profile persistence', () => {
     await saveAccountProfile({ ...SAMPLE_ACCOUNT, usaHockeyNumber: '' }, null);
     expect(doc).toHaveBeenCalledWith(expect.anything(), 'Users', 'test-user');
     expect(setDoc).toHaveBeenCalledWith('profile-document', expect.objectContaining({
+      role: 'player',
       firstName: 'Alex', birthDate: '2002-06-14', email: 'verified@example.com',
       phoneNumber: '3015550142', usaHockeyNumber: null,
     }), { merge: true });
@@ -115,6 +117,36 @@ describe('existing profile and verification APIs after merging onboarding', () =
   it('rejects signed-out verification requests before sending an email', async () => {
     await expect(resendVerificationEmail(null)).rejects.toThrow('Sign in before requesting an email verification link.');
     expect(sendEmailVerification).not.toHaveBeenCalled();
+  });
+
+  it('initializes a verified user with role player when profile does not exist', async () => {
+    const verifiedUser = { uid: 'verified-uid', email: 'player@example.com', emailVerified: true, getIdToken: jest.fn() } as unknown as User;
+    jest.mocked(getDoc).mockResolvedValueOnce({ exists: () => false } as never);
+
+    await initializeVerifiedUser(verifiedUser);
+
+    expect(doc).toHaveBeenCalledWith(expect.anything(), 'Users', 'verified-uid');
+    expect(setDoc).toHaveBeenCalledWith('profile-document', expect.objectContaining({
+      email: 'player@example.com',
+      role: 'player',
+    }), { merge: true });
+  });
+
+  it('does not overwrite an existing user profile during initializeVerifiedUser', async () => {
+    const verifiedUser = { uid: 'existing-uid', email: 'existing@example.com', emailVerified: true, getIdToken: jest.fn() } as unknown as User;
+    jest.mocked(getDoc).mockResolvedValueOnce({ exists: () => true } as never);
+
+    await initializeVerifiedUser(verifiedUser);
+
+    expect(setDoc).not.toHaveBeenCalled();
+  });
+
+  it('ignores unverified users during initializeVerifiedUser', async () => {
+    const unverifiedUser = { uid: 'unverified-uid', email: 'unverified@example.com', emailVerified: false } as unknown as User;
+
+    await initializeVerifiedUser(unverifiedUser);
+
+    expect(setDoc).not.toHaveBeenCalled();
   });
 });
 
