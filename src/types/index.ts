@@ -1,6 +1,7 @@
 export type Role = "global-admin" | "super-admin" | "team-staff" | "player" | "contact";
 export type Status = "inactive" | "active" | "suspended" | "pending";
 export type ConversationType = "group" | "dm";
+export type MessageType = "text";
 
 
 
@@ -54,9 +55,12 @@ export interface Conversation {
   teamId?: string;
   type: ConversationType;
   participantIds: string[];
+  lastMessage?: { id: string; text: string; senderId: string; timeSent: Date };
 }
 
 export interface Message {
+  conversationId: string;
+  type: MessageType;
   text: string;
   senderId: string;
   recipientId?: string;
