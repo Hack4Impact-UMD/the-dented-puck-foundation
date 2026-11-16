@@ -137,6 +137,7 @@ export default function NewMessageScreen() {
   //     }
   //   }, [profile, profile?.userId]);
 
+  // checks if onlyPlayers are selected
   const onlyPlayersError=
     (!profile || !profile?.role)
       ? false
