@@ -11,7 +11,7 @@ type Props = {
 export function NotificationCard({ notification, onPress }: Props) {
   const dateLabel = formatNotificationListDate(notification.startTime);
   const initials = notification.teamName ? getInitials(notification.teamName) : null;
-  const a11yLabel = [notification.title, notification.notes, dateLabel, 'Unread']
+  const a11yLabel = [notification.title, notification.notes, dateLabel, notification.read ? 'Read' : 'Unread']
     .filter(Boolean)
     .join('. ');
 
@@ -21,7 +21,9 @@ export function NotificationCard({ notification, onPress }: Props) {
       accessibilityRole="button"
       accessibilityLabel={a11yLabel}
       accessibilityHint="Opens the event details"
-      className="rounded-xl border border-brand bg-surface-alt-dark p-4 active:opacity-80"
+      className={`rounded-xl bg-surface-alt-dark p-4 active:opacity-80 ${
+        notification.read ? '' : 'border border-brand'
+      }`}
     >
       <View className="flex-row gap-3">
         <View
