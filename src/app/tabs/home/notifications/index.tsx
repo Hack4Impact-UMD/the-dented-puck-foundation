@@ -26,7 +26,7 @@ export default function NotificationsScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-black" edges={['top']}>
-      <NotificationHeader title="Notifications" onBack={() => router.back()} />
+      <NotificationHeader title="Notifications" onBack={() => (router.canGoBack() ? router.back() : router.replace('/tabs/home'))} />
       <NotificationTabs value={tab} onChange={setTab} />
 
       {listQuery.isPending ? (
