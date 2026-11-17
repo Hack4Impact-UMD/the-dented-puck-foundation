@@ -43,6 +43,7 @@ export function NotificationDetail({ event, teamName, onMarkUnread }: Props) {
           onPress={() => {}}
           accessibilityRole="button"
           accessibilityLabel="Message Coach"
+          accessibilityHint="Opens a chat with your coach"
           className="min-h-12 flex-row items-center justify-center gap-2 rounded-md border border-brand bg-[#2B2400] px-4 active:opacity-70"
         >
           <Ionicons name="chatbox-ellipses" size={20} color="#FFD101" />
@@ -53,6 +54,7 @@ export function NotificationDetail({ event, teamName, onMarkUnread }: Props) {
           onPress={onMarkUnread}
           accessibilityRole="button"
           accessibilityLabel="Mark as unread"
+          accessibilityHint="Moves this notification back to the Unread tab"
           className="min-h-10 items-center justify-center active:opacity-70"
         >
           <Text className="font-sans text-base text-ink-muted-dark underline">Mark as unread</Text>
