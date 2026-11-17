@@ -1,3 +1,4 @@
+import { FirebaseError } from 'firebase/app';
 import {
   collection,
   doc,
@@ -120,4 +121,21 @@ export async function deleteMessage(conversationId: string, messageId: string): 
       });
     }
   });
+}
+
+// Turns an error from a chat operation into a message the chat screen can show
+export function getMessageError(err: unknown): string {
+  if (!(err instanceof FirebaseError)) {
+    // our own checks, not a firebase error
+    return err instanceof Error ? err.message : 'Something went wrong. Please try again.';
+  }
+
+  switch (err.code) {
+    case 'permission-denied':
+      return "You don't have permission to do that in this chat.";
+    case 'unavailable':
+      return 'No internet connection. Check your connection and try again.';
+    default:
+      return 'Something went wrong. Please try again.';
+  }
 }

@@ -1,6 +1,7 @@
+import { FirebaseError } from 'firebase/app';
 import { getDocs, onSnapshot, writeBatch } from 'firebase/firestore';
 import { auth } from '@/firebase';
-import { deleteMessage, editMessage, getMessages, sendMessage, subscribeToMessages } from './messageService';
+import { deleteMessage, editMessage, getMessageError, getMessages, sendMessage, subscribeToMessages } from './messageService';
 
 jest.mock('@/firebase', () => ({ db: {}, auth: { currentUser: { uid: 'user_1' } } }));
 
@@ -210,5 +211,31 @@ describe('deleteMessage', () => {
       'You can only delete your own messages.',
     );
     expect(mockTransaction.update).not.toHaveBeenCalled();
+  });
+});
+
+describe('getMessageError', () => {
+  it('explains when Firestore rules block the action', () => {
+    expect(getMessageError(new FirebaseError('permission-denied', 'Missing permissions'))).toBe(
+      "You don't have permission to do that in this chat.",
+    );
+  });
+
+  it('explains when there is no connection', () => {
+    expect(getMessageError(new FirebaseError('unavailable', 'Client is offline'))).toBe(
+      'No internet connection. Check your connection and try again.',
+    );
+  });
+
+  it('keeps the message from our own checks', () => {
+    expect(getMessageError(new Error('You can only edit your own messages.'))).toBe(
+      'You can only edit your own messages.',
+    );
+  });
+
+  it('falls back to a general message for other Firestore errors', () => {
+    expect(getMessageError(new FirebaseError('internal', 'Internal error'))).toBe(
+      'Something went wrong. Please try again.',
+    );
   });
 });
