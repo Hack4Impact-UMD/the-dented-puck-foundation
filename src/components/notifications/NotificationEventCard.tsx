@@ -1,4 +1,4 @@
-import { Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import { getEventWhen, getInitials } from '@/components/events/eventFormat';
 import { EventWithId } from '@/types';
 
@@ -6,10 +6,11 @@ type Props = {
   event: EventWithId;
   teamName: string;
   joined?: boolean;
+  onPress: () => void;
 };
 
 // Compact event summary shown on the announcement detail screen.
-export function NotificationEventCard({ event, teamName, joined = true }: Props) {
+export function NotificationEventCard({ event, teamName, joined = true, onPress }: Props) {
   const when = getEventWhen(event.startTime, event.endTime);
   const initials = getInitials(teamName);
   const locationShort = event.location.split(',')[0]?.trim() || event.location;
@@ -19,13 +20,14 @@ export function NotificationEventCard({ event, teamName, joined = true }: Props)
       <Text accessibilityRole="header" className="font-sans-bold text-base text-white">
         Event
       </Text>
-      <View
-        accessible
-        accessibilityRole="text"
+      <Pressable
+        onPress={onPress}
+        accessibilityRole="button"
+        accessibilityHint="Opens the full event page"
         accessibilityLabel={`${event.title}. ${when.spoken}. ${event.location}. ${teamName}${
           joined ? '. Joined' : ''
         }`}
-        className="rounded-xl bg-surface-alt-dark p-4"
+        className="rounded-xl bg-surface-alt-dark p-4 active:opacity-80"
       >
         <View className="flex-row gap-3">
           <View className="w-14 items-center rounded bg-black py-2">
@@ -48,7 +50,7 @@ export function NotificationEventCard({ event, teamName, joined = true }: Props)
             </View>
           </View>
         </View>
-      </View>
+      </Pressable>
     </View>
   );
 }

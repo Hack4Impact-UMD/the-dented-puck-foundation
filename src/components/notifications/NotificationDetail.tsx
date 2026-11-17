@@ -1,4 +1,5 @@
 import { ScrollView, Text, View } from 'react-native';
+import { router } from 'expo-router';
 import { NotificationEventCard } from '@/components/notifications/NotificationEventCard';
 import { formatNotificationDetailDate } from '@/components/notifications/notificationFormat';
 import { EventWithId } from '@/types';
@@ -27,7 +28,13 @@ export function NotificationDetail({ event, teamName }: Props) {
 
       <View className="mt-8 gap-6">
         <View className="h-px bg-line-dark" />
-        <NotificationEventCard event={event} teamName={teamName || 'Team'} />
+        <NotificationEventCard
+          event={event}
+          teamName={teamName || 'Team'}
+          onPress={() =>
+            router.push({ pathname: '/event/[eventId]', params: { eventId: event.id } })
+          }
+        />
       </View>
     </ScrollView>
   );
