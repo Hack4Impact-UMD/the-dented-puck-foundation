@@ -1,4 +1,5 @@
-import { ScrollView, Text, View } from 'react-native';
+import { Pressable, ScrollView, Text, View } from 'react-native';
+import { Ionicons } from '@react-native-vector-icons/ionicons';
 import { router } from 'expo-router';
 import { NotificationEventCard } from '@/components/notifications/NotificationEventCard';
 import { formatNotificationDetailDate } from '@/components/notifications/notificationFormat';
@@ -35,6 +36,17 @@ export function NotificationDetail({ event, teamName }: Props) {
             router.push({ pathname: '/event/[eventId]', params: { eventId: event.id } })
           }
         />
+
+        <Pressable
+          // TODO: open the coach's chat once Ryan's chat room PR is merged.
+          onPress={() => {}}
+          accessibilityRole="button"
+          accessibilityLabel="Message Coach"
+          className="min-h-12 flex-row items-center justify-center gap-2 rounded-xl border border-brand px-4 active:opacity-70"
+        >
+          <Ionicons name="chatbox" size={20} color="#FFD101" />
+          <Text className="font-sans-bold text-base text-brand">Message Coach</Text>
+        </Pressable>
       </View>
     </ScrollView>
   );
