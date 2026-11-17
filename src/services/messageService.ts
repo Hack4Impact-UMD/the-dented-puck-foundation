@@ -37,6 +37,7 @@ function toMessage(snapshot: QueryDocumentSnapshot): MessageWithId {
     id: snapshot.id,
     timeSent: data.timeSent.toDate(),
     editedAt: data.editedAt?.toDate(),
+    deletedAt: data.deletedAt?.toDate(),
   } as MessageWithId;
 }
 
@@ -96,6 +97,27 @@ export async function editMessage(
     transaction.update(messageRef, { text, editedAt: serverTimestamp() });
     if (conversation.data()?.lastMessage?.id === messageId) {
       transaction.update(conversationRef, { 'lastMessage.text': text });
+    }
+  });
+}
+
+// Soft deletes the current user's own message and marks the chat list preview as deleted if it's the newest message
+export async function deleteMessage(conversationId: string, messageId: string): Promise<void> {
+  const userId = currentUserId();
+  const messageRef = doc(db, 'Conversations', conversationId, 'messages', messageId);
+  const conversationRef = doc(db, 'Conversations', conversationId);
+
+  await runTransaction(db, async (transaction) => {
+    const message = await transaction.get(messageRef);
+    if (message.data()?.senderId !== userId) throw new Error('You can only delete your own messages.');
+    const conversation = await transaction.get(conversationRef);
+
+    transaction.update(messageRef, { text: '', deletedAt: serverTimestamp() });
+    if (conversation.data()?.lastMessage?.id === messageId) {
+      transaction.update(conversationRef, {
+        'lastMessage.text': '',
+        'lastMessage.deletedAt': serverTimestamp(),
+      });
     }
   });
 }

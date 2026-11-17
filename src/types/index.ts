@@ -55,7 +55,7 @@ export interface Conversation {
   teamId?: string;
   type: ConversationType;
   participantIds: string[];
-  lastMessage?: { id: string; text: string; senderId: string; timeSent: Date };
+  lastMessage?: { id: string; text: string; senderId: string; timeSent: Date; deletedAt?: Date };
 }
 
 export interface Message {
@@ -66,6 +66,7 @@ export interface Message {
   recipientId?: string;
   timeSent: Date;
   editedAt?: Date;
+  deletedAt?: Date; 
 }
 
 export interface Region {
