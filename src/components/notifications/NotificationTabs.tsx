@@ -27,12 +27,12 @@ export function NotificationTabs({ value, onChange }: Props) {
             accessibilityRole="tab"
             accessibilityState={{ selected }}
             accessibilityLabel={tab.label}
-            className={`min-h-10 flex-1 items-center justify-center rounded-full px-4 active:opacity-70 ${
-              selected ? 'bg-brand' : 'border border-brand bg-transparent'
+            className={`min-h-8 items-center justify-center rounded-md border border-brand px-3 active:opacity-70 ${
+              selected ? 'bg-brand' : 'bg-[#2B2400]'
             }`}
           >
             <Text
-              className={`font-sans-bold text-base ${
+              className={`font-sans-bold text-sm ${
                 selected ? 'text-on-brand' : 'text-brand'
               }`}
             >
