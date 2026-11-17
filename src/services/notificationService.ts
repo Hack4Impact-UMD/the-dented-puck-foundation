@@ -1,9 +1,10 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { collection, collectionGroup, getDocs, query, where } from 'firebase/firestore';
 import { auth, db } from '@/firebase';
 import { getEvent, getEventsForTeamIds, getTeamByTeamId } from '@/services/eventService';
 import { EventWithId } from '@/types';
 
-// A list item is an event. read is always false until a later table tracks what the user has seen.
+// A list item is an event. read is true once the user has opened it.
 export type EventNotification = EventWithId & {
   teamName?: string;
   read: boolean;
@@ -50,7 +51,21 @@ async function getEventsUserHasRsvp(userId: string): Promise<EventWithId[]> {
   return events.filter((event): event is EventWithId => event !== null);
 }
 
-async function withTeamNames(events: EventWithId[]): Promise<EventNotification[]> {
+// TEMP: read ids are saved on this device only.
+// TODO: replace with the users-to-read-notifications table when it exists.
+function readKey(userId: string) {
+  return `readNotifications:${userId}`;
+}
+
+async function getReadIds(userId: string): Promise<string[]> {
+  const saved = await AsyncStorage.getItem(readKey(userId));
+  return saved ? JSON.parse(saved) : [];
+}
+
+async function withTeamNames(
+  events: EventWithId[],
+  readIds: string[],
+): Promise<EventNotification[]> {
   const teamIds = [
     ...new Set(events.map((event) => event.teamIds[0]).filter((id) => id !== undefined)),
   ];
@@ -65,7 +80,7 @@ async function withTeamNames(events: EventWithId[]): Promise<EventNotification[]
   return events.map((event) => ({
     ...event,
     teamName: event.teamIds[0] !== undefined ? names.get(event.teamIds[0]) : undefined,
-    read: false,
+    read: readIds.includes(event.id),
   }));
 }
 
@@ -78,16 +93,20 @@ export async function getNotifications(): Promise<EventNotification[]> {
     teamIds.length > 0 ? await getEventsForTeamIds(teamIds) : await getEventsUserHasRsvp(userId);
 
   const now = Date.now();
-  // Upcoming events are Unread. The Read tab stays empty for now.
-  // TODO: read state will come from a future users-to-read-notifications table.
+  // Upcoming events are the notifications. Opened ones show in the Read tab.
   const upcoming = events
     .filter((event) => event.startTime.getTime() > now)
     .sort((a, b) => a.startTime.getTime() - b.startTime.getTime());
 
-  return withTeamNames(upcoming);
+  const readIds = await getReadIds(userId);
+  return withTeamNames(upcoming, readIds);
 }
 
-// TODO: persist read state once the users-to-read-notifications table exists.
-export async function markNotificationRead(_notificationId: string): Promise<void> {
-  return;
+export async function markNotificationRead(notificationId: string): Promise<void> {
+  const userId = auth.currentUser?.uid;
+  if (!userId) return;
+
+  const readIds = await getReadIds(userId);
+  if (readIds.includes(notificationId)) return;
+  await AsyncStorage.setItem(readKey(userId), JSON.stringify([...readIds, notificationId]));
 }

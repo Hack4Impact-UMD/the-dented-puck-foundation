@@ -1,13 +1,24 @@
+import { useEffect } from 'react';
 import { ActivityIndicator, Text, View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NotificationDetail } from '@/components/notifications/NotificationDetail';
 import { NotificationHeader } from '@/components/notifications/NotificationHeader';
 import { getEvent, getTeamByTeamId } from '@/services/eventService';
+import { markNotificationRead } from '@/services/notificationService';
 
 export default function NotificationDetailScreen() {
   const { eventId } = useLocalSearchParams<{ eventId: string }>();
+  const queryClient = useQueryClient();
+
+  // Opening a notification marks it read, then refreshes the list and the bell count.
+  useEffect(() => {
+    if (!eventId) return;
+    markNotificationRead(eventId).then(() =>
+      queryClient.invalidateQueries({ queryKey: ['notifications'] }),
+    );
+  }, [eventId, queryClient]);
 
   const eventQuery = useQuery({
     queryKey: ['event', eventId],

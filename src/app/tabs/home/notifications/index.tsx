@@ -20,8 +20,7 @@ export default function NotificationsScreen() {
 
   const items = useMemo(() => {
     const all = listQuery.data ?? [];
-    // Read stays empty until a users-to-read-notifications table exists.
-    return tab === 'unread' ? all.filter((item) => !item.read) : [];
+    return all.filter((item) => (tab === 'unread' ? !item.read : item.read));
   }, [listQuery.data, tab]);
 
   return (
