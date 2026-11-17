@@ -27,6 +27,7 @@ export function NotificationTabs({ value, onChange }: Props) {
             accessibilityRole="tab"
             accessibilityState={{ selected }}
             accessibilityLabel={tab.label}
+            accessibilityHint={`Shows ${tab.label.toLowerCase()} notifications`}
             className={`min-h-8 items-center justify-center rounded-md border border-brand px-3 active:opacity-70 ${
               selected ? 'bg-brand' : 'bg-[#2B2400]'
             }`}
