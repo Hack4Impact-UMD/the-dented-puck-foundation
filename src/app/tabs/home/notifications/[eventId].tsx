@@ -6,7 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { NotificationDetail } from '@/components/notifications/NotificationDetail';
 import { NotificationHeader } from '@/components/notifications/NotificationHeader';
 import { getEvent, getTeamByTeamId } from '@/services/eventService';
-import { markNotificationRead } from '@/services/notificationService';
+import { markNotificationRead, markNotificationUnread } from '@/services/notificationService';
 
 export default function NotificationDetailScreen() {
   const { eventId } = useLocalSearchParams<{ eventId: string }>();
@@ -19,6 +19,13 @@ export default function NotificationDetailScreen() {
       queryClient.invalidateQueries({ queryKey: ['notifications'] }),
     );
   }, [eventId, queryClient]);
+
+  // Moves it back to the Unread tab and returns to the list.
+  const markUnread = async () => {
+    await markNotificationUnread(eventId);
+    await queryClient.invalidateQueries({ queryKey: ['notifications'] });
+    router.back();
+  };
 
   const eventQuery = useQuery({
     queryKey: ['event', eventId],
@@ -56,7 +63,7 @@ export default function NotificationDetailScreen() {
           </Text>
         </View>
       ) : (
-        <NotificationDetail event={event} teamName={teamName} />
+        <NotificationDetail event={event} teamName={teamName} onMarkUnread={markUnread} />
       )}
     </SafeAreaView>
   );

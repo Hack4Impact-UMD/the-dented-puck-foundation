@@ -110,3 +110,14 @@ export async function markNotificationRead(notificationId: string): Promise<void
   if (readIds.includes(notificationId)) return;
   await AsyncStorage.setItem(readKey(userId), JSON.stringify([...readIds, notificationId]));
 }
+
+export async function markNotificationUnread(notificationId: string): Promise<void> {
+  const userId = auth.currentUser?.uid;
+  if (!userId) return;
+
+  const readIds = await getReadIds(userId);
+  await AsyncStorage.setItem(
+    readKey(userId),
+    JSON.stringify(readIds.filter((id) => id !== notificationId)),
+  );
+}

@@ -8,9 +8,10 @@ import { EventWithId } from '@/types';
 type Props = {
   event: EventWithId;
   teamName?: string;
+  onMarkUnread: () => void;
 };
 
-export function NotificationDetail({ event, teamName }: Props) {
+export function NotificationDetail({ event, teamName, onMarkUnread }: Props) {
   const when = formatNotificationDetailDate(event.startTime);
 
   return (
@@ -46,6 +47,15 @@ export function NotificationDetail({ event, teamName }: Props) {
         >
           <Ionicons name="chatbox-ellipses" size={20} color="#FFD101" />
           <Text className="font-sans-bold text-base text-brand">Message Coach</Text>
+        </Pressable>
+
+        <Pressable
+          onPress={onMarkUnread}
+          accessibilityRole="button"
+          accessibilityLabel="Mark as unread"
+          className="min-h-10 items-center justify-center active:opacity-70"
+        >
+          <Text className="font-sans text-base text-ink-muted-dark underline">Mark as unread</Text>
         </Pressable>
       </View>
     </ScrollView>
