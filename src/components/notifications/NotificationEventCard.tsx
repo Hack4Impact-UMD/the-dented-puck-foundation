@@ -10,7 +10,7 @@ type Props = {
 };
 
 // Compact event summary shown on the announcement detail screen.
-export function NotificationEventCard({ event, teamName, joined = true, onPress }: Props) {
+export function NotificationEventCard({ event, teamName, joined = false, onPress }: Props) {
   const when = getEventWhen(event.startTime, event.endTime);
   const initials = getInitials(teamName);
   const locationShort = event.location.split(',')[0]?.trim() || event.location;

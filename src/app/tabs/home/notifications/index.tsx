@@ -9,12 +9,12 @@ import {
   NotificationTabs,
   type NotificationTab,
 } from '@/components/notifications/NotificationTabs';
-import { getNotifications } from '@/services/notificationService';
+import { getNotifications, notificationsKey } from '@/services/notificationService';
 
 export default function NotificationsScreen() {
   const [tab, setTab] = useState<NotificationTab>('unread');
   const listQuery = useQuery({
-    queryKey: ['notifications'],
+    queryKey: notificationsKey(),
     queryFn: getNotifications,
   });
 

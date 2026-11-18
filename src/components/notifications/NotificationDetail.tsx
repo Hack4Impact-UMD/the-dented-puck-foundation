@@ -42,7 +42,7 @@ export function NotificationDetail({ event, teamName }: Props) {
           onPress={() => {}}
           accessibilityRole="button"
           accessibilityLabel="Message Coach"
-          accessibilityHint="Opens a chat with your coach"
+          accessibilityHint="Chat with your coach is coming soon"
           className="min-h-12 flex-row items-center justify-center gap-2 rounded-md border border-brand bg-[#2B2400] px-4 active:opacity-70"
         >
           <Ionicons name="chatbox-ellipses" size={20} color="#FFD101" />

@@ -84,6 +84,12 @@ async function withTeamNames(
   }));
 }
 
+// Query key for the notifications list, scoped to the signed-in user
+// so one account never sees another account's cached notifications.
+export function notificationsKey() {
+  return ['notifications', auth.currentUser?.uid ?? 'signed-out'];
+}
+
 export async function getNotifications(): Promise<EventNotification[]> {
   const userId = auth.currentUser?.uid;
   if (!userId) return [];

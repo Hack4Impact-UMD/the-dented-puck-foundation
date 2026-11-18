@@ -3,12 +3,12 @@ import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@react-native-vector-icons/ionicons';
 import { useQuery } from '@tanstack/react-query';
-import { getNotifications } from '@/services/notificationService';
+import { getNotifications, notificationsKey } from '@/services/notificationService';
 
 // Placeholder Home: layout/design TBD. Bell links to Notifications (issue #23).
 export default function HomeScreen() {
   // Same query key as the Notifications screen, so they share one cached result.
-  const { data } = useQuery({ queryKey: ['notifications'], queryFn: getNotifications });
+  const { data } = useQuery({ queryKey: notificationsKey(), queryFn: getNotifications });
   const unreadCount = (data ?? []).filter((item) => !item.read).length;
 
   return (
