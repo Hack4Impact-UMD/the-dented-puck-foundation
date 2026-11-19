@@ -145,6 +145,9 @@ export default function FindTeamScreen() {
         accessible={false}
         className="w-full flex-1"
         contentContainerClassName="w-full flex-grow items-start px-4 pt-5 pb-10"
+        // close the keyboard when tapping empty space or dragging the list
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
         showsVerticalScrollIndicator
       >
         <Text
