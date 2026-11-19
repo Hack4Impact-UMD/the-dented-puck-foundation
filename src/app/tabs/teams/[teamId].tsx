@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Text, View, useWindowDimensions } from 'react-native';
+import { ActivityIndicator, ScrollView, Text, View, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
 
@@ -61,7 +61,8 @@ export default function TeamInfo() {
           </Text>
         </View>
       ) : (
-        <>
+        // scroll so every button is reachable at large text sizes
+        <ScrollView className="flex-1" contentContainerClassName="flex-grow">
           <TeamInfoCard name={team.name} season={getSeasonLabel()}>
             <View className={`${pairRow} gap-4 w-full mt-8`}>
               <AppButton
@@ -112,7 +113,7 @@ export default function TeamInfo() {
               accessibilityHint={`Sends a request to the coach to join ${team.name}`}
             />
           </View>
-        </>
+        </ScrollView>
       )}
       {/* NAVBAR */}
     </SafeAreaView>

@@ -1,4 +1,4 @@
-import { Image, Platform, Pressable, Text, View, useWindowDimensions } from 'react-native';
+import { Image, Platform, Pressable, Text, View } from 'react-native';
 import { Tabs, router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
@@ -16,14 +16,13 @@ export const unstable_settings = { anchor: 'home' };
 
 function DashboardTabs() {
   const { destinations } = useHomeDashboard();
-  const { fontScale } = useWindowDimensions();
   return (
     <Tabs
       backBehavior="initialRoute"
       screenOptions={{ headerShown: false }}
       tabBar={({ state, emitter, navigateToTab }) => (
         <SafeAreaView edges={['bottom', 'left', 'right']} className="border-t border-line-dark bg-surface-navigation">
-          <View accessibilityRole={Platform.OS === 'ios' ? undefined : 'tablist'} className="flex-row flex-wrap pt-2">
+          <View accessibilityRole={Platform.OS === 'ios' ? undefined : 'tablist'} className="flex-row pt-2">
             {(['Home', 'Teams', 'Chats', 'Account'] as const).map((label) => {
               const routeName = label === 'Home' ? 'home' : label.toLowerCase();
               const selected = state.routes[state.index]?.name === routeName;
@@ -46,12 +45,13 @@ function DashboardTabs() {
                     } else if (!usesTabRoute && href) router.navigate(href);
                   }}
                   className="min-h-16 items-center gap-0.5 px-1 pb-2 active:opacity-70"
-                  style={{ width: fontScale > 1.6 ? '50%' : '25%' }}
+                  style={{ width: '25%' }}
                 >
                   <View className={`h-8 w-14 items-center justify-center rounded-2xl ${selected ? 'bg-brand' : ''}`}>
                     <Image accessible={false} importantForAccessibility="no" source={icons[label]} style={{ width: 24, height: 24, tintColor: selected ? '#010101' : '#FFFFFF' }} />
                   </View>
-                  <Text className={`text-center text-lg leading-6 text-white ${selected ? 'font-sans-bold' : 'font-sans'}`}>{label}</Text>
+                  {/* cap label growth so all 4 tabs stay on one row at large text sizes */}
+                  <Text maxFontSizeMultiplier={1.5} numberOfLines={1} className={`text-center text-lg text-white ${selected ? 'font-sans-bold' : 'font-sans'}`}>{label}</Text>
                 </Pressable>
               );
             })}
