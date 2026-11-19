@@ -15,7 +15,7 @@ export default function TeamHeader({ onBack, onCreate }: TeamHeaderProps) {
 
   return (
     <View className="flex-row items-center w-full px-2">
-      <View className="w-24">
+      <View className="min-w-24 shrink-0">
         <Pressable
           onPress={onBack}
           className="w-12 h-12 items-center justify-center active:opacity-70"
@@ -28,7 +28,7 @@ export default function TeamHeader({ onBack, onCreate }: TeamHeaderProps) {
       </View>
 
       <View
-        className="flex-1 h-12 items-center justify-center"
+        className="flex-1 min-h-12 items-center justify-center"
         accessible={isFindTeam}
         accessibilityRole={isFindTeam ? "header" : undefined}
         accessibilityLabel={isFindTeam ? "Find a team" : undefined}
@@ -36,14 +36,14 @@ export default function TeamHeader({ onBack, onCreate }: TeamHeaderProps) {
         {isFindTeam && (
           <Text
             accessible={false}
-            className="text-white font-sans-bold text-[21px]"
+            className="text-center text-white font-sans-bold text-[21px]"
           >
             Find a team
           </Text>
         )}
       </View>
 
-      <View className="w-24 items-end">
+      <View className="min-w-24 shrink-0 items-end">
         <AppButton
           title="Create"
           onPress={onCreate}
