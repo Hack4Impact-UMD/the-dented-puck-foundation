@@ -112,7 +112,7 @@ export interface HomeDataSource {
  * instead of navigating to an invented path or displaying an inert control.
  */
 export interface HomeDestinations {
-  eventList?: (section: HomeSection) => Href;
+  eventList?: (section: HomeSection) => Href | undefined;
   nearbyTeamList?: Href;
   announcementList?: Href;
   team?: (teamId: string) => Href;

@@ -1,12 +1,24 @@
 import { ActivityIndicator, Text, View } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
+import { Stack, useLocalSearchParams } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { EventDetails } from '@/components/events/EventDetails';
 import { addEventToCalendar } from '@/services/calendarService';
 import { getEvent, getTeamByTeamId } from '@/services/eventService';
 
-// Event Details page, opened as /event/<eventId>.
+// Event Details (6400), opened from an event card on Home or See All. The Home stack
+// (tabs/home/_layout.tsx) supplies the header, back button and tab bar.
 export default function EventDetailsScreen() {
+  return (
+    <>
+      {/* Home's first screen has no title, so iOS would show and read "index" on the back button.
+          Arrow only, labeled "Back" as in the annotation. */}
+      <Stack.Screen options={{ title: 'Event Details', headerBackTitle: 'Back', headerBackButtonDisplayMode: 'minimal' }} />
+      <EventDetailsContent />
+    </>
+  );
+}
+
+function EventDetailsContent() {
   const { eventId } = useLocalSearchParams<{ eventId: string }>();
 
   const eventQuery = useQuery({ queryKey: ['event', eventId], queryFn: () => getEvent(eventId) });
