@@ -1,12 +1,25 @@
 import { AccessibilityInfo, Platform } from 'react-native';
+import { Stack } from 'expo-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ScreenMessage } from '@/components/ScreenMessage';
 import { NearbyTeamsGrid } from '@/components/teams/NearbyTeamsGrid';
 import { getViewer, setTeamFollowed, type Viewer } from '@/services/followService';
 import { getTeamsInRegion } from '@/services/teamService';
 
-// See All – Teams Nearby (6600), opened as /teams-nearby.
+// See All – Teams Nearby (6600), opened from Home's "See all nearby teams". The Home stack
+// (tabs/home/_layout.tsx) supplies the "Teams Nearby" header, back button and tab bar.
 export default function TeamsNearbyScreen() {
+  return (
+    <>
+      {/* Home's first screen has no title, so iOS would show and read "index" on the back button.
+          Arrow only, labeled "Back" as in the annotation. */}
+      <Stack.Screen options={{ headerBackTitle: 'Back', headerBackButtonDisplayMode: 'minimal' }} />
+      <TeamsNearbyContent />
+    </>
+  );
+}
+
+function TeamsNearbyContent() {
   const queryClient = useQueryClient();
 
   const viewerQuery = useQuery({ queryKey: ['viewer'], queryFn: getViewer });

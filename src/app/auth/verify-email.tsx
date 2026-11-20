@@ -5,7 +5,7 @@ import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import VerifyEmailContent from '@/components/auth/VerifyEmailContent';
 import { auth } from '@/firebase';
-import { resendVerificationEmail } from '@/services/authService';
+import { initializeVerifiedUser, resendVerificationEmail } from '@/services/authService';
 
 type ScreenMessage = { type: 'error' | 'success'; text: string };
 
@@ -40,6 +40,7 @@ export default function VerifyEmailScreen() {
         await currentUser.reload();
         if (currentUser.emailVerified && isMounted && !isNavigatingRef.current) {
           isNavigatingRef.current = true;
+          await initializeVerifiedUser(currentUser);
           router.replace('/auth/create-account');
         }
       } catch (err) {
