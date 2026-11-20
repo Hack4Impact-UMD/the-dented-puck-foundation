@@ -18,7 +18,6 @@ export default function TeamInfo() {
   const [result, setResult] = useState<{ id: string; team: TeamWithId | null } | null>(null);
   const loading = result?.id !== teamId;
   const team = loading ? null : result.team;
-  console.log(team);
 
   // fetch team from Firestore whenever teamId changes then update results
   useEffect(() => {

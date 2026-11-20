@@ -60,7 +60,16 @@
       "expo-asset",
       "expo-font",
       "@react-native-vector-icons/ionicons",
-      "expo-status-bar"
+      "expo-status-bar",
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Allow The Dented Puck Foundation to find events and teams near you.",
+          "locationAlwaysAndWhenInUsePermission": false,
+          "locationAlwaysPermission": false,
+          "motionUsagePermission": false
+        }
+      ]
     ],
     "extra": {
       "router": {
