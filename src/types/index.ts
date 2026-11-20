@@ -18,12 +18,6 @@ export interface User {
   linkedPlayerId?: string; //for contacts
 }
 
-export interface ShortUserInfo {
-  userId: string;
-  username: string;
-  role: Role;
-}
-
 export interface Team {
   region: string;
   name: string;

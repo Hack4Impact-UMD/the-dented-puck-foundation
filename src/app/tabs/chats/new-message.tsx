@@ -7,19 +7,18 @@ import {
   createShortUserInfoSearch,
   searchShortUserInfoList,
 } from "@/services/teamService";
-import { Role, ShortUserInfo } from "@/types";
+import { Role } from "@/types";
 import { useQuery } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
 import { Alert, View, Text } from "react-native";
 
-// navigate to this page with a custom field: teamId
+
 
 export default function NewMessageScreen() {
   // will have the teamId we pass in when routing to this page (required)
   const params = useLocalSearchParams();
-  const teamId: string =
-    typeof params.teamId === "string" ? params.teamId : "";
+  const teamId: string = typeof params.teamId === "string" ? params.teamId : "";
 
   const [profile, setProfile] = useState<Pick<
     UserProfile,
@@ -82,7 +81,7 @@ export default function NewMessageScreen() {
         teamUserIds.map((userId) => getShortUserInfo(userId)),
       );
       const sortedShortUserInfoList = shortUserInfoList.sort(
-        (shortUserInfo1, shortUserInfo2) =>
+        (shortUserInfo1: ShortUserInfo, shortUserInfo2: ShortUserInfo) =>
           shortUserInfo1.username.localeCompare(shortUserInfo2.username),
       );
       return sortedShortUserInfoList;
@@ -90,7 +89,8 @@ export default function NewMessageScreen() {
   });
 
   function getUserRole(userId: string): Role | undefined {
-    return fullTeamShortUserList.find((member) => member.userId === userId)?.role;
+    return fullTeamShortUserList.find((member) => member.userId === userId)
+      ?.role;
   }
 
   // state var for search bar input
@@ -125,30 +125,18 @@ export default function NewMessageScreen() {
     });
   }
 
-  // MAY NOT BE NEEDED
-  //   // Populates the selectedMembersUserIds with the currently
-  //   // logged in user's userId when a user logs in
-  //   useEffect(() => {
-  //     if (!profile) return;
-
-  //     const userId = profile.userId.toString();
-  //     if(!selectedMembersUserIds.has(userId)){
-  //         toggleUserSelectionStatus(userId);
-  //     }
-  //   }, [profile, profile?.userId]);
-
   // checks if onlyPlayers are selected
-  const onlyPlayersError=
-    (!profile || !profile?.role)
+  const onlyPlayersError =
+    !profile || !profile?.role
       ? false
-      : ((profile.role === "player") &&
-        (Array.from(selectedMembersUserIds).reduce((acc, userId) => {
-            const role = getUserRole(userId);
-            if(role && (!(role === "player"))){
-                acc += 1;
-            }
-            return acc;
-        }, 0)) === 0);
+      : profile.role === "player" &&
+        Array.from(selectedMembersUserIds).reduce((acc, userId) => {
+          const role = getUserRole(userId);
+          if (role && !(role === "player")) {
+            acc += 1;
+          }
+          return acc;
+        }, 0) === 0;
 
   return (
     <View className="flex-1 items-center justify-center bg-black">
