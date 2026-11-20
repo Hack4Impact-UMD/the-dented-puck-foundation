@@ -5,16 +5,16 @@ import { getInitials } from './eventFormat';
 type Props = {
   title: string;
   teamName: string;
-  followed: boolean;
-  onToggleFollow: () => void;
+  followed?: boolean;
+  onToggleFollow?: () => void; // the coach view (6450) has no Follow button
 };
 
-// Reading order: title, team, Follow.
-export function EventHeader({ title, teamName, followed, onToggleFollow }: Props) {
+// Reading order: title, team, Follow (players only).
+export function EventHeader({ title, teamName, followed = false, onToggleFollow }: Props) {
   const followLabel = (isFollowed: boolean) => `${isFollowed ? 'Following' : 'Follow'} ${teamName}`;
 
   const toggle = () => {
-    onToggleFollow();
+    onToggleFollow?.();
     AccessibilityInfo.announceForAccessibility(followLabel(!followed));
   };
 
@@ -48,13 +48,15 @@ export function EventHeader({ title, teamName, followed, onToggleFollow }: Props
         </View>
 
         {/* Followed is the outline variant: gold outline and text on near-black. The gray is the card around it. */}
-        <AppButton
-          title={followed ? 'Followed' : 'Follow'}
-          accessibilityLabel={followLabel(followed)}
-          variant={followed ? 'outline' : 'secondary'}
-          onPress={toggle}
-          className="min-w-[96px] px-4"
-        />
+        {onToggleFollow && (
+          <AppButton
+            title={followed ? 'Followed' : 'Follow'}
+            accessibilityLabel={followLabel(followed)}
+            variant={followed ? 'outline' : 'secondary'}
+            onPress={toggle}
+            className="min-w-[96px] px-4"
+          />
+        )}
       </View>
     </View>
   );
