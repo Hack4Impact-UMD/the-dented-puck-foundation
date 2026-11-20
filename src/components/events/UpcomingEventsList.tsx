@@ -1,16 +1,20 @@
 import { type ComponentRef, type RefObject, useRef, useState } from 'react';
 import { AccessibilityInfo, FlatList, Platform, View } from 'react-native';
+import { router } from 'expo-router';
+import { EventCard } from '@/components/home/EventCard';
+import { homeDestinations } from '@/config/homeDestinations';
 import type { UpcomingEvent } from '@/services/eventService';
-import { EventListCard } from './EventListCard';
+import type { HomeViewer } from '@/types/home';
 import { filterByTeams, filterValue, SORT_LABELS, sortEvents, teamsInEvents, type EventSort } from './eventList';
 import { ListControlButton } from './ListControlButton';
 import { OptionSheet } from './OptionSheet';
 
-type Props = { events: UpcomingEvent[]; viewerRegionId: number | null };
+type Props = { events: UpcomingEvent[]; viewerRegionId: number | null; homeViewer?: HomeViewer | null };
 
 // 6300 – See All (Events). Reading order: Filter, Sort, then each event card.
+// Cards are Home's EventCard, so both screens show events the same way.
 // Filter only offers teams that are in the list, so a filtered list is never empty.
-export function UpcomingEventsList({ events, viewerRegionId }: Props) {
+export function UpcomingEventsList({ events, viewerRegionId, homeViewer }: Props) {
   const [teamIds, setTeamIds] = useState<string[]>([]);
   const [sort, setSort] = useState<EventSort>('date');
   const [sheet, setSheet] = useState<'filter' | 'sort' | null>(null);
@@ -49,7 +53,10 @@ export function UpcomingEventsList({ events, viewerRegionId }: Props) {
       <FlatList
         data={shown}
         keyExtractor={(event) => event.id}
-        renderItem={({ item }) => <EventListCard event={item} />}
+        renderItem={({ item }) => {
+          const href = homeDestinations.event?.(item.id);
+          return <EventCard event={item} viewer={homeViewer} onPress={href ? () => router.push(href) : undefined} />;
+        }}
         contentContainerClassName="gap-4 p-4"
       />
 

@@ -1,5 +1,5 @@
 import type { UpcomingEvent } from '@/services/eventService';
-import { filterByTeams, filterValue, listTeamNames, sortEvents, teamsInEvents } from './eventList';
+import { filterByTeams, filterValue, sortEvents, teamsInEvents } from './eventList';
 
 jest.mock('@/firebase', () => ({ auth: {}, db: {} }));
 
@@ -12,6 +12,7 @@ const event = (id: string, day: number, regionId: number | null, teams = [HAWKS]
   startTime: new Date(2026, 11, day, 10),
   endTime: new Date(2026, 11, day, 12),
   location: 'Rink, City, MD',
+  isTeamSpecific: false,
   regionId,
   teams,
 });
@@ -40,14 +41,5 @@ describe('event list helpers', () => {
   it('describes the Filter value like the annotation', () => {
     expect(filterValue(0)).toBe('None');
     expect(filterValue(2)).toBe('2 applied');
-  });
-
-  it('joins team names for the spoken label', () => {
-    expect(listTeamNames([HAWKS])).toBe('Harbor Hawks');
-    expect(listTeamNames([HAWKS, COMETS])).toBe('Harbor Hawks and Chesapeake Comets');
-    expect(listTeamNames([HAWKS, COMETS, { id: 'x', name: 'Prairie Thunder', acronym: 'PT' }])).toBe(
-      'Harbor Hawks, Chesapeake Comets and Prairie Thunder',
-    );
-    expect(listTeamNames([])).toBe('');
   });
 });

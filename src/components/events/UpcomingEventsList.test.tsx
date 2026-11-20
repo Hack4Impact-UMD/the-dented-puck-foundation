@@ -18,6 +18,7 @@ const EVENTS: UpcomingEvent[] = [
     startTime: new Date(2026, 9, 31, 20),
     endTime: new Date(2026, 10, 1, 0),
     location: 'Quiet Waters Park, Field 2, Annapolis, MD',
+    isTeamSpecific: false,
     regionId: 1,
     teams: [HAWKS],
   },
@@ -27,13 +28,16 @@ const EVENTS: UpcomingEvent[] = [
     startTime: new Date(2026, 10, 26, 17),
     endTime: new Date(2026, 10, 26, 20),
     location: 'Truxtun Park, Annapolis, MD',
+    isTeamSpecific: false,
     regionId: 1,
     teams: [COMETS],
   },
 ];
 
-const HAT_TRICK = 'Haunted Hat Trick, Saturday, October 31, 8 PM to 12 AM, Quiet Waters Park, Annapolis, Harbor Hawks';
-const CRANBERRY = 'Cranberry Cup, Thursday, November 26, 5 PM to 8 PM, Truxtun Park, Annapolis, Chesapeake Comets';
+// Home's EventCard builds the label: title, date, time, location, then the team names.
+// The date and time text comes from the device locale, so only the start and end are matched.
+const HAT_TRICK = /^Haunted Hat Trick, .*Quiet Waters Park, Field 2, Annapolis, MD, Harbor Hawks$/;
+const CRANBERRY = /^Cranberry Cup, .*Truxtun Park, Annapolis, MD, Chesapeake Comets$/;
 
 describe('UpcomingEventsList', () => {
   afterEach(() => jest.restoreAllMocks());
@@ -41,7 +45,10 @@ describe('UpcomingEventsList', () => {
   it('reads Filter, Sort, then each event card, soonest first', async () => {
     await render(<UpcomingEventsList events={EVENTS} viewerRegionId={1} />);
     const stops = screen.getAllByRole('button').map((element) => element.props.accessibilityLabel);
-    expect(stops).toEqual(['Filter', 'Sort', HAT_TRICK, CRANBERRY]);
+    expect(stops).toHaveLength(4);
+    expect(stops.slice(0, 2)).toEqual(['Filter', 'Sort']);
+    expect(stops[2]).toMatch(HAT_TRICK);
+    expect(stops[3]).toMatch(CRANBERRY);
   });
 
   it('gives Filter and Sort their current values', async () => {
@@ -52,14 +59,15 @@ describe('UpcomingEventsList', () => {
 
   it('shows each team acronym on its card', async () => {
     await render(<UpcomingEventsList events={EVENTS} viewerRegionId={1} />);
-    expect(within(screen.getByRole('button', { name: HAT_TRICK })).getByText('HH')).toBeTruthy();
-    expect(within(screen.getByRole('button', { name: CRANBERRY })).getByText('CC')).toBeTruthy();
+    // The badges are visual; screen readers get the team names in the card label instead.
+    expect(within(screen.getByRole('button', { name: HAT_TRICK })).getByText('HH', { includeHiddenElements: true })).toBeTruthy();
+    expect(within(screen.getByRole('button', { name: CRANBERRY })).getByText('CC', { includeHiddenElements: true })).toBeTruthy();
   });
 
   it('opens Event Details for the tapped event', async () => {
     await render(<UpcomingEventsList events={EVENTS} viewerRegionId={1} />);
     await fireEvent.press(screen.getByRole('button', { name: CRANBERRY }));
-    expect(router.push).toHaveBeenCalledWith({ pathname: '/event/[eventId]', params: { eventId: 'event_302' } });
+    expect(router.push).toHaveBeenCalledWith({ pathname: '/tabs/home/event/[eventId]', params: { eventId: 'event_302' } });
   });
 
   it('filters by team and updates the Filter value', async () => {

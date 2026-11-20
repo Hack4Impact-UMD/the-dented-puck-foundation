@@ -1,13 +1,14 @@
 import { regionRegionDistance, regions } from '@/services/teamService';
-import type { EventTeam, UpcomingEvent } from '@/services/eventService';
+import type { UpcomingEvent } from '@/services/eventService';
+import type { HomeEventTeam } from '@/types/home';
 
 export type EventSort = 'date' | 'nearest';
 
 export const SORT_LABELS: Record<EventSort, string> = { date: 'By date', nearest: 'Nearest' };
 
 // Every team that appears in the list, for the Filter options, A to Z.
-export function teamsInEvents(events: UpcomingEvent[]): EventTeam[] {
-  const teams = new Map<string, EventTeam>();
+export function teamsInEvents(events: UpcomingEvent[]): HomeEventTeam[] {
+  const teams = new Map<string, HomeEventTeam>();
   for (const event of events) for (const team of event.teams) teams.set(team.id, team);
   return [...teams.values()].sort((a, b) => a.name.localeCompare(b.name));
 }
@@ -36,10 +37,4 @@ export function sortEvents(events: UpcomingEvent[], sort: EventSort, viewerRegio
 // Filter button value from the annotation: "None", or "2 applied".
 export function filterValue(count: number) {
   return count ? `${count} applied` : 'None';
-}
-
-// "Harbor Hawks", "Harbor Hawks and Chesapeake Comets", "A, B and C" for the card's spoken label.
-export function listTeamNames(teams: EventTeam[]) {
-  const names = teams.map((team) => team.name);
-  return names.length < 2 ? names.join('') : `${names.slice(0, -1).join(', ')} and ${names[names.length - 1]}`;
 }

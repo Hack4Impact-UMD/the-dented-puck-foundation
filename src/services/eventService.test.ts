@@ -67,7 +67,7 @@ describe('getUpcomingEvents', () => {
   const ts = (date: Date) => ({ toDate: () => date });
   const now = new Date(2026, 10, 15, 12);
 
-  it('returns events from every region, soonest first, with team acronyms', async () => {
+  it('returns events from every region, soonest first, with their teams', async () => {
     (getDocs as jest.Mock)
       // Events where('endTime', '>=', now)
       .mockResolvedValueOnce({
@@ -89,9 +89,10 @@ describe('getUpcomingEvents', () => {
 
     const events = await getUpcomingEvents(now);
 
-    expect(events.map((e) => [e.id, e.regionId])).toEqual([['event_301', 1], ['event_302', 2]]);
+    expect(events.map((e) => [e.id, e.regionId, e.isTeamSpecific])).toEqual([['event_301', 1, false], ['event_302', 2, false]]);
+    // Teams only carry an acronym when the team document has one; otherwise EventCard builds it.
     expect(events[0].teams).toEqual([
-      { id: 'team_201', name: 'Harbor Hawks', acronym: 'HH' },
+      { id: 'team_201', name: 'Harbor Hawks' },
       { id: 'team_202', name: 'Chesapeake Comets', acronym: 'CHC' },
     ]);
   });

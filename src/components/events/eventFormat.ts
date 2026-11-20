@@ -62,13 +62,6 @@ export function splitLocation(location: string) {
   return { name: lines[0] ?? '', details: lines.slice(1), spoken: spellOut(parts) };
 }
 
-// "Quiet Waters Park, Field 2, Annapolis, MD" -> "Quiet Waters Park, Annapolis" (the design's "Rink name, City")
-export function getVenueAndCity(location: string) {
-  const parts = location.split(',').map((part) => part.trim()).filter(Boolean);
-  const city = parts.length >= 3 ? parts[parts.length - 2] : parts[1];
-  return [parts[0], city].filter(Boolean).join(', ');
-}
-
 // "Baltimore Blades" -> "BB"
 export function getInitials(name: string) {
   return name

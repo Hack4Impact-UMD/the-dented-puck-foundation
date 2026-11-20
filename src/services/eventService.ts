@@ -1,7 +1,7 @@
 import { collection, doc, getDoc, getDocs, limit, query, where } from 'firebase/firestore';
 import { db } from '@/firebase';
-import { getInitials } from '@/components/events/eventFormat';
 import { EventWithId, Team, TeamWithId } from '@/types';
+import type { HomeEvent, HomeEventTeam } from '@/types/home';
 
 // get one event by document ID
 export async function getEvent(eventId: string): Promise<EventWithId | null> {
@@ -26,19 +26,10 @@ export async function getTeamByTeamId(teamId: string | number): Promise<TeamWith
   return { id: found.id, ...(found.data() as Team) };
 }
 
-export type EventTeam = { id: string; name: string; acronym: string };
+// Same shape as Home's events, so See All can reuse Home's EventCard. regionId is for Sort > Nearest.
+export type UpcomingEvent = HomeEvent & { regionId: number | null };
 
-export type UpcomingEvent = {
-  id: string; // Events document ID, used by the Event Details route
-  title: string;
-  startTime: Date;
-  endTime: Date;
-  location: string;
-  regionId: number | null;
-  teams: EventTeam[];
-};
-
-// get events from every region that haven't ended yet, soonest first, with each team's acronym.
+// get events from every region that haven't ended yet, soonest first, with their teams.
 // One range filter on endTime needs no composite index; sorting by start time happens here.
 export async function getUpcomingEvents(now = new Date()): Promise<UpcomingEvent[]> {
   const snapshot = await getDocs(query(collection(db, 'Events'), where('endTime', '>=', now)));
@@ -64,8 +55,9 @@ export async function getUpcomingEvents(now = new Date()): Promise<UpcomingEvent
         startTime: start,
         endTime: end,
         location: typeof data.location === 'string' ? data.location : '',
+        isTeamSpecific: data.isTeamSpecific === true,
         regionId: typeof region === 'number' ? region : null,
-        teams: (data.teamIds ?? []).map((teamId: string | number) => teams.get(teamId)).filter(Boolean) as EventTeam[],
+        teams: (data.teamIds ?? []).map((teamId: string | number) => teams.get(teamId)).filter(Boolean) as HomeEventTeam[],
       };
     })
     .sort((a, b) => a.startTime.getTime() - b.startTime.getTime() || a.title.localeCompare(b.title));
@@ -73,14 +65,15 @@ export async function getUpcomingEvents(now = new Date()): Promise<UpcomingEvent
 
 // Teams by their `teamId` field, 30 at a time (Firestore's limit for "in").
 async function getTeamsByTeamId(teamIds: (string | number)[]) {
-  const teams = new Map<string | number, EventTeam>();
+  const teams = new Map<string | number, HomeEventTeam>();
   for (let i = 0; i < teamIds.length; i += 30) {
     const result = await getDocs(query(collection(db, 'Teams'), where('teamId', 'in', teamIds.slice(i, i + 30))));
     for (const teamDoc of result.docs) {
       const data = teamDoc.data();
       if (typeof data.name !== 'string' || !data.name.trim()) continue;
-      const acronym = typeof data.acronym === 'string' && data.acronym.trim() ? data.acronym.trim() : getInitials(data.name);
-      teams.set(data.teamId, { id: teamDoc.id, name: data.name.trim(), acronym });
+      // EventCard builds the acronym from the name unless the team has its own `acronym`.
+      const acronym = typeof data.acronym === 'string' && data.acronym.trim() ? data.acronym.trim() : undefined;
+      teams.set(data.teamId, { id: teamDoc.id, name: data.name.trim(), ...(acronym ? { acronym } : {}) });
     }
   }
   return teams;
