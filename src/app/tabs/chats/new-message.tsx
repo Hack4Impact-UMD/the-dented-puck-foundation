@@ -7,7 +7,7 @@ import {
   isUserInTeam,
   searchShortUserInfoList,
 } from "@/services/teamService";
-import { Role } from "@/types";
+import { ShortUserInfo } from "@/types";
 import Ionicons from "@react-native-vector-icons/ionicons";
 import { useQuery } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";
@@ -23,12 +23,6 @@ import {
   TextInput,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-
-type ShortUserInfo = {
-  userId: string;
-  username: string;
-  role: Role;
-};
 
 // Helper function that inputs a user or user role directly
 // and outputs a boolean representing if the user is a staff user
@@ -297,7 +291,7 @@ export default function NewMessageScreen() {
     return [
       {
         title: "Coaches and staff",
-        data: filteredMembers.filter((m) => m.isStaff),
+        data: filteredMembers.filter((m) => isUserStaff(m)),
       },
       {
         title: "Players",
@@ -341,7 +335,7 @@ export default function NewMessageScreen() {
 
       <SectionList
         sections={sections}
-        keyExtractor={(m) => m.id}
+        keyExtractor={(m) => m.userId}
         keyboardShouldPersistTaps="handled"
         stickySectionHeadersEnabled={false}
         contentContainerStyle={{
@@ -405,8 +399,8 @@ export default function NewMessageScreen() {
         renderItem={({ item }) => (
           <MemberRow
             member={item}
-            selected={selectedIds.includes(item.id)}
-            onToggle={() => toggle(item.id)}
+            selected={selectedIds.includes(item.userId)}
+            onToggle={() => toggle(item.userId)}
           />
         )}
       />
