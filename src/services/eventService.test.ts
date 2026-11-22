@@ -1,8 +1,10 @@
-import { getDoc, getDocs } from 'firebase/firestore';
-import { getEvent, getTeamByTeamId } from './eventService';
+import { addDoc, getDoc, getDocs } from 'firebase/firestore';
+import { createEvent, getEvent, getTeamByTeamId } from './eventService';
 
 jest.mock('@/firebase', () => ({ db: {} }));
 jest.mock('firebase/firestore', () => ({
+  addDoc: jest.fn(),
+  serverTimestamp: jest.fn(() => 'server-time'),
   doc: jest.fn(() => 'event-document'),
   getDoc: jest.fn(),
   getDocs: jest.fn(),
@@ -60,5 +62,40 @@ describe('getTeamByTeamId', () => {
   it('returns null when no team has that teamId', async () => {
     (getDocs as jest.Mock).mockResolvedValue({ docs: [] });
     await expect(getTeamByTeamId(999)).resolves.toBeNull();
+  });
+});
+
+describe('createEvent', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it("saves a team event on the picked day with the team's region and returns its id", async () => {
+    (getDocs as jest.Mock).mockResolvedValue({
+      docs: [{ id: 'team_201', data: () => ({ name: 'Harbor Hawks', teamId: 201, reigonId: 3 }) }],
+    });
+    (addDoc as jest.Mock).mockResolvedValue({ id: 'event_new' });
+    const date = new Date(2026, 10, 21);
+
+    await expect(
+      createEvent({ title: 'Saturday practice', notes: 'Bring jerseys', date, teamId: 201 }),
+    ).resolves.toBe('event_new');
+    expect((addDoc as jest.Mock).mock.calls[0][1]).toEqual({
+      title: 'Saturday practice',
+      notes: 'Bring jerseys',
+      teamIds: [201],
+      regionId: 3,
+      isTeamSpecific: true,
+      startTime: date,
+      endTime: date,
+      location: '',
+      createdAt: 'server-time',
+    });
+  });
+
+  it('does not save when the team does not exist', async () => {
+    (getDocs as jest.Mock).mockResolvedValue({ docs: [] });
+    await expect(
+      createEvent({ title: 'Practice', notes: '', date: new Date(2026, 10, 21), teamId: 999 }),
+    ).rejects.toThrow();
+    expect(addDoc).not.toHaveBeenCalled();
   });
 });

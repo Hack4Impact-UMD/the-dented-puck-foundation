@@ -41,7 +41,10 @@ function getWeeks(month: Date) {
 }
 
 export default function NewEventDateScreen() {
-  const { date } = useLocalSearchParams<{ date?: string }>();
+  const { teamId, date } = useLocalSearchParams<{
+    teamId: string;
+    date?: string;
+  }>();
   const today = startOfToday();
   const [selected, setSelected] = useState(() =>
     date ? fromDateParam(date) : today,
@@ -155,7 +158,7 @@ export default function NewEventDateScreen() {
         onPress={() =>
           router.dismissTo({
             pathname: "/tabs/home/new-event",
-            params: { date: toDateParam(selected) },
+            params: { teamId, date: toDateParam(selected) },
           })
         }
       />

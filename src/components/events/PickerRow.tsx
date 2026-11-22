@@ -1,6 +1,7 @@
 import type { Ref } from "react";
 import { Pressable, Text, View, type PressableInstance } from "react-native";
 import { Ionicons } from "@react-native-vector-icons/ionicons";
+import { AuthErrorMessage } from "@/components/auth/AuthErrorMessage";
 
 type PickerRowProps = {
   label: string;
@@ -9,6 +10,7 @@ type PickerRowProps = {
   hint: string;
   onPress?: () => void;
   disabled?: boolean;
+  error?: string;
   // Lets the form move screen reader focus back here after a value is picked
   ref?: Ref<PressableInstance>;
 };
@@ -21,6 +23,7 @@ export function PickerRow({
   hint,
   onPress,
   disabled,
+  error,
   ref,
 }: PickerRowProps) {
   return (
@@ -36,10 +39,12 @@ export function PickerRow({
         accessibilityRole="button"
         accessibilityLabel={label}
         accessibilityValue={{ text: value ?? "Not selected" }}
-        accessibilityHint={hint}
+        accessibilityHint={error ? `Error: ${error}` : hint}
         disabled={disabled}
         onPress={onPress}
-        className="min-h-14 flex-row items-center gap-3 rounded border-2 border-white bg-surface-field p-4 active:opacity-80"
+        className={`min-h-14 flex-row items-center gap-3 rounded border-2 bg-surface-field p-4 active:opacity-80 ${
+          error ? "border-danger-dark" : "border-white"
+        }`}
       >
         <Text
           className={`flex-1 font-sans text-lg ${value ? "text-white" : "text-ink-subtle"}`}
@@ -50,6 +55,7 @@ export function PickerRow({
           <Ionicons name="chevron-forward" size={24} color="#FFFFFF" />
         </View>
       </Pressable>
+      {error ? <AuthErrorMessage message={error} /> : null}
     </View>
   );
 }

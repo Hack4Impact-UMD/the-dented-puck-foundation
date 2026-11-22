@@ -20,6 +20,8 @@ export interface User {
 
 export interface Team {
   region: string;
+  regionId?: number;
+  reigonId?: number;
   name: string;
   supervisorId: string;
   status: Status;
