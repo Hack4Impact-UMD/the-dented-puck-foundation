@@ -9,7 +9,7 @@ export default function ProfileGate({ children }: { children: (profile: Profile)
   if (isError) {
     return (
       <View className="flex-1 items-center justify-center bg-black px-6">
-        <Text className="text-center text-lg font-sans text-white">Couldn't load your profile. Go back and try again.</Text>
+        <Text className="text-center text-lg font-sans text-white">Couldn&apos;t load your profile. Go back and try again.</Text>
       </View>
     );
   }

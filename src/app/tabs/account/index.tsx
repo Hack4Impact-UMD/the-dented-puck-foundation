@@ -63,7 +63,7 @@ export default function AccountScreen() {
   if (status === 'error') {
     return (
       <View className="flex-1 items-center justify-center bg-black px-6">
-        <Text className="text-center text-lg font-sans text-white">Couldn't load your account. Try again later.</Text>
+        <Text className="text-center text-lg font-sans text-white">Couldn&apos;t load your account. Try again later.</Text>
       </View>
     );
   }
