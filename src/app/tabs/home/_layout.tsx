@@ -8,5 +8,6 @@ export default function HomeLayout() {
     <Stack.Screen name="nearby-teams" options={{ title: 'Teams Nearby' }} />
     <Stack.Screen name="search" options={{ headerShown: false, animation: 'none' }} />
     <Stack.Screen name="new-event" options={{ title: 'New Event', headerBackButtonDisplayMode: 'minimal' }} />
+    <Stack.Screen name="new-event-date" options={{ title: 'Date', headerBackButtonDisplayMode: 'minimal' }} />
   </Stack>;
 }
