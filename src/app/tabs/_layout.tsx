@@ -61,6 +61,7 @@ function DashboardTabs() {
     >
       <Tabs.Screen name="home" options={{ title: 'Home' }} />
       <Tabs.Screen name="teams" options={{ title: 'Teams' }} />
+      <Tabs.Screen name="account" options={{ title: 'Account' }} />
     </Tabs>
   );
 }

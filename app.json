@@ -69,7 +69,8 @@
           "locationAlwaysPermission": false,
           "motionUsagePermission": false
         }
-      ]
+      ],
+      "@react-native-community/datetimepicker"
     ],
     "extra": {
       "router": {
