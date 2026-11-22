@@ -139,8 +139,17 @@ export default function FindTeamScreen() {
           onCreate={() => router.push("/tabs/teams/create")}
         />
       </View>
-      {/* Main section */}
-      <View className="w-full flex-1 min-h-0 self-stretch flex-col items-start px-4 pt-5 pb-10">
+      {/* Main section - everything below the header scrolls together so the
+          title and search box move out of the way at large text sizes */}
+      <ScrollView
+        accessible={false}
+        className="w-full flex-1"
+        contentContainerClassName="w-full flex-grow items-start px-4 pt-5 pb-10"
+        // close the keyboard when tapping empty space or dragging the list
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
+        showsVerticalScrollIndicator
+      >
         <Text
           accessibilityRole="header"
           className="text-3xl font-sans-bold text-white"
@@ -148,7 +157,7 @@ export default function FindTeamScreen() {
           Search teams
         </Text>
 
-        <View className="mt-3 h-16 w-full flex-row items-center rounded border-2 border-white bg-surface-field px-4">
+        <View className="mt-3 min-h-16 w-full flex-row items-center rounded border-2 border-white bg-surface-field px-4">
           <View
             pointerEvents="none"
             className="items-center justify-center"
@@ -162,7 +171,7 @@ export default function FindTeamScreen() {
             accessibilityLabel="Search teams"
             accessibilityHint="Search for teams here by entering a team name or city"
             autoCapitalize="none"
-            className="pb-1 ml-3 h-full min-w-0 flex-1 font-sans text-2xl text-white"
+            className="pb-1 ml-3 min-w-0 flex-1 self-stretch font-sans text-2xl text-white"
             onChangeText={setSearch}
             placeholder="Team name or city"
             placeholderTextColor="#BDBDBD"
@@ -173,44 +182,38 @@ export default function FindTeamScreen() {
         </View>
 
         <Text
-          className="mt-5 self-stretch font-sans-bold text-2xl leading-9 text-ink-subtle"
+          className="mt-5 self-stretch font-sans-bold text-2xl text-ink-subtle"
           accessibilityLiveRegion="polite"
         >
           {teamCountMessage}
         </Text>
 
         {isPageLoading ? (
-          <View className="mt-3 w-full flex-1 min-h-0 items-center justify-center border-b border-ink-subtle">
-            <Text className="text-center font-sans text-2xl leading-9 text-ink-subtle">
+          <View className="mt-3 w-full flex-1 items-center justify-center border-b border-ink-subtle">
+            <Text className="text-center font-sans text-2xl text-ink-subtle">
               Loading teams...
             </Text>
           </View>
         ) : locationPreferenceStatus === "error" ? (
-          <View className="mt-3 w-full flex-1 min-h-0 items-center justify-center border-b border-ink-subtle">
-            <Text className="text-center font-sans text-2xl leading-9 text-ink-subtle">
+          <View className="mt-3 w-full flex-1 items-center justify-center border-b border-ink-subtle">
+            <Text className="text-center font-sans text-2xl text-ink-subtle">
               Unable to load your location. Please try again.
             </Text>
           </View>
         ) : isError && teams.length === 0 ? (
-          <View className="mt-3 w-full flex-1 min-h-0 items-center justify-center border-b border-ink-subtle">
-            <Text className="text-center font-sans text-2xl leading-9 text-ink-subtle">
+          <View className="mt-3 w-full flex-1 items-center justify-center border-b border-ink-subtle">
+            <Text className="text-center font-sans text-2xl text-ink-subtle">
               Unable to load teams. Please try again.
             </Text>
           </View>
         ) : teams.length === 0 ? (
-          <View className="mt-3 w-full flex-1 min-h-0 items-center justify-center border-b border-ink-subtle">
-            <Text className="text-center font-sans text-2xl leading-9 text-ink-subtle">
+          <View className="mt-3 w-full flex-1 items-center justify-center border-b border-ink-subtle">
+            <Text className="text-center font-sans text-2xl text-ink-subtle">
               No teams have joined yet
             </Text>
           </View>
         ) : (
-          <ScrollView
-            accessible={false}
-            className="mt-3 w-full flex-1 min-h-0 border-b border-ink-subtle"
-            contentContainerClassName="w-full"
-            keyboardShouldPersistTaps="handled"
-            showsVerticalScrollIndicator
-          >
+          <View className="mt-3 w-full border-b border-ink-subtle">
             {sortedFilteredTeams.map(({ team, distanceMiles }) => (
               <TeamListRow
                 key={`${team.name}`}
@@ -218,9 +221,9 @@ export default function FindTeamScreen() {
                 distanceMiles={distanceMiles}
               />
             ))}
-          </ScrollView>
+          </View>
         )}
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
