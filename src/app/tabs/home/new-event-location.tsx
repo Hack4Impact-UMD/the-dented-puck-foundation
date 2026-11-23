@@ -1,9 +1,19 @@
 import { useState } from "react";
-import { ScrollView, Text, TextInput, View } from "react-native";
+import { Pressable, ScrollView, Text, TextInput, View } from "react-native";
 import SearchIcon from "@/assets/icons/search.svg";
+import { getRecentLocations } from "@/utils/recentLocations";
+import { useQuery } from "@tanstack/react-query";
+import { splitLocation } from "@/components/events/eventFormat";
 
 export default function NewEventLocation() {
   const [search, setSearch] = useState("");
+  const { data: recent = [] } = useQuery({
+    queryKey: ["recentLocations"],
+    queryFn: getRecentLocations,
+  });
+  // TEMP test: to preview rows without saved data, uncomment the next line
+  // and use testRecent instead of recent in the list below.
+  // const testRecent = ["College Park Ice Arena, 8131 Paint Branch Dr, College Park, MD", "Rockville Ice Arena, Rockville, MD"];
 
   return (
     <ScrollView
@@ -30,13 +40,35 @@ export default function NewEventLocation() {
 
       <Text
         accessibilityRole="header"
-        className="font-sans-bold text-header text-white text-xl"
+        className="font-sans-bold text-[26px] leading-[34px] text-white"
       >
         Recent
       </Text>
 
-      <View className="flex-1 gap-4">
-        <Text className="font-sans text-lg text-white">No recent locations</Text>
+      <View className="gap-4">
+        {recent.length === 0 ? (
+          <Text className="font-sans text-base text-ink-subtle">
+            No recent locations
+          </Text>
+        ) : (
+          recent.map((location) => {
+            const { name, details } = splitLocation(location);
+            return (
+              <Pressable
+                key={location}
+                onPress={() => {}}
+                className="min-h-14 justify-center border-b border-surface-field py-3"
+              >
+                <Text className="font-sans-bold text-base text-white">
+                  {name}
+                </Text>
+                <Text className="font-sans text-sm text-ink-subtle">
+                  {details.join(", ")}
+                </Text>
+              </Pressable>
+            );
+          })
+        )}
       </View>
     </ScrollView>
   );
