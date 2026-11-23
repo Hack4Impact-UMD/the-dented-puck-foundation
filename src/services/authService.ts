@@ -3,6 +3,7 @@ import {
   confirmPasswordReset,
   createUserWithEmailAndPassword,
   GoogleAuthProvider,
+  onAuthStateChanged,
   sendEmailVerification,
   sendPasswordResetEmail,
   signInWithEmailAndPassword,
@@ -109,6 +110,50 @@ export async function getUserProfile(uid: string): Promise<UserProfile> {
   }
 
   return profile;
+}
+
+export function isStaffRole(role: Role | null | undefined): boolean {
+  return role === 'team-staff' || role === 'global-admin' || role === 'super-admin';
+}
+
+export async function getCurrentUserRole(uid?: string): Promise<Role | null> {
+  const targetUid = uid ?? auth.currentUser?.uid;
+  if (!targetUid) return null;
+
+  try {
+    const userDoc = await getDoc(userProfileRef(targetUid));
+    if (!userDoc.exists()) return null;
+    const data = userDoc.data();
+    return data && isRole(data.role) ? data.role : null;
+  } catch {
+    return null;
+  }
+}
+
+export async function isCurrentUserStaff(uid?: string): Promise<boolean> {
+  const role = await getCurrentUserRole(uid);
+  return isStaffRole(role);
+}
+
+export async function getCurrentUserProfile(): Promise<UserProfile | null> {
+  const uid = auth.currentUser?.uid;
+  if (!uid) return null;
+  try {
+    return await getUserProfile(uid);
+  } catch {
+    return null;
+  }
+}
+
+export function subscribeToCurrentUserRole(callback: (role: Role | null) => void): () => void {
+  return onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      callback(null);
+      return;
+    }
+    const role = await getCurrentUserRole(user.uid);
+    callback(role);
+  });
 }
 
 // Resumes signup for an existing unverified account. Signs out verified accounts.
