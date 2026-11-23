@@ -44,6 +44,11 @@ export function toDateParam(date: Date) {
   return `${date.getFullYear()}-${month}-${day}`;
 }
 
+export function startOfToday() {
+  const now = new Date();
+  return new Date(now.getFullYear(), now.getMonth(), now.getDate());
+}
+
 // "2026-11-21" -> local midnight on that day.
 export function fromDateParam(param: string) {
   const [year, month, day] = param.split('-').map(Number);

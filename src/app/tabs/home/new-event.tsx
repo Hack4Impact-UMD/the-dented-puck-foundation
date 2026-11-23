@@ -16,6 +16,7 @@ import { PickerRow } from "@/components/events/PickerRow";
 import {
   formatEventDate,
   fromDateParam,
+  startOfToday,
 } from "@/components/events/eventFormat";
 import { createEvent } from "@/services/eventService";
 import {
@@ -44,7 +45,14 @@ export default function NewEventScreen() {
 
   const titleError =
     submitted && !title.trim() ? "Enter an event name" : undefined;
-  const dateError = submitted && !date ? "Select a date" : undefined;
+  const isPastDate = !!date && fromDateParam(date) < startOfToday();
+  const dateError = !submitted
+    ? undefined
+    : !date
+      ? "Select a date"
+      : isPastDate
+        ? "Select a date that hasn't passed"
+        : undefined;
 
   const create = useMutation({
     mutationFn: (eventDate: Date) =>
@@ -70,7 +78,7 @@ export default function NewEventScreen() {
   function handleCreate() {
     setSubmitted(true);
     if (!title.trim()) return focusLater(titleRef.current);
-    if (!date) return focusLater(dateRowRef.current);
+    if (!date || isPastDate) return focusLater(dateRowRef.current);
     create.mutate(fromDateParam(date));
   }
 

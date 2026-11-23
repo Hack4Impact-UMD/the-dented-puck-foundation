@@ -13,15 +13,11 @@ import {
   formatEventDate,
   formatMonth,
   fromDateParam,
+  startOfToday,
   toDateParam,
 } from "@/components/events/eventFormat";
 
 const WEEKDAYS_SHORT = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-
-function startOfToday() {
-  const now = new Date();
-  return new Date(now.getFullYear(), now.getMonth(), now.getDate());
-}
 
 // The month's days padded with nulls so every week has 7 cells and day 1 lands on its weekday.
 function getWeeks(month: Date) {
@@ -46,9 +42,10 @@ export default function NewEventDateScreen() {
     date?: string;
   }>();
   const today = startOfToday();
-  const [selected, setSelected] = useState(() =>
-    date ? fromDateParam(date) : today,
-  );
+  const [selected, setSelected] = useState(() => {
+    const saved = date ? fromDateParam(date) : today;
+    return saved < today ? today : saved;
+  });
   const [month, setMonth] = useState(
     () => new Date(selected.getFullYear(), selected.getMonth(), 1),
   );
