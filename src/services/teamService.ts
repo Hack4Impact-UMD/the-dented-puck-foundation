@@ -10,6 +10,7 @@ import {
 } from "firebase/firestore";
 import Fuse from "fuse.js";
 import { auth, db } from "@/firebase";
+import type { TeamOption } from "@/components/chats/TeamDropdown";
 import {
   Role,
   ShortUserInfo,
@@ -239,20 +240,6 @@ export function sortTeamsByProximity(
     .sort((team1, team2) => team1.distanceMiles - team2.distanceMiles);
 }
 
-// Fetch the active teams that a user belongs to.
-export async function getUsersTeams(userId: number): Promise<number[]> {
-  const snapshot = await getDocs(
-    query(
-      collection(db, "UserToTeam"),
-      where("userId", "==", userId),
-      where("status", "==", "active"),
-    ),
-  );
-  return snapshot.docs.map(
-    (teamMembership) => teamMembership.data().teamId as number,
-  );
-}
-
 // Fetch a specific user's name and role
 // (using username for now until name is added into schema)
 export async function getShortUserInfo(userId: number): Promise<ShortUserInfo> {
@@ -265,20 +252,6 @@ export async function getShortUserInfo(userId: number): Promise<ShortUserInfo> {
     role: snapshot.data().role as Role,
     userId: snapshot.data().userId.toString(),
   };
-}
-
-// Fetch the id's of the active members of a specific team
-export async function getTeamsUserIds(teamId: string): Promise<number[]> {
-  const snapshot = await getDocs(
-    query(
-      collection(db, "UserToTeam"),
-      where("teamId", "==", teamId),
-      where("status", "==", "active"),
-    ),
-  );
-  return snapshot.docs.map(
-    (teamMembership) => teamMembership.data().userId as number,
-  );
 }
 
 // Returns a boolean of whether a user belongs to a specific team or not
@@ -314,4 +287,78 @@ export function searchShortUserInfoList(
   query: string,
 ): ShortUserInfo[] {
   return fuse.search(query).map((result) => result.item);
+}
+
+// Fetch the id's of the active teams that a user belongs to.
+export async function getUsersTeams(userId: number): Promise<number[]> {
+  const snapshot = await getDocs(
+    query(
+      collection(db, "UserToTeam"),
+      where("userId", "==", userId),
+      where("status", "==", "active"),
+    ),
+  );
+  return snapshot.docs.map(
+    (teamMembership) => teamMembership.data().teamId as number,
+  );
+}
+
+// Fetch the id's of the active members of a specific team
+export async function getTeamsUserIds(teamId: string): Promise<number[]> {
+  const snapshot = await getDocs(
+    query(
+      collection(db, "UserToTeam"),
+      where("teamId", "==", teamId),
+      where("status", "==", "active"),
+    ),
+  );
+  return snapshot.docs.map(
+    (teamMembership) => teamMembership.data().userId as number,
+  );
+}
+
+// Fetch and sort teams into options for the chat team dropdown.
+// Temporarily randomize unread count until we 
+export async function fetchTeamOptions(
+  teamIds: string[],
+  role: Role,
+): Promise<TeamOption[]> {
+  const options = await Promise.all(
+    teamIds.map(async (teamId) => {
+      const [team, userIds] = await Promise.all([
+        fetchTeam(teamId),
+        getTeamsUserIds(teamId),
+      ]);
+
+      return {
+        name: team.name,
+        role,
+        memberCount: userIds.length,
+        unread: Math.floor(Math.random() * 3),
+      };
+    }),
+  );
+
+  return options
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .map((option, index) => ({ ...option, id: String(index + 1) }));
+}
+
+// Fetch a team object based on its team ID
+export async function fetchTeam(teamId: string): Promise<TeamWithId> {
+  const snapshot = await getDoc(doc(db, "Teams", `team_${teamId}`));
+  if (!snapshot.exists()) {
+    throw new Error(`Team document team_${teamId} doesn't exist.`);
+  }
+
+  const data = snapshot.data();
+  return {
+    id: data.teamId.toString(),
+    region: data.reigonId.toString(),
+    name: data.name,
+    supervisorId: data.supervisor.userId.toString(),
+    status: data.status,
+    wins: data.wins,
+    losses: data.losses,
+  };
 }

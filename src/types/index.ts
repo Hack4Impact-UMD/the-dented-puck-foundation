@@ -7,7 +7,7 @@ export type ConversationType = "group" | "dm";
 
 export interface User {
   role: Role;
-  username: string;
+  name: string;
   region: string;
   age: number;
   email: string;
