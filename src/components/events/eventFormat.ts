@@ -27,6 +27,34 @@ export function getEventWhen(start: Date, end: Date) {
   };
 }
 
+// "Saturday, November 21": the New Event Date row and each day button in the picker.
+export function formatEventDate(date: Date) {
+  return `${WEEKDAYS[date.getDay()]}, ${MONTHS[date.getMonth()]} ${date.getDate()}`;
+}
+
+// "November 2026": the picker's month heading.
+export function formatMonth(date: Date) {
+  return `${MONTHS[date.getMonth()]} ${date.getFullYear()}`;
+}
+
+// Route params are strings. Uses the local date, because toISOString() is UTC and can shift the day.
+export function toDateParam(date: Date) {
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${date.getFullYear()}-${month}-${day}`;
+}
+
+export function startOfToday() {
+  const now = new Date();
+  return new Date(now.getFullYear(), now.getMonth(), now.getDate());
+}
+
+// "2026-11-21" -> local midnight on that day.
+export function fromDateParam(param: string) {
+  const [year, month, day] = param.split('-').map(Number);
+  return new Date(year, month - 1, day);
+}
+
 // Screen readers say "Dr" and "MD" letter by letter, so the spoken label spells them out (per the Location annotation).
 const STREET_WORDS: Record<string, string> = {
   Dr: 'Drive', St: 'Street', Ave: 'Avenue', Rd: 'Road', Blvd: 'Boulevard', Ln: 'Lane', Ct: 'Court', Pkwy: 'Parkway',

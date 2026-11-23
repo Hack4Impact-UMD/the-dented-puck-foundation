@@ -50,21 +50,10 @@ import {
   type AccountField,
   type AccountForm,
 } from '@/utils/validation';
+import { SCREEN_READER_FOCUS_DELAY_MS, focusAccessibility, type FocusTarget } from '@/utils/accessibility';
 
 const GENDERS = ['Woman', 'Man', 'Non-binary', 'Prefer not to say'];
 const STEPS = [1, 2, 3] as const;
-// VoiceOver and TalkBack drop focus requests sent before a press, step change,
-// or sheet transition settles. Tune on device if focus lands late or not at all.
-const SCREEN_READER_FOCUS_DELAY_MS = 300;
-type FocusTarget = ViewInstance | TextInstance | TextInputInstance | PressableInstance;
-
-function focusAccessibility(target: FocusTarget | null) {
-  if (!target) return;
-  if (Platform.OS === 'web') target.focus();
-  else AccessibilityInfo.sendAccessibilityEvent(
-    target as unknown as Parameters<typeof AccessibilityInfo.sendAccessibilityEvent>[0], 'focus',
-  );
-}
 const EMPTY_FORM: AccountForm = {
   firstName: '', lastName: '', gender: '', birthday: '', email: '',
   phoneNumber: '', usaHockeyNumber: '', allowLocation: false,

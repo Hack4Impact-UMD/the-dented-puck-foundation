@@ -1,5 +1,25 @@
 import { SAMPLE_EVENT } from './__fixtures__/sampleEvent';
-import { getEventWhen, getInitials, splitLocation } from './eventFormat';
+import {
+  formatEventDate,
+  formatMonth,
+  fromDateParam,
+  getEventWhen,
+  getInitials,
+  splitLocation,
+  toDateParam,
+} from './eventFormat';
+
+describe('date picker helpers', () => {
+  it('formats the full date and the month heading', () => {
+    expect(formatEventDate(new Date(2026, 10, 21))).toBe('Saturday, November 21');
+    expect(formatMonth(new Date(2026, 10, 21))).toBe('November 2026');
+  });
+
+  it('round-trips a date through the route param as the same local day', () => {
+    expect(toDateParam(new Date(2026, 0, 5))).toBe('2026-01-05');
+    expect(fromDateParam('2026-01-05')).toEqual(new Date(2026, 0, 5));
+  });
+});
 
 describe('getEventWhen', () => {
   it('builds the visible text and the spoken label from the same times', () => {
