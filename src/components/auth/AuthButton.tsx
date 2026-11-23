@@ -1,6 +1,12 @@
 import { Image, Pressable, Text, type ImageSourcePropType } from "react-native";
+import {
+  skipFocusProps,
+  useScreenReaderProps,
+  withPressAnnouncement,
+  type ScreenReaderControlProps,
+} from "@/components/accessibility";
 
-interface AuthButtonProps {
+interface AuthButtonProps extends ScreenReaderControlProps {
   label: string;
   onPress?: () => void;
   variant?: "primary" | "secondary";
@@ -8,6 +14,8 @@ interface AuthButtonProps {
   disabled?: boolean;
   loading?: boolean;
   loadingLabel?: string;
+  /** @deprecated Use `screenReaderLabel`. Still works; `screenReaderLabel` wins if both are set. */
+  accessibilityLabel?: string;
 }
 
 export function AuthButton({
@@ -18,14 +26,25 @@ export function AuthButton({
   disabled = false,
   loading = false,
   loadingLabel,
+  accessibilityLabel,
+  screenReaderLabel,
+  screenReaderHint,
+  screenReaderPressAnnouncement,
+  hideFromScreenReader,
+  screenReaderOrder,
 }: AuthButtonProps) {
   const inactive = disabled || loading;
+  const screenReaderProps = useScreenReaderProps({ hideFromScreenReader, screenReaderOrder });
 
   return (
     <Pressable
-      onPress={onPress}
+      {...screenReaderProps}
+      {...skipFocusProps(hideFromScreenReader)}
+      onPress={withPressAnnouncement(onPress, screenReaderPressAnnouncement)}
       disabled={inactive}
       accessibilityRole="button"
+      accessibilityLabel={screenReaderLabel ?? accessibilityLabel}
+      accessibilityHint={screenReaderHint}
       accessibilityState={{ disabled: inactive, busy: loading }}
       className={`min-h-14 flex-row items-center justify-center gap-3 rounded px-1.5 active:opacity-80 ${
         variant === "primary" ? "bg-brand" : "bg-white"

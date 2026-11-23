@@ -142,3 +142,13 @@ export default function MyComponent() {
 }
 ```
 
+## UI component library
+
+Every shared component is documented with a screenshot, its props, and usage
+examples in the [UI library README](src/components/README.md).
+
+## Accessibility
+
+See the [accessibility UI utilities guide](docs/accessibility.md) for explicit
+screen-reader reading order with `AccessibilityOrder`, conditional content,
+platform behavior, and announcement/focus guidance.

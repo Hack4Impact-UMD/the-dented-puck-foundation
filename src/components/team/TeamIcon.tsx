@@ -1,8 +1,11 @@
 import { Text, View } from 'react-native';
+import { useScreenReaderProps, type ScreenReaderStopProps } from '@/components/accessibility';
 
-type TeamIconProps = {
+type TeamIconProps = ScreenReaderStopProps & {
     name: string;
     size?: number;
+    // Initials size; defaults to 34% of `size` (Figma: 140 → 48). The 48px list avatar uses 18.
+    textSize?: number;
 };
 
 // extract the initials for the team's initials
@@ -18,12 +21,24 @@ export function getInitials(name: string) {
 }
 
 // yellow circle icon (able to swap for profile picture in future)
-export default function TeamIcon({ name, size = 140 }: TeamIconProps) {
+// Hidden from screen readers by default: the team name beside it does the talking.
+// With hideFromScreenReader={false} it's an image named "{name} logo".
+export default function TeamIcon({
+    name,
+    size = 140,
+    textSize,
+    screenReaderLabel,
+    hideFromScreenReader = true,
+    screenReaderOrder,
+}: TeamIconProps) {
+    const screenReaderProps = useScreenReaderProps({ hideFromScreenReader, screenReaderOrder });
+
     return (
         <View
-            accessible={false}
+            {...screenReaderProps}
+            accessible={!hideFromScreenReader}
             accessibilityRole="image"
-            accessibilityLabel={`${name} logo`}
+            accessibilityLabel={screenReaderLabel ?? `${name} logo`}
             style={{ width: size, height: size, borderRadius: size / 2 }}
             className="bg-brand items-center justify-center self-center"
         >
@@ -32,7 +47,7 @@ export default function TeamIcon({ name, size = 140 }: TeamIconProps) {
                 importantForAccessibility="no"
                 accessibilityElementsHidden
                 maxFontSizeMultiplier={1}
-                style={{ fontSize: Math.round(size * 0.34) }}
+                style={{ fontSize: textSize ?? Math.round(size * 0.34) }}
                 className="text-on-brand font-sans-bold"
             >
                 {getInitials(name)}

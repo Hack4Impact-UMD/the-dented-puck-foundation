@@ -2,6 +2,7 @@ import { AccessibilityInfo } from 'react-native';
 import { fireEvent, render, screen } from '@testing-library/react-native';
 import { SAMPLE_EVENT, SAMPLE_TEAM_NAME } from './__fixtures__/sampleEvent';
 import { EventDetails } from './EventDetails';
+import { TeamRelationship } from './TeamRelationship';
 
 jest.mock('@react-native-vector-icons/ionicons', () => ({ Ionicons: () => null }));
 
@@ -44,14 +45,15 @@ describe('event details content', () => {
 });
 
 describe('follow button', () => {
-  it('switches from Follow to Followed and announces it', async () => {
+  it('switches from Follow to Following and announces it', async () => {
     const announce = jest.spyOn(AccessibilityInfo, 'announceForAccessibility').mockImplementation(() => {});
     await renderDetails();
 
     await fireEvent.press(screen.getByRole('button', { name: 'Follow Baltimore Blades' }));
 
-    expect(screen.getByRole('button', { name: 'Following Baltimore Blades' })).toBeTruthy();
-    expect(screen.getByText('Followed')).toBeTruthy();
+    const following = screen.getByRole('button', { name: 'Following Baltimore Blades' });
+    expect(following.props.accessibilityState).toEqual({ selected: true });
+    expect(screen.getByText('Following')).toBeTruthy();
     expect(announce).toHaveBeenCalledWith('Following Baltimore Blades');
   });
 
@@ -112,5 +114,19 @@ describe('RSVP', () => {
 
     expect(screen.getByLabelText("Your reply: Can't go")).toBeTruthy();
     expect(screen.queryByLabelText('Maybe')).toBeNull();
+  });
+});
+
+describe('team relationship status', () => {
+  it.each([
+    ['requested', 'Join requested', 'Requested'],
+    ['joined', 'Joined', 'Joined'],
+    ['coach', 'Coach', 'Coach'],
+  ] as const)('shows %s as a status label, not a button', async (state, spoken, visible) => {
+    await render(<TeamRelationship state={state} teamName={SAMPLE_TEAM_NAME} />);
+
+    expect(screen.getByLabelText(spoken)).toBeTruthy();
+    expect(screen.getByText(visible)).toBeTruthy();
+    expect(screen.queryByRole('button')).toBeNull();
   });
 });

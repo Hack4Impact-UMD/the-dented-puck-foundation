@@ -14,7 +14,8 @@ const TABS: { name: TabName; title: string }[] = [
 const BAR_BACKGROUND = '#1A1A1A';
 const BAR_BORDER = '#5C5C5C';
 // Figma bar is 96 tall including the ~34 home-indicator strip. The library's default (49) clips the labels.
-const BAR_HEIGHT = 62;
+// 9 padding + 5 tab padding + 28 icon slot + 24 label line (18/24) + 5 tab padding.
+const BAR_HEIGHT = 71;
 
 export default function TabsLayout() {
   const insets = useSafeAreaInsets();

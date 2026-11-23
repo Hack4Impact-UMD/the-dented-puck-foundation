@@ -1,12 +1,21 @@
 import { Text } from 'react-native';
+import { useScreenReaderProps, type ScreenReaderStopProps } from '@/components/accessibility';
 
-interface TabBarLabelProps {
+interface TabBarLabelProps extends ScreenReaderStopProps {
   title: string;
   focused: boolean;
 }
 
-export function TabBarLabel({ title, focused }: TabBarLabelProps) {
+export function TabBarLabel({ title, focused, screenReaderLabel, hideFromScreenReader, screenReaderOrder }: TabBarLabelProps) {
+  const screenReaderProps = useScreenReaderProps({ hideFromScreenReader, screenReaderOrder });
+
   return (
-    <Text className={`text-xs text-white ${focused ? 'font-sans-bold' : 'font-sans'}`}>{title}</Text>
+    <Text
+      {...screenReaderProps}
+      accessibilityLabel={screenReaderLabel}
+      className={`text-label text-white ${focused ? 'font-sans-bold' : 'font-sans'}`}
+    >
+      {title}
+    </Text>
   );
 }

@@ -1,5 +1,6 @@
 import { View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
+import { useScreenReaderProps, type ScreenReaderStopProps } from '@/components/accessibility';
 
 export type TabName = 'home' | 'teams' | 'chats' | 'account';
 
@@ -25,19 +26,29 @@ const ICON_PATHS: Record<TabName, string[]> = {
 const INK = '#010101';
 const WHITE = '#FFFFFF';
 
-interface TabBarIconProps {
+interface TabBarIconProps extends ScreenReaderStopProps {
   name: TabName;
   focused: boolean;
 }
 
-// Hidden from screen readers: the tab's label already names it.
-export function TabBarIcon({ name, focused }: TabBarIconProps) {
+// Hidden from screen readers by default: the tab's label already names it.
+// With hideFromScreenReader={false} it's an image named after the tab.
+export function TabBarIcon({
+  name,
+  focused,
+  screenReaderLabel,
+  hideFromScreenReader = true,
+  screenReaderOrder,
+}: TabBarIconProps) {
   const stroke = focused ? INK : WHITE;
+  const screenReaderProps = useScreenReaderProps({ hideFromScreenReader, screenReaderOrder });
 
   return (
     <View
-      accessibilityElementsHidden
-      importantForAccessibility="no-hide-descendants"
+      {...screenReaderProps}
+      accessible={!hideFromScreenReader}
+      accessibilityRole={hideFromScreenReader ? undefined : 'image'}
+      accessibilityLabel={hideFromScreenReader ? undefined : screenReaderLabel ?? name[0].toUpperCase() + name.slice(1)}
       className={`h-8 w-14 items-center justify-center rounded-full pt-1 ${focused ? 'bg-brand' : ''}`}
     >
       <Svg width={24} height={24} viewBox="0 0 24 24" fill="none">

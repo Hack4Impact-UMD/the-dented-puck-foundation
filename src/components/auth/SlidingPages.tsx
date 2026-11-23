@@ -1,13 +1,22 @@
 import { useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { Animated, Easing, Platform, StyleSheet, View } from 'react-native';
+import { useScreenReaderProps, type ScreenReaderProps } from '@/components/accessibility';
 
-type SlidingPagesProps = {
+// A layout container with no reading stop of its own, so it has no label props.
+type SlidingPagesProps = ScreenReaderProps & {
   activeIndex: number;
   reduceMotion: boolean;
   children: ReactNode[];
 };
 
-export default function SlidingPages({ activeIndex, reduceMotion, children }: SlidingPagesProps) {
+export default function SlidingPages({
+  activeIndex,
+  reduceMotion,
+  children,
+  hideFromScreenReader,
+  screenReaderOrder,
+}: SlidingPagesProps) {
+  const screenReaderProps = useScreenReaderProps({ hideFromScreenReader, screenReaderOrder });
   const [width, setWidth] = useState(0);
   const [transitioning, setTransitioning] = useState(false);
   const [position] = useState(() => new Animated.Value(activeIndex));
@@ -36,7 +45,7 @@ export default function SlidingPages({ activeIndex, reduceMotion, children }: Sl
   }, [activeIndex, position, reduceMotion, width]);
 
   return (
-    <View style={styles.viewport} onLayout={event => setWidth(event.nativeEvent.layout.width)} testID="account-pages">
+    <View {...screenReaderProps} style={styles.viewport} onLayout={event => setWidth(event.nativeEvent.layout.width)} testID="account-pages">
       {children.map((child, index) => (
         <Animated.View
           key={index}
