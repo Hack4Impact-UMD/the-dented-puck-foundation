@@ -8,6 +8,7 @@ interface AuthButtonProps {
   disabled?: boolean;
   loading?: boolean;
   loadingLabel?: string;
+  accessibilityLabel?: string;
 }
 
 export function AuthButton({
@@ -18,6 +19,7 @@ export function AuthButton({
   disabled = false,
   loading = false,
   loadingLabel,
+  accessibilityLabel,
 }: AuthButtonProps) {
   const inactive = disabled || loading;
 
@@ -26,6 +28,7 @@ export function AuthButton({
       onPress={onPress}
       disabled={inactive}
       accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel}
       accessibilityState={{ disabled: inactive, busy: loading }}
       className={`min-h-14 flex-row items-center justify-center gap-3 rounded px-1.5 active:opacity-80 ${
         variant === "primary" ? "bg-brand" : "bg-white"

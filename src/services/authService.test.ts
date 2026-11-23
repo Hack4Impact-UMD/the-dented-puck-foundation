@@ -1,12 +1,31 @@
 import { auth } from '@/firebase';
-import { sendEmailVerification } from 'firebase/auth';
+import { FirebaseError } from 'firebase/app';
+import {
+  sendEmailVerification,
+  sendPasswordResetEmail,
+  signInWithEmailAndPassword,
+  type User,
+} from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { getDownloadURL, ref, uploadString } from 'firebase/storage';
 import { SAMPLE_ACCOUNT } from '@/components/auth/__fixtures__/sampleAccount';
-import { getUserProfile, resendVerificationEmail, saveAccountProfile } from './authService';
+import {
+  getAuthFormError,
+  getPostSignInRoute,
+  getUserProfile,
+  initializeVerifiedUser,
+  resendVerificationEmail,
+  saveAccountProfile,
+  sendPasswordReset,
+  signInWithEmail,
+} from './authService';
 
 jest.mock('@/firebase', () => ({ auth: { currentUser: null }, db: {}, storage: {} }));
-jest.mock('firebase/auth', () => ({ sendEmailVerification: jest.fn() }));
+jest.mock('firebase/auth', () => ({
+  sendEmailVerification: jest.fn(),
+  sendPasswordResetEmail: jest.fn(),
+  signInWithEmailAndPassword: jest.fn(),
+}));
 jest.mock('firebase/firestore', () => ({
   doc: jest.fn(() => 'profile-document'),
   getDoc: jest.fn(),
@@ -32,6 +51,7 @@ describe('account profile persistence', () => {
     await saveAccountProfile({ ...SAMPLE_ACCOUNT, usaHockeyNumber: '' }, null);
     expect(doc).toHaveBeenCalledWith(expect.anything(), 'Users', 'test-user');
     expect(setDoc).toHaveBeenCalledWith('profile-document', expect.objectContaining({
+      role: 'player',
       firstName: 'Alex', birthDate: '2002-06-14', email: 'verified@example.com',
       phoneNumber: '3015550142', usaHockeyNumber: null,
     }), { merge: true });
@@ -97,5 +117,96 @@ describe('existing profile and verification APIs after merging onboarding', () =
   it('rejects signed-out verification requests before sending an email', async () => {
     await expect(resendVerificationEmail(null)).rejects.toThrow('Sign in before requesting an email verification link.');
     expect(sendEmailVerification).not.toHaveBeenCalled();
+  });
+
+  it('initializes a verified user with role player when profile does not exist', async () => {
+    const verifiedUser = { uid: 'verified-uid', email: 'player@example.com', emailVerified: true, getIdToken: jest.fn() } as unknown as User;
+    jest.mocked(getDoc).mockResolvedValueOnce({ exists: () => false } as never);
+
+    await initializeVerifiedUser(verifiedUser);
+
+    expect(doc).toHaveBeenCalledWith(expect.anything(), 'Users', 'verified-uid');
+    expect(setDoc).toHaveBeenCalledWith('profile-document', expect.objectContaining({
+      email: 'player@example.com',
+      role: 'player',
+      regionId: 1,
+    }), { merge: true });
+  });
+
+  it('does not overwrite an existing user profile during initializeVerifiedUser', async () => {
+    const verifiedUser = { uid: 'existing-uid', email: 'existing@example.com', emailVerified: true, getIdToken: jest.fn() } as unknown as User;
+    jest.mocked(getDoc).mockResolvedValueOnce({ exists: () => true } as never);
+
+    await initializeVerifiedUser(verifiedUser);
+
+    expect(setDoc).not.toHaveBeenCalled();
+  });
+
+  it('ignores unverified users during initializeVerifiedUser', async () => {
+    const unverifiedUser = { uid: 'unverified-uid', email: 'unverified@example.com', emailVerified: false } as unknown as User;
+
+    await initializeVerifiedUser(unverifiedUser);
+
+    expect(setDoc).not.toHaveBeenCalled();
+  });
+});
+
+describe('login and password reset', () => {
+  const firebaseError = (code: string) => new FirebaseError(code, code);
+  const user = (props: Partial<User>) => ({ uid: 'test-user', emailVerified: true, ...props }) as User;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('signs in with a trimmed email', async () => {
+    jest.mocked(signInWithEmailAndPassword).mockResolvedValue({ user: user({}) } as never);
+    await expect(signInWithEmail('  sam@gmail.com ', 'hockey2026')).resolves.toEqual(expect.objectContaining({ uid: 'test-user' }));
+    expect(signInWithEmailAndPassword).toHaveBeenCalledWith(auth, 'sam@gmail.com', 'hockey2026');
+  });
+
+  it('sends the reset email and never reveals whether the account exists', async () => {
+    jest.mocked(sendPasswordResetEmail).mockResolvedValueOnce(undefined);
+    await sendPasswordReset(' sam@gmail.com ');
+    // The link opens our app when it's installed (Figma 5400)
+    expect(sendPasswordResetEmail).toHaveBeenCalledWith(auth, 'sam@gmail.com', expect.objectContaining({
+      handleCodeInApp: true,
+      iOS: { bundleId: 'org.thedentedpuckfoundation.app' },
+      android: expect.objectContaining({ packageName: 'org.thedentedpuckfoundation.app' }),
+    }));
+
+    jest.mocked(sendPasswordResetEmail).mockRejectedValueOnce(firebaseError('auth/user-not-found'));
+    await expect(sendPasswordReset('nobody@gmail.com')).resolves.toBeUndefined();
+
+    jest.mocked(sendPasswordResetEmail).mockRejectedValueOnce(firebaseError('auth/network-request-failed'));
+    await expect(sendPasswordReset('sam@gmail.com')).rejects.toThrow('auth/network-request-failed');
+  });
+
+  it('routes signed-in users to verification, onboarding, or the app', async () => {
+    await expect(getPostSignInRoute(user({ emailVerified: false }))).resolves.toBe('/auth/verify-email');
+    expect(getDoc).not.toHaveBeenCalled();
+
+    jest.mocked(getDoc).mockResolvedValueOnce({ exists: () => false } as never);
+    await expect(getPostSignInRoute(user({}))).resolves.toBe('/auth/create-account');
+
+    // A doc written at verification time, before onboarding, has no firstName yet
+    jest.mocked(getDoc).mockResolvedValueOnce({ exists: () => true, data: () => ({ email: 'a@b.co', role: 'player' }) } as never);
+    await expect(getPostSignInRoute(user({}))).resolves.toBe('/auth/create-account');
+
+    jest.mocked(getDoc).mockResolvedValueOnce({ exists: () => true, data: () => ({ firstName: 'Sam' }) } as never);
+    await expect(getPostSignInRoute(user({}))).resolves.toBe('/tabs/home');
+    expect(doc).toHaveBeenCalledWith(expect.anything(), 'Users', 'test-user');
+  });
+
+  it('shows one credentials alert for a wrong password or an unknown email', () => {
+    for (const code of ['auth/invalid-credential', 'auth/wrong-password', 'auth/user-not-found']) {
+      expect(getAuthFormError(firebaseError(code))).toEqual({ field: 'credentials', code, message: 'Email or password is incorrect.' });
+    }
+  });
+
+  it('treats expired and already-used reset links the same way', () => {
+    for (const code of ['auth/expired-action-code', 'auth/invalid-action-code']) {
+      expect(getAuthFormError(firebaseError(code))).toEqual({ field: 'link', code, message: 'This link has expired or was already used.' });
+    }
   });
 });

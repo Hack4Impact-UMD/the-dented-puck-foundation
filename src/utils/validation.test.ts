@@ -4,7 +4,31 @@ import {
   formatBirthday,
   formatPhone,
   validateAccountStep,
+  validateEmail,
+  validateLoginFields,
+  validatePassword,
 } from './validation';
+
+describe('auth form validation', () => {
+  it('uses the Figma email messages and trims surrounding spaces', () => {
+    expect(validateEmail('  ')).toBe('Enter your email.');
+    expect(validateEmail('sam@gmail')).toBe('Enter an email like name@example.com.');
+    expect(validateEmail('  sam@gmail.com ')).toBeNull();
+  });
+
+  it('names exactly which password rule is missing (Figma 5410)', () => {
+    expect(validatePassword('')).toBe('Enter a password.');
+    expect(validatePassword('abc')).toBe('Use at least 8 characters and add at least one number.');
+    expect(validatePassword('abc1')).toBe('Use at least 8 characters.');
+    expect(validatePassword('abcdefgh')).toBe('Add at least one number.');
+    expect(validatePassword('hockey2026')).toBeNull();
+  });
+
+  it('only checks that login fields are filled in (Figma 5110)', () => {
+    expect(validateLoginFields(' ', '')).toEqual({ email: 'Enter your email.', password: 'Enter your password.' });
+    expect(validateLoginFields('not-an-email', 'short')).toEqual({ email: null, password: null });
+  });
+});
 
 describe('account onboarding validation', () => {
   it('requires names and the second-step details but permits optional fields', () => {
