@@ -138,7 +138,7 @@ export default function NewEventLocation() {
   } else if (isFetching) {
     resultsMessage = "Searching…";
   } else if (results.length === 0) {
-    resultsMessage = "No results";
+    resultsMessage = "No results. Check the address and add the city and state";
   }
 
   return (
@@ -153,7 +153,7 @@ export default function NewEventLocation() {
         <TextInput
           accessibilityRole="search"
           accessibilityLabel="Search locations"
-          accessibilityHint="Search by place name or address"
+          accessibilityHint="Enter a full street address with city and state, for example 8500 Paint Branch Drive, College Park, Maryland"
           autoCapitalize="none"
           className="min-h-14 flex-1 font-sans text-lg text-white"
           onChangeText={setSearch}
