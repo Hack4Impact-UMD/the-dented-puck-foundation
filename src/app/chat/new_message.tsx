@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@react-native-vector-icons/ionicons';
 
 import { router } from 'expo-router';
+import { isStaffRole, subscribeToCurrentUserRole } from '@/services/authService';
 
 // establish coach/staff or player chat roles
 type Member = {
@@ -21,9 +22,6 @@ const MEMBERS: Member[] = [
   { id: 'tm', name: 'Taylor M.', role: 'Player', isStaff: false },
   { id: 'mk', name: 'Morgan K.', role: 'Player', isStaff: false },
 ];
-
-// PLACEHOLDER until auth provides the current user's role
-const CURRENT_USER_IS_STAFF = false;
 
 // for the member's avatar logo
 function initials(name: string) {
@@ -148,6 +146,20 @@ export default function NewMessageScreen() {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [showBlocked, setShowBlocked] = useState(false);
   const [search, setSearch] = useState('');
+  const [isStaff, setIsStaff] = useState(false);
+
+  useEffect(() => {
+    let isMounted = true;
+    const unsubscribe = subscribeToCurrentUserRole((role) => {
+      if (isMounted) {
+        setIsStaff(isStaffRole(role));
+      }
+    });
+    return () => {
+      isMounted = false;
+      unsubscribe();
+    };
+  }, []);
 
   const toggle = (id: string) => {
     setShowBlocked(false);
@@ -157,7 +169,7 @@ export default function NewMessageScreen() {
   const selected = MEMBERS.filter((m) => selectedIds.includes(m.id));
 
   // players may only message other players when a coach/staff member is included in the chat
-  const blocked = !CURRENT_USER_IS_STAFF && selected.length > 0 && !selected.some((m) => m.isStaff);
+  const blocked = !isStaff && selected.length > 0 && !selected.some((m) => m.isStaff);
   const canStartConversation = selected.length > 0 && !showBlocked;
 
   const handleStartConversation = () => {

@@ -11,17 +11,22 @@ import { getDownloadURL, ref, uploadString } from 'firebase/storage';
 import { SAMPLE_ACCOUNT } from '@/components/auth/__fixtures__/sampleAccount';
 import {
   getAuthFormError,
+  getCurrentUserRole,
   getPostSignInRoute,
   getUserProfile,
   initializeVerifiedUser,
+  isCurrentUserStaff,
+  isStaffRole,
   resendVerificationEmail,
   saveAccountProfile,
   sendPasswordReset,
   signInWithEmail,
+  subscribeToCurrentUserRole,
 } from './authService';
 
 jest.mock('@/firebase', () => ({ auth: { currentUser: null }, db: {}, storage: {} }));
 jest.mock('firebase/auth', () => ({
+  onAuthStateChanged: jest.fn(),
   sendEmailVerification: jest.fn(),
   sendPasswordResetEmail: jest.fn(),
   signInWithEmailAndPassword: jest.fn(),
@@ -208,5 +213,51 @@ describe('login and password reset', () => {
     for (const code of ['auth/expired-action-code', 'auth/invalid-action-code']) {
       expect(getAuthFormError(firebaseError(code))).toEqual({ field: 'link', code, message: 'This link has expired or was already used.' });
     }
+  });
+
+  describe('role and staff verification', () => {
+    it('identifies staff roles correctly', () => {
+      expect(isStaffRole('team-staff')).toBe(true);
+      expect(isStaffRole('super-admin')).toBe(true);
+      expect(isStaffRole('global-admin')).toBe(true);
+      expect(isStaffRole('player')).toBe(false);
+      expect(isStaffRole('contact')).toBe(false);
+      expect(isStaffRole(null)).toBe(false);
+      expect(isStaffRole(undefined)).toBe(false);
+    });
+
+    it('returns role for authenticated user from Firestore', async () => {
+      Object.assign(auth, { currentUser: { uid: 'staff-user', email: 'staff@example.com' } });
+      jest.mocked(getDoc).mockResolvedValue({ exists: () => true, data: () => ({ role: 'team-staff' }) } as never);
+
+      await expect(getCurrentUserRole()).resolves.toBe('team-staff');
+      await expect(isCurrentUserStaff()).resolves.toBe(true);
+    });
+
+    it('returns null and false when there is no authenticated user', async () => {
+      Object.assign(auth, { currentUser: null });
+
+      await expect(getCurrentUserRole()).resolves.toBeNull();
+      await expect(isCurrentUserStaff()).resolves.toBe(false);
+    });
+
+    it('subscribes to auth state changes and queries role', async () => {
+      const mockUnsubscribe = jest.fn();
+      const { onAuthStateChanged } = jest.requireMock('firebase/auth');
+      onAuthStateChanged.mockImplementationOnce((_auth: unknown, callback: (u: unknown) => void) => {
+        callback({ uid: 'staff-user' });
+        return mockUnsubscribe;
+      });
+      jest.mocked(getDoc).mockResolvedValueOnce({ exists: () => true, data: () => ({ role: 'team-staff' }) } as never);
+
+      const callback = jest.fn();
+      const unsubscribe = subscribeToCurrentUserRole(callback);
+
+      // wait for async callback
+      await new Promise((r) => setTimeout(r, 0));
+
+      expect(callback).toHaveBeenCalledWith('team-staff');
+      expect(unsubscribe).toBe(mockUnsubscribe);
+    });
   });
 });
