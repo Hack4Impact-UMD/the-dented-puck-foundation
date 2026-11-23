@@ -8,8 +8,9 @@ import NewMessageIcon from '@/assets/icons/new_message.svg';
 import { router } from 'expo-router';
 
 import TeamDropdown, { type TeamOption } from '@/components/chats/TeamDropdown';
-import MessageRow, { type Conversation } from '@/components/chats/MessageRow';
+import MessageRow, { type MessageRowConversation } from '@/components/chats/MessageRow';
 import { formatChatTime } from '@/utils/formatChatTime';
+import { Channel } from '@/types';
 
 // PLACEHOLDER for timestamps
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -40,7 +41,7 @@ const TEAMS: TeamOption[] = [
 ];
 
 // PLACEHOLDER for Conversations info
-const CONVERSATIONS: Conversation[] = [
+const CONVERSATIONS: MessageRowConversation[] = [
   { id: '4', participants: ['Morgan K.'], isStaff: false, lastMessage: 'See you Saturday!', updatedAt: lastWeekday(4), unread: 0 },
   { id: '1', participants: ['Jordan P.'], isStaff: false, lastMessage: 'Who is bringing pucks?', updatedAt: todayAt(21, 41), unread: 2 },
   { id: '3', participants: ['Taylor M.', 'Morgan K.'], isStaff: false, lastMessage: 'Carpool from the rink?', updatedAt: todayAt(18, 0) - DAY_MS, unread: 2 },
@@ -52,15 +53,6 @@ const CONVERSATIONS: Conversation[] = [
 const byMostRecent = (a: { updatedAt: number }, b: { updatedAt: number }) => b.updatedAt - a.updatedAt;
 
 type Section = 'channels' | 'messages';
-
-type Channel = {
-  id: string;
-  name: string;
-  lastSender: string;
-  lastMessage: string;
-  updatedAt: number;
-  unread: number;
-};
 
 // PLACEHOLDER for channel info
 const CHANNELS: Channel[] = [

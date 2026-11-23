@@ -242,7 +242,7 @@ export function sortTeamsByProximity(
 
 // Fetch a specific user's name and role
 // (using username for now until name is added into schema)
-export async function getShortUserInfo(userId: number): Promise<ShortUserInfo> {
+export async function getShortUserInfo(userId: string): Promise<ShortUserInfo> {
   const snapshot = await getDoc(doc(db, "Users", `user_${userId}`));
   if (!snapshot.exists()) {
     throw new Error("User document doesn't exist.");
@@ -304,7 +304,7 @@ export async function getUsersTeams(userId: number): Promise<number[]> {
 }
 
 // Fetch the id's of the active members of a specific team
-export async function getTeamsUserIds(teamId: string): Promise<number[]> {
+export async function getTeamsUserIds(teamId: string): Promise<string[]> {
   const snapshot = await getDocs(
     query(
       collection(db, "UserToTeam"),
@@ -313,12 +313,12 @@ export async function getTeamsUserIds(teamId: string): Promise<number[]> {
     ),
   );
   return snapshot.docs.map(
-    (teamMembership) => teamMembership.data().userId as number,
+    (teamMembership) => teamMembership.data().userId.toString(),
   );
 }
 
 // Fetch and sort teams into options for the chat team dropdown.
-// Temporarily randomize unread count until we 
+// Temporarily randomize unread count until we implement it for conversations
 export async function fetchTeamOptions(
   teamIds: string[],
   role: Role,
@@ -361,4 +361,16 @@ export async function fetchTeam(teamId: string): Promise<TeamWithId> {
     wins: data.wins,
     losses: data.losses,
   };
+}
+
+// Helper function that inputs a user or user role directly
+// and outputs a boolean representing if the user is a staff user
+export function isUserStaff(user: ShortUserInfo | string): boolean {
+  let userId;
+  if (typeof user === "string") {
+    userId = user;
+  } else {
+    userId = user.role;
+  }
+  return !(userId === "player" || userId === "contact");
 }

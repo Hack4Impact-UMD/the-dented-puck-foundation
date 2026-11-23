@@ -2,7 +2,7 @@ import { Pressable, Text, View } from 'react-native';
 
 import { formatChatTime } from '@/utils/formatChatTime';
 
-export type Conversation = {
+export type MessageRowConversation = {
   id: string;
   participants: string[];
   isStaff: boolean;
@@ -18,7 +18,7 @@ function initials(name: string) {
 }
 
 // display the rows of messages under "Messages" section tab
-export default function MessageRow({ conversation }: { conversation: Conversation }) {
+export default function MessageRow({ conversation }: { conversation: MessageRowConversation }) {
   const { participants, isStaff, lastMessage, updatedAt, unread } = conversation;
   const title = participants.join(', ');
   const time = formatChatTime(updatedAt);

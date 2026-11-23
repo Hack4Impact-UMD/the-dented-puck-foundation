@@ -1,6 +1,18 @@
 export type Role = "global-admin" | "super-admin" | "team-staff" | "player" | "contact";
 export type Status = "inactive" | "active" | "suspended" | "pending";
 export type ConversationType = "group" | "dm";
+export type UserChannels = {
+  adminChannel: ConversationWithId | null;
+  teamChannel: ConversationWithId | null;
+};
+export type Channel = {
+  id: string;
+  name: string;
+  lastSender: string;
+  lastMessage: string;
+  updatedAt: number;
+  unread: number;
+};
 
 
 
