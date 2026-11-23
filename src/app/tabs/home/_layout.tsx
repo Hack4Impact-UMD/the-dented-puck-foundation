@@ -7,5 +7,6 @@ export default function HomeLayout() {
     <Stack.Screen name="schedule" options={{ title: 'Schedule' }} />
     <Stack.Screen name="nearby-teams" options={{ title: 'Teams Nearby' }} />
     <Stack.Screen name="search" options={{ headerShown: false, animation: 'none' }} />
+    <Stack.Screen name="time-picker" options={{ title: 'Time' }} />
   </Stack>;
 }
