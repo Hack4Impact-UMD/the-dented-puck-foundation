@@ -27,7 +27,7 @@ export function ReplyList({ replies }: { replies: ReplyGroups }) {
               {heading}
             </Text>
             {replies[status].map((name, index) => (
-              <Text key={`${name}-${index}`} accessibilityRole="text" accessibilityLabel={name} className="font-sans text-base text-white">
+              <Text key={`${name}-${index}`} accessibilityRole="text" accessibilityLabel={name} className="font-sans text-lg text-white">
                 {name}
               </Text>
             ))}
