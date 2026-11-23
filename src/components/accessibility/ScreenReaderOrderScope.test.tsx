@@ -83,6 +83,22 @@ it('keeps mount order for equal numbers', async () => {
   expect(readOrder()).toEqual(['First', 'Second']);
 });
 
+it('keeps mount order when a number changes to match another', async () => {
+  const page = (aOrder: number) => (
+    <ScreenReaderOrderScope testID="scope">
+      <Stop text="A" order={aOrder} />
+      <Stop text="B" order={2} />
+    </ScreenReaderOrderScope>
+  );
+  await render(page(1));
+  const aID = idOf('A');
+  expect(readOrder()).toEqual(['A', 'B']);
+
+  await screen.rerender(page(2));
+  expect(idOf('A')).toBe(aID); // same stop, not remounted
+  expect(readOrder()).toEqual(['A', 'B']);
+});
+
 it('leaves hidden stops out of the order', async () => {
   await render(
     <ScreenReaderOrderScope testID="scope">

@@ -327,7 +327,7 @@ type Props = ScreenReaderControlProps & {
 
 /**
  * Small outlined button above a list (Figma: Filter, Sort, Unread, Read).
- * It is 35 px tall, so a hit slop brings the touch target to 48 px.
+ * It is 35 px tall, so a hit slop brings the touch target to 48 px; `min-w-12` keeps it 48 px wide.
  */
 export function FilterChip({
   label,
@@ -351,7 +351,7 @@ export function FilterChip({
       accessibilityHint={screenReaderHint}
       accessibilityState={{ selected }}
       hitSlop={{ top: 7, bottom: 7 }}
-      className={`self-start rounded border border-brand px-3 py-[5px] active:opacity-70 ${selected ? 'bg-brand' : 'bg-brand-soft-dark'}`}
+      className={`min-w-12 self-start items-center rounded border border-brand px-3 py-[5px] active:opacity-70 ${selected ? 'bg-brand' : 'bg-brand-soft-dark'}`}
     >
       <Text className={`font-sans-bold text-label ${selected ? 'text-on-brand' : 'text-brand'}`}>{label}</Text>
     </Pressable>

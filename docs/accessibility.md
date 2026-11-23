@@ -83,8 +83,8 @@ first:
 import { ScreenReaderOrderScope } from '@/components/accessibility';
 
 <ScreenReaderOrderScope className="flex-1">
-  <TeamHeader screenReaderOrder={2} onBack={goBack} onCreate={openCreate} />
   <TeamInfoCard screenReaderOrder={1} name={team.name} season={season} />
+  <TeamHeader screenReaderOrder={2} onBack={goBack} onCreate={openCreate} />
 </ScreenReaderOrderScope>
 ```
 

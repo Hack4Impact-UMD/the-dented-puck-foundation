@@ -1,5 +1,8 @@
-import { Pressable, Text, View } from 'react-native';
+import { useRef } from 'react';
+import { Platform, Pressable, Text, View, type KeyDownEvent, type ViewInstance } from 'react-native';
 import {
+  arrowKeyTarget,
+  isSpaceKey,
   skipFocusProps,
   useScreenReaderProps,
   withPressAnnouncement,
@@ -24,7 +27,10 @@ type Props<T extends string> = ScreenReaderProps & {
   screenReaderParts?: Partial<Record<T, ScreenReaderControlText>>;
 };
 
-/** A row of mutually exclusive options; the chosen one is solid yellow. Each option is a radio button. */
+/**
+ * A row of mutually exclusive options; the chosen one is solid yellow. Each option is a radio button.
+ * On the web the group is one Tab stop: arrow keys move to and select the next option, Space selects.
+ */
 export function SegmentedControl<T extends string>({
   options,
   value,
@@ -36,7 +42,27 @@ export function SegmentedControl<T extends string>({
   screenReaderOrder,
 }: Props<T>) {
   const screenReaderProps = useScreenReaderProps({ hideFromScreenReader, screenReaderOrder });
+  const optionRefs = useRef<(ViewInstance | null)[]>([]);
   const compact = size === 'compact';
+  const web = Platform.OS === 'web';
+  const tabStop = Math.max(0, options.findIndex((option) => option.value === value));
+
+  const choose = (option: SegmentedOption<T>) =>
+    withPressAnnouncement(() => onChange(option.value), screenReaderParts?.[option.value]?.pressAnnouncement);
+
+  const onKeyDown = (index: number) => (event: KeyDownEvent) => {
+    const { key } = event.nativeEvent;
+    if (isSpaceKey(key)) {
+      event.preventDefault();
+      choose(options[index])?.();
+      return;
+    }
+    const target = arrowKeyTarget(key, index, options.length);
+    if (target === undefined) return;
+    event.preventDefault();
+    choose(options[target])?.();
+    optionRefs.current[target]?.focus();
+  };
 
   return (
     <View
@@ -45,14 +71,18 @@ export function SegmentedControl<T extends string>({
       accessibilityLabel={label}
       className={`flex-row rounded-lg bg-surface-field ${compact ? 'self-start p-1' : 'p-[5px]'}`}
     >
-      {options.map((option) => {
+      {options.map((option, index) => {
         const selected = option.value === value;
         const spoken = screenReaderParts?.[option.value];
         return (
           <Pressable
             key={option.value}
+            ref={(node) => {
+              optionRefs.current[index] = node;
+            }}
+            {...(web && { 'aria-checked': selected, tabIndex: index === tabStop ? 0 : -1, onKeyDown: onKeyDown(index) })}
             {...skipFocusProps(hideFromScreenReader)}
-            onPress={withPressAnnouncement(() => onChange(option.value), spoken?.pressAnnouncement)}
+            onPress={choose(option)}
             accessibilityRole="radio"
             accessibilityLabel={spoken?.label ?? option.label}
             accessibilityHint={spoken?.hint}

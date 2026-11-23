@@ -36,6 +36,9 @@ export function PickerField({
   screenReaderOrder,
 }: Props) {
   const screenReaderProps = useScreenReaderProps({ hideFromScreenReader, screenReaderOrder });
+  // An empty string counts as no value. The detail is only shown under a value.
+  const shown = value || placeholder;
+  const shownDetail = value ? detail : undefined;
 
   return (
     <View {...screenReaderProps} className="gap-2">
@@ -46,15 +49,15 @@ export function PickerField({
         {...skipFocusProps(hideFromScreenReader)}
         onPress={withPressAnnouncement(onPress, screenReaderPressAnnouncement)}
         accessibilityRole="button"
-        accessibilityLabel={screenReaderLabel ?? [label, value ?? placeholder, detail].filter(Boolean).join(', ')}
+        accessibilityLabel={screenReaderLabel ?? [label, shown, shownDetail].filter(Boolean).join(', ')}
         accessibilityHint={screenReaderHint}
         className="min-h-14 flex-row items-center gap-3 rounded border-2 border-white bg-surface-field p-4 active:opacity-80"
       >
         <View className="flex-1 gap-1">
           <Text className={`text-[18px] ${value ? `text-white ${detail ? 'font-sans-bold leading-[26px]' : 'font-sans'}` : 'font-sans text-ink-subtle'}`}>
-            {value ?? placeholder}
+            {shown}
           </Text>
-          {value && detail ? <Text className="font-sans text-body-lg text-ink-quiet">{detail}</Text> : null}
+          {shownDetail ? <Text className="font-sans text-body-lg text-ink-quiet">{shownDetail}</Text> : null}
         </View>
         <ChevronForwardIcon width={24} height={24} />
       </Pressable>

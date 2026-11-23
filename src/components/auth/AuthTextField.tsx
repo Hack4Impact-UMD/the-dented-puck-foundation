@@ -3,6 +3,7 @@ import { Text, TextInput, View, type TextInputProps, type TextInputInstance } fr
 import {
   skipFocusProps,
   useScreenReaderProps,
+  useSkipSubtreeFocusProps,
   type ScreenReaderFieldText,
   type ScreenReaderProps,
   type ScreenReaderStopText,
@@ -52,10 +53,12 @@ export function AuthTextField({
 }: AuthTextFieldProps) {
   const readOnly = readOnlyProp || inputProps.editable === false;
   const screenReaderProps = useScreenReaderProps({ hideFromScreenReader, screenReaderOrder });
+  // `accessory` and `children` can hold controls (Show/Hide, "Log in instead").
+  const subtreeFocusProps = useSkipSubtreeFocusProps(hideFromScreenReader);
   const spokenHint = [error, screenReaderParts?.field?.hint ?? hint].filter(Boolean).join(" ") || undefined;
 
   return (
-    <View {...screenReaderProps} className="gap-2">
+    <View {...screenReaderProps} {...subtreeFocusProps} className="gap-2">
       <Text aria-hidden className="font-sans-bold text-lg leading-[26px] text-white">
         {label}
       </Text>

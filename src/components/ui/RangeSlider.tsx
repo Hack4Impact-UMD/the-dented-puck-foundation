@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { Text, TextInput, View, type AccessibilityActionEvent, type GestureResponderEvent } from 'react-native';
+import { Platform, Text, TextInput, View, type AccessibilityActionEvent, type GestureResponderEvent, type KeyDownEvent } from 'react-native';
 import {
   skipFocusProps,
   useScreenReaderProps,
@@ -33,8 +33,9 @@ const clamp = (value: number, lowest: number, highest: number) => Math.min(Math.
 
 /**
  * Two-thumb range slider with typed values (Figma 4510: Age range 0–99). The value boxes are
- * number fields and the thumbs are adjustable (swipe up or down with VoiceOver or TalkBack),
- * so the range can be set without dragging. The outline turns yellow while a thumb is held.
+ * number fields (applied when the field loses focus or is submitted) and the thumbs are adjustable
+ * (swipe up or down with VoiceOver or TalkBack; arrow keys, Page Up/Down, Home and End on the
+ * web), so the range can be set without dragging. The outline turns yellow while a thumb is held.
  */
 export function RangeSlider({
   label,
@@ -51,6 +52,8 @@ export function RangeSlider({
   const screenReaderProps = useScreenReaderProps({ hideFromScreenReader, screenReaderOrder });
   const [trackWidth, setTrackWidth] = useState(0);
   const [dragging, setDragging] = useState(false);
+  // What's typed in each value box until it's applied; may be empty or out of range meanwhile.
+  const [drafts, setDrafts] = useState<Partial<Record<'low' | 'high', string>>>({});
   // Where the current drag started; written only by the touch handlers below.
   const dragStart = useRef<{ pageX: number; value: number } | null>(null);
   const name = valueName.toLowerCase();
@@ -92,17 +95,44 @@ export function RangeSlider({
     set(which, current + (event.nativeEvent.actionName === 'increment' ? 1 : -1));
   };
 
+  // Web slider keys (WAI-ARIA slider pattern).
+  const onThumbKeyDown = (which: 'low' | 'high') => (event: KeyDownEvent) => {
+    const current = which === 'low' ? low : high;
+    const next: Record<string, number> = {
+      ArrowRight: current + 1,
+      ArrowUp: current + 1,
+      ArrowLeft: current - 1,
+      ArrowDown: current - 1,
+      PageUp: current + 10,
+      PageDown: current - 10,
+      Home: min,
+      End: max,
+    };
+    const value = next[event.nativeEvent.key];
+    if (value === undefined) return;
+    event.preventDefault();
+    set(which, value);
+  };
+
+  const commit = (which: 'low' | 'high') => {
+    const draft = drafts[which];
+    if (draft === undefined) return;
+    setDrafts((current) => ({ ...current, [which]: undefined }));
+    const parsed = parseInt(draft, 10);
+    // An empty box goes back to the current value; anything else is clamped by `set`.
+    if (!Number.isNaN(parsed)) set(which, parsed);
+  };
+
   const valueBox = (which: 'low' | 'high') => {
     const spoken = screenReaderParts?.[which];
     const value = which === 'low' ? low : high;
     return (
       <TextInput
         {...skipFocusProps(hideFromScreenReader)}
-        value={String(value)}
-        onChangeText={(text) => {
-          const parsed = parseInt(text.replace(/\D/g, ''), 10);
-          if (!Number.isNaN(parsed)) set(which, parsed);
-        }}
+        value={drafts[which] ?? String(value)}
+        onChangeText={(text) => setDrafts((current) => ({ ...current, [which]: text.replace(/\D/g, '') }))}
+        onBlur={() => commit(which)}
+        onSubmitEditing={() => commit(which)}
         keyboardType="number-pad"
         maxLength={String(max).length}
         accessibilityLabel={spoken?.label ?? `${which === 'low' ? 'Minimum' : 'Maximum'} ${name}`}
@@ -118,6 +148,13 @@ export function RangeSlider({
     return (
       <View
         {...touchHandlers(which)}
+        {...(Platform.OS === 'web' && {
+          'aria-valuemin': min,
+          'aria-valuemax': max,
+          'aria-valuenow': value,
+          tabIndex: 0 as const,
+          onKeyDown: onThumbKeyDown(which),
+        })}
         {...skipFocusProps(hideFromScreenReader)}
         accessible
         accessibilityRole="adjustable"

@@ -63,12 +63,16 @@ export function ChannelCard({
           <Text className="shrink font-sans-bold text-h3 text-white">{name}</Text>
           {time ? <Text className="font-sans text-body text-ink-muted-dark">{time}</Text> : null}
         </View>
-        {lastMessage ? (
+        {lastMessage || unread > 0 ? (
           <View className="flex-row items-center gap-2">
-            <Text numberOfLines={2} className="flex-1 font-sans text-body text-white">
-              {lastSender ? <Text className="font-sans-bold">{lastSender}: </Text> : null}
-              {lastMessage}
-            </Text>
+            {lastMessage ? (
+              <Text numberOfLines={2} className="flex-1 font-sans text-body text-white">
+                {lastSender ? <Text className="font-sans-bold">{lastSender}: </Text> : null}
+                {lastMessage}
+              </Text>
+            ) : (
+              <View className="flex-1" />
+            )}
             <CountBadge count={unread} hideFromScreenReader />
           </View>
         ) : null}

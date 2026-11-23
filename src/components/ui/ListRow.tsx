@@ -1,4 +1,4 @@
-import type { ComponentType, ReactNode } from 'react';
+import type { ComponentType, ReactElement, ReactNode } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import type { SvgProps } from 'react-native-svg';
 import ChevronForwardIcon from '@/assets/icons/chevron-forward.svg';
@@ -25,9 +25,9 @@ export type ListRowProps = ScreenReaderControlProps & {
   icon?: ComponentType<SvgProps>;
   /**
    * Right side: `chevron` (opens another screen), `selected` / `unselected` (a checkbox-like
-   * yellow check circle), or any node.
+   * yellow check circle), or an element. For text on the right, use `value`.
    */
-  accessory?: 'chevron' | 'selected' | 'unselected' | ReactNode;
+  accessory?: 'chevron' | 'selected' | 'unselected' | ReactElement;
   onPress?: () => void;
   /** Rule under the row: `subtle` (#2B2B2B, chat lists), `default` (#767676, location results) or `none`. */
   divider?: 'none' | 'subtle' | 'default';

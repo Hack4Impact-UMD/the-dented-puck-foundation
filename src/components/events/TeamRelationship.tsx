@@ -42,16 +42,18 @@ export function TeamRelationship({
 
   if (state === 'not-following' || state === 'following') {
     const following = state === 'following';
+    const disabled = !onToggleFollow;
     return (
       <Pressable
         {...screenReaderProps}
         {...skipFocusProps(hideFromScreenReader)}
         // By default, speaks the state the press switches to ("Following Baltimore Blades").
-        onPress={withPressAnnouncement(onToggleFollow, screenReaderPressAnnouncement ?? followLabel(!following, teamName))}
+        onPress={disabled ? undefined : withPressAnnouncement(onToggleFollow, screenReaderPressAnnouncement ?? followLabel(!following, teamName))}
+        disabled={disabled || undefined}
         accessibilityRole="button"
         accessibilityLabel={screenReaderLabel ?? followLabel(following, teamName)}
         accessibilityHint={screenReaderHint}
-        accessibilityState={{ selected: following }}
+        accessibilityState={disabled ? { selected: following, disabled } : { selected: following }}
         className={`min-h-14 flex-row items-center justify-center rounded active:opacity-70 ${
           following ? 'gap-2 border border-line bg-surface-card pl-4 pr-6' : 'bg-brand px-6'
         }`}

@@ -45,7 +45,7 @@ export function RsvpReplies({ groups, heading, limit, onSeeAll, screenReaderPart
             <Text accessibilityRole="header" className="font-sans-bold text-body text-white">
               {group.names.length} {group.label}
             </Text>
-            {(limit ? group.names.slice(0, limit) : group.names).map((name, index) => (
+            {(limit === undefined ? group.names : group.names.slice(0, limit)).map((name, index) => (
               <View key={`${name}-${index}`} className="min-h-12 justify-center">
                 <Text className="font-sans text-[18px] text-white">{name}</Text>
               </View>

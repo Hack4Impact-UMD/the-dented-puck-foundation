@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { Platform, Pressable, ScrollView, Text, View } from 'react-native';
 import ChevronDownIcon from '@/assets/icons/chevron-down.svg';
 import ChevronUpIcon from '@/assets/icons/chevron-up.svg';
 import {
@@ -46,6 +46,7 @@ export function SelectField<T extends string>({
   const [open, setOpen] = useState(false);
   const selected = options.find((option) => option.value === value);
   const field = screenReaderParts?.field;
+  const web = Platform.OS === 'web';
 
   return (
     <View {...screenReaderProps} className="gap-2">
@@ -60,6 +61,7 @@ export function SelectField<T extends string>({
           accessibilityLabel={field?.label ?? `${label}, ${selected?.label ?? placeholder}`}
           accessibilityHint={field?.hint}
           accessibilityState={{ expanded: open }}
+          {...(web && { 'aria-expanded': open })}
           className={`min-h-14 flex-row items-center justify-between border-2 pl-4 pr-3 ${
             open ? 'rounded-t border-brand bg-black' : 'rounded border-white bg-surface-field'
           }`}
@@ -86,6 +88,8 @@ export function SelectField<T extends string>({
                   accessibilityRole="button"
                   accessibilityLabel={option.label}
                   accessibilityState={{ selected: isSelected }}
+                  // aria-selected isn't allowed on a button; like AppButton, the web reads "pressed".
+                  {...(web && { 'aria-pressed': isSelected })}
                   className={`min-h-12 justify-center px-4 active:opacity-70 ${
                     index < options.length - 1 ? 'border-b border-line-muted' : ''
                   } ${isSelected ? 'bg-brand-soft-dark' : ''}`}

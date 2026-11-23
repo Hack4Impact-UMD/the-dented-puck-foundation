@@ -32,9 +32,13 @@ export function EventNote({ notes, label = 'Note from coach', onEdit, screenRead
     );
   }
 
-  // Two stops: the note, then its Edit link.
+  // Two stops: the note, then its Edit link. The note comes first in the source so it is read and
+  // focused first; `flex-col-reverse` still draws the label and Edit above it.
   return (
-    <View {...screenReaderProps} className="gap-2 rounded bg-surface-card px-4 pb-4 pt-2">
+    <View {...screenReaderProps} className="flex-col-reverse gap-2 rounded bg-surface-card px-4 pb-4 pt-2">
+      <Text accessibilityLabel={screenReaderLabel ?? `${label}. ${notes}`} className="font-sans text-lg text-white">
+        {notes}
+      </Text>
       <View className="flex-row items-center justify-between">
         <Text aria-hidden className="flex-1 font-sans-bold text-small text-ink-quiet">
           {label}
@@ -49,9 +53,6 @@ export function EventNote({ notes, label = 'Note from coach', onEdit, screenRead
           <Text className="font-sans-bold text-small text-white underline">Edit</Text>
         </Pressable>
       </View>
-      <Text accessibilityLabel={screenReaderLabel ?? `${label}. ${notes}`} className="font-sans text-lg text-white">
-        {notes}
-      </Text>
     </View>
   );
 }

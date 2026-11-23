@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { Text, View } from 'react-native';
 import {
   useScreenReaderProps,
+  useSkipSubtreeFocusProps,
   type ScreenReaderProps,
   type ScreenReaderStopText,
 } from '@/components/accessibility';
@@ -24,9 +25,10 @@ type Props = ScreenReaderProps & {
  */
 export function CenteredMessage({ title, message, badge, children, screenReaderParts, hideFromScreenReader, screenReaderOrder }: Props) {
   const screenReaderProps = useScreenReaderProps({ hideFromScreenReader, screenReaderOrder });
+  const subtreeFocusProps = useSkipSubtreeFocusProps(hideFromScreenReader);
 
   return (
-    <View {...screenReaderProps} className="w-full items-center">
+    <View {...screenReaderProps} {...subtreeFocusProps} className="w-full items-center">
       {badge ? <View className="mb-9">{badge}</View> : null}
       <Text accessibilityRole="header" accessibilityLabel={screenReaderParts?.title?.label} className="text-center font-sans-bold text-h2 text-white">
         {title}

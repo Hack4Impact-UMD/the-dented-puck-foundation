@@ -1,3 +1,4 @@
+import { useCallback, useRef } from 'react';
 import { AccessibilityInfo, Platform } from 'react-native';
 import { useScreenReaderOrder } from './ScreenReaderOrderContext';
 
@@ -76,6 +77,75 @@ export function screenReaderHiddenProps(hidden: boolean | undefined): HiddenProp
  */
 export function skipFocusProps(hidden: boolean | undefined): { tabIndex?: -1 } {
   return hidden && Platform.OS === 'web' ? { tabIndex: -1 } : {};
+}
+
+const FOCUSABLE = 'a[href], button, input, select, textarea, iframe, [tabindex], [contenteditable]:not([contenteditable="false"])';
+
+/**
+ * Gives every focusable element in `root` (including ones added later) `tabindex="-1"`. Returns a
+ * function that stops watching and puts back the values the app set.
+ */
+function skipFocusInside(root: HTMLElement): () => void {
+  const intended = new Map<Element, string | null>();
+  const skip = (element: Element) => {
+    const value = element.getAttribute('tabindex');
+    if (value === '-1') {
+      if (!intended.has(element)) intended.set(element, value);
+      return;
+    }
+    intended.set(element, value);
+    element.setAttribute('tabindex', '-1');
+  };
+  const skipAll = (element: Element) => {
+    if (element.matches(FOCUSABLE)) skip(element);
+    element.querySelectorAll(FOCUSABLE).forEach(skip);
+  };
+
+  skipAll(root);
+  const observer = new MutationObserver((records) => {
+    for (const record of records) {
+      if (record.type === 'childList') {
+        record.addedNodes.forEach((node) => {
+          if (node.nodeType === 1) skipAll(node as Element);
+        });
+        continue;
+      }
+      const element = record.target as Element;
+      if (element.getAttribute('tabindex') !== '-1') skip(element);
+      // Only the app sets -1 over -1 (skip() never does), so that is the value to restore.
+      else if (record.oldValue === '-1') intended.set(element, '-1');
+    }
+  });
+  observer.observe(root, { subtree: true, childList: true, attributes: true, attributeFilter: ['tabindex'], attributeOldValue: true });
+
+  return () => {
+    observer.disconnect();
+    intended.forEach((value, element) => {
+      if (value === null) element.removeAttribute('tabindex');
+      else element.setAttribute('tabindex', value);
+    });
+  };
+}
+
+/**
+ * For a component that renders content it didn't create (`children`, an `accessory`): spread on
+ * its outer element. While `hidden`, every control inside it leaves the web Tab order, and gets its
+ * own focus behavior back when `hidden` turns off. Does nothing on iOS and Android, where hiding
+ * from the screen reader already covers the whole subtree.
+ */
+export function useSkipSubtreeFocusProps(hidden: boolean | undefined): { ref?: (node: unknown) => void } {
+  const restore = useRef<(() => void) | null>(null);
+  // Stable, so it runs only when the element mounts or `hidden` changes. react-native-web merges
+  // refs and drops cleanup functions, so this handles the `null` call itself.
+  const ref = useCallback((node: unknown) => {
+    restore.current?.();
+    restore.current = null;
+    const element = node as HTMLElement | null;
+    if (element && typeof element.querySelectorAll === 'function' && typeof MutationObserver !== 'undefined') {
+      restore.current = skipFocusInside(element);
+    }
+  }, []);
+  return hidden && Platform.OS === 'web' ? { ref } : {};
 }
 
 /**

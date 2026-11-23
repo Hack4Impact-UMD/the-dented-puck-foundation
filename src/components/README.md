@@ -151,7 +151,7 @@ stop. `hideFromScreenReader` and `screenReaderOrder` always apply to the whole c
 - On the web, labels on plain text may be ignored. Labels on buttons, headings, images, inputs, and alerts work everywhere.
 - Press announcements are spoken after `onPress` runs. Only Follow announces by default. Skip them when the result already speaks (alerts, live regions, or a focus move).
 - For announcements not tied to a press, call `announceForScreenReader(message)` from `@/components/accessibility`.
-- Hidden controls are also removed from the web Tab order, so only hide a control if another one on the page does the same thing. Controls you pass as `children` keep their Tab stop, so hide those too.
+- Hidden controls are also removed from the web Tab order, so only hide a control if another one on the page does the same thing. That includes controls you pass in as `children` or `accessory` (`AuthTextField`, `CenteredMessage`, `ScreenHeader`, `TeamInfoCard`, `SlidingPages`, `AccessibilityOrder`); they get their Tab stop back when the component is shown again.
 - `TeamIcon`, `TabBarIcon`, and `SuccessBadge` are hidden by default. Pass `hideFromScreenReader={false}` to show one as an image.
 
 ### Reading order
@@ -161,8 +161,8 @@ numbers are read first.
 
 ```tsx
 <ScreenReaderOrderScope className="flex-1">
-  <TeamHeader screenReaderOrder={2} onBack={goBack} onCreate={openCreate} />
   <TeamInfoCard screenReaderOrder={1} name={team.name} season={season} />
+  <TeamHeader screenReaderOrder={2} onBack={goBack} onCreate={openCreate} />
   <AppButton screenReaderOrder={3} title="Join team" variant="secondary" onPress={join} />
 </ScreenReaderOrderScope>
 ```
@@ -371,7 +371,7 @@ when `selected`. A hit slop brings the 35 px chip to a 48 px target.
 
 A picked item with an X, such as a message recipient (7210). `tone="error"` is the red version
 for a recipient that can't be messaged (7211). The X is spoken "Remove {label}"; the
-screen-reader props apply to it.
+screen-reader props apply to it. With the X, the chip's text is hidden so the name isn't read twice.
 
 | Prop | Type | Default | Description |
 | :-- | :-- | :-- | :-- |
@@ -526,8 +526,9 @@ pieces used inside `ToggleCard`, `ListRow`, and `RadioCard`. They have no screen
 
 ### RangeSlider
 
-Two-thumb range with typed values (4510 Age range). The value boxes are number fields and the
-thumbs are adjustable, so screen-reader users can swipe up and down instead of dragging.
+Two-thumb range with typed values (4510 Age range). The value boxes are number fields, applied
+when the field loses focus or is submitted. The thumbs are adjustable, so screen-reader users can
+swipe up and down instead of dragging; on the web they take arrow keys, Page Up/Down, Home and End.
 
 | Prop | Type | Default | Description |
 | :-- | :-- | :-- | :-- |
@@ -680,6 +681,7 @@ Top bar for any screen: an optional action on each side and a title. Use it for 
 
 Mutually exclusive options; the chosen one is solid yellow. `default` is the full-width Home
 switch (For You / Discover); `compact` is the AM / PM toggle (6520). Each option is a radio button.
+On the web the group is one Tab stop: arrow keys select the next option and Space selects.
 
 | Prop | Type | Default | Description |
 | :-- | :-- | :-- | :-- |
@@ -698,7 +700,8 @@ switch (For You / Discover); `compact` is the AM / PM toggle (6520). Each option
 
 ### TabStrip
 
-Underlined tabs across a screen (7100 Channels / Messages), with an optional unread count.
+Underlined tabs across a screen (7100 Channels / Messages), with an optional unread count. On the
+web the strip is one Tab stop: arrow keys, Home and End move between tabs; Space or Enter opens one.
 
 | Prop | Type | Default | Description |
 | :-- | :-- | :-- | :-- |
@@ -840,7 +843,7 @@ The viewer's relationship to a team. `not-following` and `following` are a toggl
 | :-- | :-- | :-- | :-- |
 | `state` | `"not-following" \| "following" \| "requested" \| "joined" \| "coach"` | required | |
 | `teamName` | `string` | required | Used in the label ("Follow Baltimore Blades"). |
-| `onToggleFollow` | `() => void` | — | |
+| `onToggleFollow` | `() => void` | — | Without it, Follow / Following is disabled. |
 
 ```tsx
 <TeamRelationship state={followed ? "following" : "not-following"} teamName="Baltimore Blades" onToggleFollow={toggle} />
@@ -1171,7 +1174,7 @@ One row in a list. With `onPress` it's a button, or a checkbox when `accessory` 
 | `valueTone` | `"muted" \| "default"` | `"muted"` | |
 | `leading` | `ReactNode` | — | |
 | `icon` | SVG component | — | 24 px, left. |
-| `accessory` | `"chevron" \| "selected" \| "unselected" \| ReactNode` | — | |
+| `accessory` | `"chevron" \| "selected" \| "unselected" \| ReactElement` | — | An element, not bare text; use `value` for text. |
 | `onPress` | `() => void` | — | |
 | `divider` | `"none" \| "subtle" \| "default"` | `"none"` | |
 | `titleWeight` | `"bold" \| "regular"` | `"bold"` | |

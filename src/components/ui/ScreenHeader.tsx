@@ -6,6 +6,7 @@ import CloseIcon from '@/assets/icons/close.svg';
 import {
   skipFocusProps,
   useScreenReaderProps,
+  useSkipSubtreeFocusProps,
   withPressAnnouncement,
   type ScreenReaderControlText,
   type ScreenReaderProps,
@@ -97,6 +98,8 @@ export function ScreenHeader({
   screenReaderOrder,
 }: Props) {
   const screenReaderProps = useScreenReaderProps({ hideFromScreenReader, screenReaderOrder });
+  // `children` can hold controls of its own.
+  const subtreeFocusProps = useSkipSubtreeFocusProps(hideFromScreenReader);
   const centered = titleAlign === 'center';
   const titleNode =
     children ??
@@ -114,6 +117,7 @@ export function ScreenHeader({
   return (
     <View
       {...screenReaderProps}
+      {...subtreeFocusProps}
       className={`min-h-[60px] flex-row items-center px-2 ${
         divider === 'none' ? '' : `border-b ${divider === 'subtle' ? 'border-line-faint' : 'border-line-dark'}`
       }`}

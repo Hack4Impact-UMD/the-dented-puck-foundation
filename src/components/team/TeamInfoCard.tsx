@@ -3,6 +3,7 @@ import { Text, View } from 'react-native';
 import TeamIcon from '@/components/team/TeamIcon';
 import {
     useScreenReaderProps,
+    useSkipSubtreeFocusProps,
     type ScreenReaderProps,
     type ScreenReaderStopText,
 } from '@/components/accessibility';
@@ -32,9 +33,10 @@ export default function TeamInfoCard({
     screenReaderOrder,
 }: TeamInfoCardProps) {
     const screenReaderProps = useScreenReaderProps({ hideFromScreenReader, screenReaderOrder });
+    const subtreeFocusProps = useSkipSubtreeFocusProps(hideFromScreenReader);
 
     return (
-        <View {...screenReaderProps} className="w-full px-4 py-8 bg-surface-raised border-y border-line-dark">
+        <View {...screenReaderProps} {...subtreeFocusProps} className="w-full px-4 py-8 bg-surface-raised border-y border-line-dark">
             <TeamIcon name={name} />
             <Text
                 accessibilityRole="header"

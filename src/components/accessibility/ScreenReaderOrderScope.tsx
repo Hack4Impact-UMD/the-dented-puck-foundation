@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react';
+import { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { AccessibilityOrder, type AccessibilityOrderProps } from './AccessibilityOrder';
 import { ScreenReaderOrderContext, type ScreenReaderOrderRegistry, useScreenReaderOrder } from './ScreenReaderOrderContext';
 
@@ -19,17 +19,32 @@ export function ScreenReaderOrderScope({ screenReaderOrder, hideFromScreenReader
   const ownID = useScreenReaderOrder(hideFromScreenReader ? undefined : screenReaderOrder, nativeID);
   const [entries, setEntries] = useState<readonly Entry[]>([]);
   const nextSequence = useRef(0);
+  // Stops removed in the current commit. A stop whose number changes is removed and registered
+  // again in the same commit; it takes its sequence back so it keeps its mount position.
+  const released = useRef(new Map<string, number>());
 
   const registry = useMemo<ScreenReaderOrderRegistry>(
     () => ({
       register(id, order) {
-        const entry = { nativeID: id, order, sequence: nextSequence.current++ };
+        const sequence = released.current.get(id) ?? nextSequence.current++;
+        released.current.delete(id);
+        const entry = { nativeID: id, order, sequence };
         setEntries((current) => [...current.filter((e) => e.nativeID !== id), entry]);
-        return () => setEntries((current) => current.filter((e) => e !== entry));
+        return () => {
+          released.current.set(id, sequence);
+          setEntries((current) => current.filter((e) => e !== entry));
+        };
       },
     }),
     [],
   );
+
+  // Runs after the commit's re-registrations (children's layout effects run first). Every
+  // register and removal updates `entries`, so this runs after each one; a stop that is still
+  // released by now has unmounted, and one that mounts later counts as new.
+  useLayoutEffect(() => {
+    released.current.clear();
+  });
 
   // Equal numbers keep the order the components mounted in.
   const order = useMemo(

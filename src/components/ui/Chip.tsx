@@ -1,6 +1,7 @@
 import { Pressable, Text, View } from 'react-native';
 import CloseSmallIcon from '@/assets/icons/close-small.svg';
 import {
+  screenReaderHiddenProps,
   skipFocusProps,
   useScreenReaderProps,
   withPressAnnouncement,
@@ -18,8 +19,9 @@ type Props = ScreenReaderControlProps & {
 
 /**
  * A picked item with a remove button, for example a message recipient ("Jordan P. · Player").
- * The chip is one reading stop; its X is a button labeled "Remove {label}".
- * The screen-reader props apply to the X button.
+ * With `onRemove`, the chip is one reading stop: its X, a button labeled "Remove {label}" (the
+ * text is hidden so it isn't read twice). Without it, the text is read. The screen-reader props
+ * apply to the X button.
  */
 export function Chip({
   label,
@@ -41,7 +43,9 @@ export function Chip({
         error ? 'border-danger-dark bg-danger-soft' : 'border-brand bg-brand-soft-dark'
       }`}
     >
-      <Text className="font-sans text-body text-white">{label}</Text>
+      <Text {...screenReaderHiddenProps(!!onRemove)} className="font-sans text-body text-white">
+        {label}
+      </Text>
       {onRemove ? (
         <Pressable
           {...skipFocusProps(hideFromScreenReader)}

@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AppButton from '@/components/team/AppButton';
 import {
   screenReaderHiddenProps,
+  skipFocusProps,
   useScreenReaderProps,
   withPressAnnouncement,
   type ScreenReaderControlText,
@@ -43,6 +44,7 @@ export function ActionSheet({ visible, title, actions, onClose, cancelLabel = 'C
       <View className="flex-1 justify-end">
         <Pressable
           {...screenReaderHiddenProps(true)}
+          {...skipFocusProps(true)}
           onPress={onClose}
           className="absolute inset-0 bg-black/70"
         />
@@ -63,6 +65,7 @@ export function ActionSheet({ visible, title, actions, onClose, cancelLabel = 'C
             return (
               <Pressable
                 key={action.key}
+                {...skipFocusProps(hideFromScreenReader)}
                 onPress={withPressAnnouncement(action.onPress, action.screenReader?.pressAnnouncement)}
                 accessibilityRole="button"
                 accessibilityLabel={action.screenReader?.label ?? action.label}
@@ -77,7 +80,7 @@ export function ActionSheet({ visible, title, actions, onClose, cancelLabel = 'C
             );
           })}
           <View className="pt-4">
-            <AppButton title={cancelLabel} onPress={onClose} variant="outline" className="w-full" />
+            <AppButton title={cancelLabel} onPress={onClose} variant="outline" className="w-full" hideFromScreenReader={hideFromScreenReader} />
           </View>
         </View>
       </View>
