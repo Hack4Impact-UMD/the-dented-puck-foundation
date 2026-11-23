@@ -25,6 +25,7 @@ export interface Team {
   status: Status;
   wins: number;
   losses: number;
+  ageRange?: string;
 }
 
 export interface UserToTeam {

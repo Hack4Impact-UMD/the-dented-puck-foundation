@@ -353,13 +353,11 @@ export function sortTeamsByProximity(
     .sort((team1, team2) => team1.distanceMiles - team2.distanceMiles);
 }
 
-export type RegionTeam = {
-  id: string; // Firestore document ID, e.g. "team_201", used by the Team detail route
-  name: string;
-  ageRange?: string; // display text, e.g. "Ages 12 to 40" or "All ages"; same field Home reads
+export type RegionTeam = Pick<
+  TeamWithId,
+  "id" | "name" | "wins" | "losses" | "ageRange"
+> & {
   regionId: number;
-  wins: number;
-  losses: number;
 };
 
 // get active teams in one region, best record first (most wins, then fewest losses).
