@@ -15,7 +15,7 @@ export function NearbyTeamsSection() {
   return <HomeTransition className="gap-6">
     <View className="flex-row flex-wrap items-center justify-between gap-3">
       <Text accessibilityRole="header" className="shrink font-sans-bold text-[26px] leading-[34px] text-white">Teams Nearby</Text>
-      {(nearby?.items.length ?? 0) > NEARBY_PREVIEW_SIZE && <HomeSeeAll label="See all nearby teams" href={destinations.nearbyTeamList} />}
+      <HomeSeeAll label="See all nearby teams" href={destinations.nearbyTeamList ?? '/tabs/home/nearby-teams'} />
     </View>
     {nearby?.loading ? <HomeTransition key="loading" presence><HomeMessage announce={false} loading title="Finding nearby teams" /></HomeTransition>
       : nearby?.error ? <HomeTransition key="error" presence><HomeMessage title="Unable to load nearby teams" message={nearby.error} action="Try again" onAction={refresh} /></HomeTransition>

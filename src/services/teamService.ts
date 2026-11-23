@@ -352,3 +352,43 @@ export function sortTeamsByProximity(
     }))
     .sort((team1, team2) => team1.distanceMiles - team2.distanceMiles);
 }
+
+export type RegionTeam = Pick<
+  TeamWithId,
+  "id" | "name" | "wins" | "losses" | "ageRange"
+> & {
+  regionId: number;
+};
+
+// get active teams in one region, best record first (most wins, then fewest losses).
+// Every team in a region is the same distance away (teams only store a region), so
+// "closest first" can't separate them yet; record is the tiebreak until teams have coordinates.
+export async function getTeamsInRegion(regionId: number): Promise<RegionTeam[]> {
+  // The region field is spelled both ways in the data.
+  const snapshots = await Promise.all(
+    ["regionId", "reigonId"].map((field) =>
+      getDocs(query(collection(db, "Teams"), where(field, "==", regionId))),
+    ),
+  );
+
+  const teams = new Map<string, RegionTeam>();
+  for (const snapshot of snapshots) {
+    for (const teamDoc of snapshot.docs) {
+      const data = teamDoc.data();
+      // Skip inactive teams and records without a name (the card shows the name and its initials).
+      if (data.status !== "active" || typeof data.name !== "string" || !data.name.trim()) continue;
+      teams.set(teamDoc.id, {
+        id: teamDoc.id,
+        name: data.name.trim(),
+        ageRange: typeof data.ageRange === "string" && data.ageRange.trim() ? data.ageRange.trim() : undefined,
+        regionId,
+        wins: data.wins ?? 0,
+        losses: data.losses ?? data.loses ?? 0,
+      });
+    }
+  }
+
+  return [...teams.values()].sort(
+    (a, b) => b.wins - a.wins || a.losses - b.losses || a.name.localeCompare(b.name),
+  );
+}
