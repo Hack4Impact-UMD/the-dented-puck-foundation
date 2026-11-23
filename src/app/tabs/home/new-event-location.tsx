@@ -28,9 +28,16 @@ export default function NewEventLocation() {
         />
       </View>
 
-      <Text accessibilityRole="header" className="font-sans-bold text-xl text-white">
+      <Text
+        accessibilityRole="header"
+        className="font-sans-bold text-header text-white text-xl"
+      >
         Recent
       </Text>
+
+      <View className="flex-1 gap-4">
+        <Text className="font-sans text-lg text-white">No recent locations</Text>
+      </View>
     </ScrollView>
   );
 }
