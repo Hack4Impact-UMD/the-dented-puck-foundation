@@ -399,7 +399,7 @@ export async function fetchTeam(teamId: string): Promise<TeamWithId> {
 
 // Helper function that inputs a user or user role directly
 // and outputs a boolean representing if the user is a staff user
-export function isUserStaff(user: ShortUserInfo | string): boolean {
+export function isUserStaff(user: ShortUserInfo | Role): boolean {
   let userId;
   if (typeof user === "string") {
     userId = user;
