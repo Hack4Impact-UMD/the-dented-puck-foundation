@@ -263,7 +263,7 @@ async function fetchLatestConversationMessage(
   };
 }
 
-// Convert the user's admin and team conversations into channel cards.
+// Convert the user's admin and team conversations into channel types
 export async function convertUserChannelsToChannels(
   userChannels: UserChannels,
 ): Promise<Channel[]> {

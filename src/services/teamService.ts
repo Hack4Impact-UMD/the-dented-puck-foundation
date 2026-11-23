@@ -168,23 +168,56 @@ export async function fetchAllTeams(): Promise<TeamWithId[]> {
     console.info(
       `[teamService] Firestore returned ${snapshot.size} team documents in ${Date.now() - startedAt}ms.`,
     );
-    const teams = snapshot.docs.map((doc) => {
-      const data = doc.data();
+    const teams = snapshot.docs.flatMap((teamDoc) => {
+      const data = teamDoc.data();
+      const supervisorId = data.supervisor?.userId;
+      const invalidFields: string[] = [];
 
-      return {
-        id: data.teamId,
-        // manually map firestore fields onto Team object fields
-        // because they may have different names for the same field
-        region: data.reigonId,
-        name: data.name,
-        supervisorId: data.supervisor.userId,
-        status: data.status,
-        wins: data.wins,
-        losses: data.loses,
-      };
+      if (data.teamId == null) {
+        invalidFields.push("teamId");
+      }
+      if (data.reigonId == null) {
+        invalidFields.push("reigonId");
+      }
+      if (data.name == null) {
+        invalidFields.push("name");
+      }
+      if (supervisorId == null) {
+        invalidFields.push("supervisor.userId");
+      }
+      if (data.status == null) {
+        invalidFields.push("status");
+      }
+      if (data.wins == null) {
+        invalidFields.push("wins");
+      }
+      if (data.loses == null) {
+        invalidFields.push("loses");
+      }
+
+      if (invalidFields.length > 0) {
+        console.warn(
+          `[teamService] Skipping malformed team document ${teamDoc.id}; invalid or missing fields: ${invalidFields.join(", ")}.`,
+        );
+        return [];
+      }
+
+      return [
+        {
+          id: String(data.teamId),
+          region: String(data.reigonId),
+          name: data.name,
+          supervisorId: String(supervisorId),
+          status: data.status,
+          wins: data.wins,
+          losses: data.loses,
+        },
+      ];
     });
 
-    console.info(`[teamService] Mapped ${teams.length} teams from Firestore.`);
+    console.info(
+      `[teamService] Mapped ${teams.length} teams and skipped ${snapshot.size - teams.length} malformed documents.`,
+    );
     return teams;
   } catch (error) {
     console.error(
@@ -360,7 +393,7 @@ export async function fetchTeam(teamId: string): Promise<TeamWithId> {
     supervisorId: data.supervisor.userId.toString(),
     status: data.status,
     wins: data.wins,
-    losses: data.losses,
+    losses: data.loses,
   };
 }
 
