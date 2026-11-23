@@ -153,7 +153,7 @@ export default function NewEventLocation() {
         <TextInput
           accessibilityRole="search"
           accessibilityLabel="Search locations"
-          accessibilityHint="Enter a full street address with city and state, for example 8500 Paint Branch Drive, College Park, Maryland"
+          accessibilityHint="Enter a full street address with city and state"
           autoCapitalize="none"
           className="min-h-14 flex-1 font-sans text-lg text-white"
           onChangeText={setSearch}
