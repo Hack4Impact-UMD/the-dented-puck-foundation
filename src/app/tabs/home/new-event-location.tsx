@@ -123,6 +123,8 @@ export default function NewEventLocation() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["recentLocations"] });
       // TODO: send location back to new-event once Ryan's page is merged
+      // When it's merged, replace router.back() with:
+      // router.dismissTo({ pathname: '/tabs/home/new-event', params: { location } });
       router.back();
     },
   });
