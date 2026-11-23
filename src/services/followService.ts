@@ -4,6 +4,7 @@ import { auth, db } from '@/firebase';
 export type Viewer = {
   uid: string;
   hasProfile: boolean;
+  role: string | null;
   regionId: number | null;
   followedTeamIds: string[];
 };
@@ -21,9 +22,15 @@ export async function getViewer(): Promise<Viewer | null> {
   return {
     uid,
     hasProfile: snapshot.exists(),
+    role: typeof data.role === 'string' ? data.role : null,
     regionId: typeof region === 'number' ? region : null,
     followedTeamIds: Array.isArray(data.followedTeamIds) ? data.followedTeamIds : [],
   };
+}
+
+// Same roles as isTeamStaff() in firestore.rules, plus global admins (who can do everything).
+export function isStaff(viewer: Viewer | null | undefined) {
+  return ['team-staff', 'super-admin', 'global-admin'].includes(viewer?.role ?? '');
 }
 
 // post: follow or unfollow a team on the user's own profile

@@ -1,5 +1,5 @@
-import { getDoc, getDocs } from 'firebase/firestore';
-import { getEvent, getTeamByTeamId, getUpcomingEvents } from './eventService';
+import { getDoc, getDocs, updateDoc } from 'firebase/firestore';
+import { getEvent, getTeamByTeamId, getUpcomingEvents, updateEventNote } from './eventService';
 
 jest.mock('@/firebase', () => ({ db: {} }));
 jest.mock('firebase/firestore', () => ({
@@ -10,6 +10,8 @@ jest.mock('firebase/firestore', () => ({
   query: jest.fn(),
   where: jest.fn(),
   limit: jest.fn(),
+  updateDoc: jest.fn(),
+  serverTimestamp: jest.fn(() => 'now'),
 }));
 
 describe('getEvent', () => {
@@ -95,5 +97,12 @@ describe('getUpcomingEvents', () => {
       { id: 'team_201', name: 'Harbor Hawks' },
       { id: 'team_202', name: 'Chesapeake Comets', acronym: 'CHC' },
     ]);
+  });
+});
+
+describe('updateEventNote', () => {
+  it('saves the note and marks when it changed', async () => {
+    await updateEventNote('event_301', 'Bring both jerseys.');
+    expect(updateDoc).toHaveBeenCalledWith('event-document', { notes: 'Bring both jerseys.', noteUpdatedAt: 'now' });
   });
 });

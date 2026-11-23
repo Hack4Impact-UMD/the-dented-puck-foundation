@@ -1,4 +1,4 @@
-import { collection, doc, getDoc, getDocs, limit, query, where } from 'firebase/firestore';
+import { collection, doc, getDoc, getDocs, limit, query, serverTimestamp, updateDoc, where } from 'firebase/firestore';
 import { db } from '@/firebase';
 import { EventWithId, Team, TeamWithId } from '@/types';
 import type { HomeEvent, HomeEventTeam } from '@/types/home';
@@ -77,4 +77,10 @@ async function getTeamsByTeamId(teamIds: (string | number)[]) {
     }
   }
   return teams;
+}
+
+// post: coach/staff changes the note for players (6451). noteUpdatedAt marks the change so
+// notifications can tell players the note changed.
+export async function updateEventNote(eventId: string, notes: string) {
+  await updateDoc(doc(db, 'Events', eventId), { notes, noteUpdatedAt: serverTimestamp() });
 }

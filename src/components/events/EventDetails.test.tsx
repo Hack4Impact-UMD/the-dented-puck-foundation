@@ -114,3 +114,29 @@ describe('RSVP', () => {
     expect(screen.queryByLabelText('Maybe')).toBeNull();
   });
 });
+
+describe('saved RSVP', () => {
+  it('starts from the saved reply and reports changes so they can be saved', async () => {
+    const onRsvpChange = jest.fn();
+    await render(
+      <EventDetails
+        event={SAMPLE_EVENT}
+        teamName={SAMPLE_TEAM_NAME}
+        onAddToCalendar={jest.fn()}
+        initialRsvp="maybe"
+        onRsvpChange={onRsvpChange}
+      />,
+    );
+    expect(screen.getByLabelText('Your reply: Maybe')).toBeTruthy();
+    await fireEvent.press(screen.getByLabelText('Edit your reply'));
+    await fireEvent.press(screen.getByLabelText('Going'));
+    expect(onRsvpChange).toHaveBeenCalledWith('going');
+  });
+
+  it('says when a reply could not be saved', async () => {
+    await render(
+      <EventDetails event={SAMPLE_EVENT} teamName={SAMPLE_TEAM_NAME} onAddToCalendar={jest.fn()} rsvpSaveFailed />,
+    );
+    expect(screen.getByRole('alert')).toHaveTextContent("Couldn't save your reply. Try again.");
+  });
+});
