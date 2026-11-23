@@ -331,6 +331,7 @@ export async function fetchTeamOptions(
       ]);
 
       return {
+        teamId: team.id,
         name: team.name,
         role,
         memberCount: userIds.length,

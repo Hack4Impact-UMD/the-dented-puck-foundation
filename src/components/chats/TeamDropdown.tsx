@@ -2,6 +2,7 @@ import { Modal, Pressable, Text, View } from 'react-native';
 
 export type TeamOption = {
   id: string;
+  teamId: string;
   name: string;
   role: string;
   memberCount: number;

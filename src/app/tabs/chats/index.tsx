@@ -1,4 +1,4 @@
-import { type ComponentRef, useEffect, useMemo, useRef, useState } from "react";
+import { type ComponentRef, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -21,106 +21,28 @@ import MessageRow, {
   type MessageRowConversation,
 } from "@/components/chats/MessageRow";
 import { formatChatTime } from "@/utils/formatChatTime";
-import { Channel } from "@/types";
+import type { Channel } from "@/types";
 import { getUserProfile, UserProfile } from "@/services/authService";
 import { auth } from "@/firebase";
 import {
   fetchTeamOptions,
   getUsersTeams,
-  isUserStaff,
 } from "@/services/teamService";
-
-// PLACEHOLDER for timestamps
-const DAY_MS = 24 * 60 * 60 * 1000;
-
-// today at a fixed clock time, e.g. todayAt(21, 41) shows as "9:41 PM" to match Figma
-const todayAt = (hour: number, minute: number) =>
-  new Date().setHours(hour, minute, 0, 0);
-
-// the most recent past weekday (0 = Sun ... 6 = Sat), at least 2 days ago so it shows as a weekday
-const lastWeekday = (weekday: number) => {
-  let daysBack = (new Date().getDay() - weekday + 7) % 7;
-  if (daysBack < 2) daysBack += 7;
-  return todayAt(12, 0) - daysBack * DAY_MS;
-};
-
-// PLACEHOLDER until auth provides the current user's role
-// team members can see Admins + Team
-// followers (not on the team) only see Admins
-const IS_TEAM_MEMBER = true;
+import {
+  convertConvListToMessageRowConvList,
+  convertUserChannelsToChannels,
+  categorizeChannels,
+  fetchConversationsForUserAndTeam,
+} from "@/services/conversationService";
 
 // PLACEHOLDER until chats are fetched
 const LOADING = false;
-
-// PLACEHOLDER for Conversations info
-const CONVERSATIONS: MessageRowConversation[] = [
-  {
-    id: "4",
-    participants: ["Morgan K."],
-    isStaff: false,
-    lastMessage: "See you Saturday!",
-    updatedAt: lastWeekday(4),
-    unread: 0,
-  },
-  {
-    id: "1",
-    participants: ["Jordan P."],
-    isStaff: false,
-    lastMessage: "Who is bringing pucks?",
-    updatedAt: todayAt(21, 41),
-    unread: 2,
-  },
-  {
-    id: "3",
-    participants: ["Taylor M.", "Morgan K."],
-    isStaff: false,
-    lastMessage: "Carpool from the rink?",
-    updatedAt: todayAt(18, 0) - DAY_MS,
-    unread: 2,
-  },
-  {
-    id: "5",
-    participants: ["Pat L."],
-    isStaff: true,
-    lastMessage: "Thanks for the update",
-    updatedAt: lastWeekday(1),
-    unread: 0,
-  },
-  {
-    id: "2",
-    participants: ["Coach Riley"],
-    isStaff: true,
-    lastMessage: "Jersey sizes are due Friday",
-    updatedAt: todayAt(21, 12),
-    unread: 1,
-  },
-];
 
 // newest conversation first
 const byMostRecent = (a: { updatedAt: number }, b: { updatedAt: number }) =>
   b.updatedAt - a.updatedAt;
 
 type Section = "channels" | "messages";
-
-// PLACEHOLDER for channel info
-const CHANNELS: Channel[] = [
-  {
-    id: "admins",
-    name: "Admins",
-    lastSender: "Coach Sam",
-    lastMessage: "Lineup for Saturday is posted",
-    updatedAt: todayAt(21, 41),
-    unread: 2,
-  },
-  {
-    id: "team",
-    name: "Team",
-    lastSender: "Jordan P.",
-    lastMessage: "Who is bringing pucks?",
-    updatedAt: todayAt(20, 15),
-    unread: 5,
-  },
-];
 
 // unread messages icon (yellow circle with black number)
 function UnreadMessagesIcon({ count }: { count: number }) {
@@ -265,6 +187,7 @@ export default function ChatsScreen() {
     UserProfile,
     "userId" | "role"
   > | null>(null);
+  const [isProfileLoading, setIsProfileLoading] = useState(true);
 
   const {
     data: teams = [],
@@ -289,12 +212,57 @@ export default function ChatsScreen() {
   const team =
     teams.find((option) => option.id === selectedTeamId) ?? teams[0];
 
+  const { data: conversations = [],
+    isLoading: isConvLoading,
+    isError: isConvError, } = useQuery<MessageRowConversation[]>({
+    queryKey: ["chatConversations", profile?.userId, team?.teamId],
+    enabled: profile !== null && team !== undefined,
+    queryFn: async () => {
+      if (!profile || !team) {
+        throw new Error("User profile and selected team are required.");
+      }
+
+      const conversationList = await fetchConversationsForUserAndTeam(
+        profile.userId.toString(),
+        team.teamId,
+        "dm",
+      );
+      return convertConvListToMessageRowConvList(conversationList);
+    },
+  });
+
+  const { data: channels = [],
+    isLoading: isChannelsLoading,
+    isError: isChannelsError, } = useQuery<Channel[]>({
+    queryKey: ["chatChannels", profile?.userId, team?.teamId],
+    enabled: profile !== null && team !== undefined,
+    queryFn: async () => {
+      if (!profile || !team) {
+        throw new Error("User profile and selected team are required.");
+      }
+
+      const conversationList = await fetchConversationsForUserAndTeam(
+        profile.userId.toString(),
+        team.teamId,
+        "group",
+      );
+      const userChannels = await categorizeChannels(
+        conversationList,
+        profile.userId.toString(),
+      );
+      return (await convertUserChannelsToChannels(userChannels)).sort(
+        byMostRecent,
+      );
+    },
+  });
+
   useEffect(() => {
     const loadUserProfile = async () => {
       // check if there is a user currently logged in
       const uid = auth.currentUser?.uid;
       if (!uid) {
         router.replace("/auth/login");
+        setIsProfileLoading(false);
         return;
       }
       try {
@@ -306,23 +274,18 @@ export default function ChatsScreen() {
           "Unable to load profile",
           error instanceof Error ? error.message : "Please try again.",
         );
+      } finally {
+        setIsProfileLoading(false);
       }
     };
 
     void loadUserProfile();
   }, []);
 
-  const channels = useMemo(
-    () =>
-      CHANNELS.filter(
-        (c) => (profile !== null && isUserStaff(profile.role)) || c.id === "admins",
-      ).sort(byMostRecent),
-    [profile],
-  );
-  const conversations = useMemo(
-    () => [...CONVERSATIONS].sort(byMostRecent),
-    [],
-  );
+  const isPageLoading =
+    isProfileLoading ||
+    isTeamsLoading ||
+    (isConvLoading || isChannelsLoading);
 
   const emptyState = (message: string) =>
     LOADING ? (
@@ -414,8 +377,13 @@ export default function ChatsScreen() {
         />
       </View>
 
-      {/* display which section the user is in accordingly */}
-      {section === "channels" && !team ? (
+      {isPageLoading ? (
+        <View className="flex-1 items-center justify-center">
+          <Text className="font-sans text-[18px] leading-[26px] text-ink-muted-dark">
+            Loading...
+          </Text>
+        </View>
+      ) : section === "channels" && !team ? (
         <NoTeamState />
       ) : section === "channels" ? (
         <FlatList
