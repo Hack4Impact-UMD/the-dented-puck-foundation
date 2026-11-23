@@ -24,6 +24,8 @@ import {
   type FocusTarget,
 } from "@/utils/accessibility";
 
+const PLACEHOLDER_COLOR = "#BDBDBD";
+
 // Moves screen reader focus after the Create press has settled
 function focusLater(target: FocusTarget | null) {
   setTimeout(() => focusAccessibility(target), SCREEN_READER_FOCUS_DELAY_MS);
@@ -98,6 +100,7 @@ export default function NewEventScreen() {
           error={titleError}
           label="Event name"
           placeholder="Enter event name"
+          placeholderTextColor={PLACEHOLDER_COLOR}
           returnKeyType="next"
           value={title}
           onChangeText={setTitle}
@@ -133,6 +136,7 @@ export default function NewEventScreen() {
           label="Note for players (optional)"
           accessibilityLabel="Note for players, optional"
           placeholder="What should players know?"
+          placeholderTextColor={PLACEHOLDER_COLOR}
           multiline
           textAlignVertical="top"
           style={{ height: 140, paddingTop: 16 }}

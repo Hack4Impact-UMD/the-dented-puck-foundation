@@ -47,7 +47,7 @@ export function PickerRow({
         }`}
       >
         <Text
-          className={`flex-1 font-sans text-lg ${value ? "text-white" : "text-ink-subtle"}`}
+          className={`flex-1 font-sans text-[18px] ${value ? "text-white" : "text-ink-subtle"}`}
         >
           {value ?? placeholder}
         </Text>
