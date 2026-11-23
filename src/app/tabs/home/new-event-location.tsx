@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { Pressable, ScrollView, Text, TextInput, View } from "react-native";
 import SearchIcon from "@/assets/icons/search.svg";
-import { getRecentLocations } from "@/utils/recentLocations";
-import { useQuery } from "@tanstack/react-query";
+import { router } from "expo-router";
+import { addRecentLocation, getRecentLocations } from "@/utils/recentLocations";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { splitLocation } from "@/components/events/eventFormat";
 
 export default function NewEventLocation() {
@@ -10,6 +11,18 @@ export default function NewEventLocation() {
   const { data: recent = [] } = useQuery({
     queryKey: ["recentLocations"],
     queryFn: getRecentLocations,
+  });
+
+  // When a location is picked: save it to Recent, refresh the Recent list,
+  // then go back to the previous page.
+  const queryClient = useQueryClient();
+  const pickLocation = useMutation({
+    mutationFn: addRecentLocation,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["recentLocations"] });
+      // TODO: send location back to new-event once Ryan's page is merged
+      router.back();
+    },
   });
   // TEMP test: to preview rows without saved data, uncomment the next line
   // and use testRecent instead of recent in the list below.
@@ -56,7 +69,7 @@ export default function NewEventLocation() {
             return (
               <Pressable
                 key={location}
-                onPress={() => {}}
+                onPress={() => pickLocation.mutate(location)}
                 className="min-h-14 justify-center border-b border-surface-field py-3"
               >
                 <Text className="font-sans-bold text-base text-white">
