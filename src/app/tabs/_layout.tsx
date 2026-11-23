@@ -28,7 +28,7 @@ function DashboardTabs() {
               const routeName = label === 'Home' ? 'home' : label.toLowerCase();
               const selected = state.routes[state.index]?.name === routeName;
               const href = label === 'Home' ? '/tabs/home' as const : destinations[label.toLowerCase() as 'teams' | 'chats' | 'account'];
-              const usesTabRoute = label === 'Home' || label === 'Teams';
+              const usesTabRoute = label === 'Home' || label === 'Teams' || label === 'Chats';
               const route = state.routes.find((item) => item.name === routeName);
               const unavailable = usesTabRoute ? !route : !href;
               return (
@@ -61,6 +61,7 @@ function DashboardTabs() {
     >
       <Tabs.Screen name="home" options={{ title: 'Home' }} />
       <Tabs.Screen name="teams" options={{ title: 'Teams' }} />
+      <Tabs.Screen name="chats" options={{ title: 'Chats' }} />
     </Tabs>
   );
 }
