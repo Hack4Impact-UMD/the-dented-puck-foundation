@@ -1,17 +1,18 @@
 import { auth } from "@/firebase";
-import { getUserProfile } from "@/services/authService";
+import { getUserProfile, type UserProfile } from "@/services/authService";
+import { createConversation } from "@/services/conversationService";
 import {
   createShortUserInfoSearch,
   getShortUserInfo,
   getTeamsUserIds,
   isUserInTeam,
+  isUserStaff,
   searchShortUserInfoList,
 } from "@/services/teamService";
 import { ShortUserInfo } from "@/types";
 import Ionicons from "@react-native-vector-icons/ionicons";
 import { useQuery } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";
-import { UserProfile } from "firebase/auth";
 import { ComponentRef, useEffect, useMemo, useRef, useState } from "react";
 import {
   Pressable,
@@ -23,18 +24,6 @@ import {
   TextInput,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-
-// Helper function that inputs a user or user role directly
-// and outputs a boolean representing if the user is a staff user
-function isUserStaff(user: ShortUserInfo | string): boolean {
-  let userId;
-  if (typeof user === "string") {
-    userId = user;
-  } else {
-    userId = user.role;
-  }
-  return !(userId === "player" || userId === "contact");
-}
 
 // for the member's avatar logo
 function initials(name: string) {
@@ -279,12 +268,36 @@ export default function NewMessageScreen() {
     !selected.some((m) => isUserStaff(m));
   const canStartConversation = selected.length > 0 && !showBlocked;
 
-  const handleStartConversation = () => {
+  const handleStartConversation = async () => {
     if (blocked) {
       setShowBlocked(true);
       return;
     }
-    // TODO: Start conversation button functionality
+
+    if (!profile) {
+      return;
+    }
+
+    const participantIds = Array.from(
+      new Set([
+        profile.userId.toString(),
+        ...selectedIds,
+      ]),
+    );
+
+    try {
+      const conversation = await createConversation(
+        teamId,
+        participantIds,
+        "dm",
+      );
+      router.push(`/tabs/chats/${conversation.id}`);
+    } catch (error) {
+      Alert.alert(
+        "Unable to start conversation",
+        error instanceof Error ? error.message : "Please try again.",
+      );
+    }
   };
 
   const sections = (() => {
