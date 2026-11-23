@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import {
+  AccessibilityInfo,
   Platform,
   Pressable,
   ScrollView,
@@ -67,9 +68,12 @@ function LocationRow({
   location: string;
   onPress: () => void;
 }) {
-  const { name, details } = splitLocation(location);
+  const { name, details, spoken } = splitLocation(location);
   return (
     <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={spoken}
+      accessibilityHint="Picks this location"
       onPress={onPress}
       className="min-h-14 justify-center border-b border-surface-field py-3"
     >
@@ -101,6 +105,15 @@ export default function NewEventLocation() {
     queryFn: () => searchAddresses(searchText),
     enabled: searchText.length > 3,
   });
+
+  // Tell screen reader users how many results were found.
+  useEffect(() => {
+    if (searchText.length > 3 && !isFetching) {
+      AccessibilityInfo.announceForAccessibility(
+        results.length === 1 ? "1 result" : results.length + " results",
+      );
+    }
+  }, [searchText, isFetching, results.length]);
 
   // When a location is picked: save it to Recent, refresh the Recent list,
   // then go back to the previous page.
@@ -161,7 +174,10 @@ export default function NewEventLocation() {
       {isSearching ? (
         <View className="gap-4">
           {resultsMessage !== "" && (
-            <Text className="font-sans text-base text-ink-subtle">
+            <Text
+              accessibilityLiveRegion="polite"
+              className="font-sans text-base text-ink-subtle"
+            >
               {resultsMessage}
             </Text>
           )}
