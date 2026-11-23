@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Text, View, useWindowDimensions } from 'react-native';
+import { AccessibilityInfo, ActivityIndicator, Platform, Text, View, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import AppButton from '@/components/team/AppButton';
 import TeamHeader from '@/components/team/TeamHeader';
 import TeamInfoCard from '@/components/team/TeamInfoCard';
+import { getViewer, setTeamFollowed, type Viewer } from '@/services/followService';
 import { getTeam, getSeasonLabel } from '@/services/teamService';
 import { TeamWithId } from '@/types';
 
@@ -37,13 +39,45 @@ export default function TeamInfo() {
   const pairRow = stack ? 'flex-col' : 'flex-row';
   const pairItem = stack ? 'w-full' : 'flex-1';
 
+  const queryClient = useQueryClient();
+  const { data: viewer } = useQuery({ queryKey: ['viewer'], queryFn: getViewer });
+  const followed = Boolean(viewer?.followedTeamIds?.includes(teamId));
+
+  const followMutation = useMutation({
+    mutationFn: ({ follow }: { follow: boolean }) => {
+      if (!viewer?.uid) throw new Error('Sign in to follow teams.');
+      return setTeamFollowed(viewer.uid, teamId, follow);
+    },
+    onSuccess: (_, { follow }) => {
+      queryClient.setQueryData<Viewer | null>(['viewer'], (old) =>
+        old && {
+          ...old,
+          followedTeamIds: follow
+            ? [...old.followedTeamIds, teamId]
+            : old.followedTeamIds.filter((id) => id !== teamId),
+        },
+      );
+      if (Platform.OS === 'ios') {
+        AccessibilityInfo.announceForAccessibility(
+          `${follow ? 'Following' : 'Not following'} ${team?.name ?? 'team'}`,
+        );
+      }
+    },
+  });
+
   // placeholder functions before establishing functionality
   const back_button = () => router.back();
   const create_button = () => router.push('/tabs/teams/create');
   const view_roster_button = () => console.log('View roster pressed', teamId);
   const view_schedule_button = () => console.log('View schedule pressed', teamId);
   const chat_with_coach_button = () => console.log('Chat with coach pressed', teamId);
-  const follow_button = () => console.log('Follow pressed', teamId);
+  const follow_button = () => {
+    if (!viewer?.uid) {
+      router.push('/auth/login');
+      return;
+    }
+    followMutation.mutate({ follow: !followed });
+  };
   const join_team_button = () => console.log('Join team pressed', teamId);
 
   return (
@@ -96,12 +130,17 @@ export default function TeamInfo() {
 
           <View className={`mt-auto ${pairRow} gap-4 px-4 py-8`}>
             <AppButton
-              title="Follow"
+              title={followed ? 'Followed' : 'Follow'}
               onPress={follow_button}
-              variant="outline"
+              disabled={followMutation.isPending}
+              variant={followed ? 'outline' : 'secondary'}
               className={pairItem}
-              accessibilityLabel="Follow team"
-              accessibilityHint={`Get updates from ${team.name}`}
+              accessibilityLabel={`${followed ? 'Following' : 'Follow'} ${team.name}`}
+              accessibilityHint={
+                followed
+                  ? `Stop getting updates from ${team.name}`
+                  : `Get updates from ${team.name}`
+              }
             />
             <AppButton
               title="Join team"
