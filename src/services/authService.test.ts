@@ -11,16 +11,22 @@ import { getDownloadURL, ref, uploadString } from 'firebase/storage';
 import { SAMPLE_ACCOUNT } from '@/components/auth/__fixtures__/sampleAccount';
 import {
   getAuthFormError,
+  getCurrentUserRole,
   getPostSignInRoute,
   getUserProfile,
+  initializeVerifiedUser,
+  isCurrentUserStaff,
+  isStaffRole,
   resendVerificationEmail,
   saveAccountProfile,
   sendPasswordReset,
   signInWithEmail,
+  subscribeToCurrentUserRole,
 } from './authService';
 
 jest.mock('@/firebase', () => ({ auth: { currentUser: null }, db: {}, storage: {} }));
 jest.mock('firebase/auth', () => ({
+  onAuthStateChanged: jest.fn(),
   sendEmailVerification: jest.fn(),
   sendPasswordResetEmail: jest.fn(),
   signInWithEmailAndPassword: jest.fn(),
@@ -50,6 +56,7 @@ describe('account profile persistence', () => {
     await saveAccountProfile({ ...SAMPLE_ACCOUNT, usaHockeyNumber: '' }, null);
     expect(doc).toHaveBeenCalledWith(expect.anything(), 'Users', 'test-user');
     expect(setDoc).toHaveBeenCalledWith('profile-document', expect.objectContaining({
+      role: 'player',
       firstName: 'Alex', birthDate: '2002-06-14', email: 'verified@example.com',
       phoneNumber: '3015550142', usaHockeyNumber: null,
     }), { merge: true });
@@ -116,6 +123,37 @@ describe('existing profile and verification APIs after merging onboarding', () =
     await expect(resendVerificationEmail(null)).rejects.toThrow('Sign in before requesting an email verification link.');
     expect(sendEmailVerification).not.toHaveBeenCalled();
   });
+
+  it('initializes a verified user with role player when profile does not exist', async () => {
+    const verifiedUser = { uid: 'verified-uid', email: 'player@example.com', emailVerified: true, getIdToken: jest.fn() } as unknown as User;
+    jest.mocked(getDoc).mockResolvedValueOnce({ exists: () => false } as never);
+
+    await initializeVerifiedUser(verifiedUser);
+
+    expect(doc).toHaveBeenCalledWith(expect.anything(), 'Users', 'verified-uid');
+    expect(setDoc).toHaveBeenCalledWith('profile-document', expect.objectContaining({
+      email: 'player@example.com',
+      role: 'player',
+      regionId: 1,
+    }), { merge: true });
+  });
+
+  it('does not overwrite an existing user profile during initializeVerifiedUser', async () => {
+    const verifiedUser = { uid: 'existing-uid', email: 'existing@example.com', emailVerified: true, getIdToken: jest.fn() } as unknown as User;
+    jest.mocked(getDoc).mockResolvedValueOnce({ exists: () => true } as never);
+
+    await initializeVerifiedUser(verifiedUser);
+
+    expect(setDoc).not.toHaveBeenCalled();
+  });
+
+  it('ignores unverified users during initializeVerifiedUser', async () => {
+    const unverifiedUser = { uid: 'unverified-uid', email: 'unverified@example.com', emailVerified: false } as unknown as User;
+
+    await initializeVerifiedUser(unverifiedUser);
+
+    expect(setDoc).not.toHaveBeenCalled();
+  });
 });
 
 describe('login and password reset', () => {
@@ -175,5 +213,51 @@ describe('login and password reset', () => {
     for (const code of ['auth/expired-action-code', 'auth/invalid-action-code']) {
       expect(getAuthFormError(firebaseError(code))).toEqual({ field: 'link', code, message: 'This link has expired or was already used.' });
     }
+  });
+
+  describe('role and staff verification', () => {
+    it('identifies staff roles correctly', () => {
+      expect(isStaffRole('team-staff')).toBe(true);
+      expect(isStaffRole('super-admin')).toBe(true);
+      expect(isStaffRole('global-admin')).toBe(true);
+      expect(isStaffRole('player')).toBe(false);
+      expect(isStaffRole('contact')).toBe(false);
+      expect(isStaffRole(null)).toBe(false);
+      expect(isStaffRole(undefined)).toBe(false);
+    });
+
+    it('returns role for authenticated user from Firestore', async () => {
+      Object.assign(auth, { currentUser: { uid: 'staff-user', email: 'staff@example.com' } });
+      jest.mocked(getDoc).mockResolvedValue({ exists: () => true, data: () => ({ role: 'team-staff' }) } as never);
+
+      await expect(getCurrentUserRole()).resolves.toBe('team-staff');
+      await expect(isCurrentUserStaff()).resolves.toBe(true);
+    });
+
+    it('returns null and false when there is no authenticated user', async () => {
+      Object.assign(auth, { currentUser: null });
+
+      await expect(getCurrentUserRole()).resolves.toBeNull();
+      await expect(isCurrentUserStaff()).resolves.toBe(false);
+    });
+
+    it('subscribes to auth state changes and queries role', async () => {
+      const mockUnsubscribe = jest.fn();
+      const { onAuthStateChanged } = jest.requireMock('firebase/auth');
+      onAuthStateChanged.mockImplementationOnce((_auth: unknown, callback: (u: unknown) => void) => {
+        callback({ uid: 'staff-user' });
+        return mockUnsubscribe;
+      });
+      jest.mocked(getDoc).mockResolvedValueOnce({ exists: () => true, data: () => ({ role: 'team-staff' }) } as never);
+
+      const callback = jest.fn();
+      const unsubscribe = subscribeToCurrentUserRole(callback);
+
+      // wait for async callback
+      await new Promise((r) => setTimeout(r, 0));
+
+      expect(callback).toHaveBeenCalledWith('team-staff');
+      expect(unsubscribe).toBe(mockUnsubscribe);
+    });
   });
 });

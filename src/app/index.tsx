@@ -1,40 +1,5 @@
-import React, { useState } from 'react';
-import { Text, View } from 'react-native';
-import { Link } from 'expo-router';
-import { app } from '@/firebase';
+import { Redirect } from 'expo-router';
 
-export default function HomeScreen() {
-  const [status] = useState(() => {
-    try {
-      return app?.name ? `Connected: ${app.options.projectId || app.name}` : 'Firebase unavailable';
-    } catch (err: unknown) {
-      return `Firebase status: ${err instanceof Error ? err.message : 'Unavailable'}`;
-    }
-  });
-
-  return (
-    <View className="flex-1 items-center justify-center bg-slate-900 p-6">
-      <Text className="text-2xl font-bold text-white mb-2">
-        The Dented Puck
-      </Text>
-      <Text className="text-sm text-sky-400 text-center">
-        {status}
-      </Text>
-      <Link href="/auth/signup" className="text-sky-400 mt-3">
-        Sign up
-      </Link>
-      <Link href="/auth/verify-email" className="text-sky-400 mt-3">
-        email verification check
-      </Link>
-      <Link href="/tabs/teams/team_205" className="text-yellow-400 mt-3">
-        Test Team Page (Not Found test)
-      </Link>
-      <Link href="tabs/teams/find" className="text-sky-400 mt-3">
-        Find Team
-      </Link>
-      <Link href="/auth/create-account" className="text-sky-400 mt-3">
-        Create account dev
-      </Link>
-    </View>
-  );
+export default function IndexScreen() {
+  return <Redirect href="/tabs/home" />;
 }

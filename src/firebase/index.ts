@@ -21,8 +21,8 @@ const firebaseConfig = {
   appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID,
 };
 
-export const app: FirebaseApp =
-  getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
+export const app: FirebaseApp = getApps().some((candidate) => candidate.name === '[DEFAULT]')
+  ? getApp() : initializeApp(firebaseConfig);
 
 export const auth: Auth = (() => {
   if (Platform.OS === 'web') {

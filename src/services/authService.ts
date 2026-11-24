@@ -3,6 +3,7 @@ import {
   confirmPasswordReset,
   createUserWithEmailAndPassword,
   GoogleAuthProvider,
+  onAuthStateChanged,
   sendEmailVerification,
   sendPasswordResetEmail,
   signInWithEmailAndPassword,
@@ -67,15 +68,20 @@ export async function createUserProfile(uid: string, profile: UserProfile): Prom
 }
 
 // Ensures a verified user is registered in Firestore 'Users' with a default role
-export async function initializeVerifiedUser(user: FirebaseUser): Promise<void> {
+export async function initializeVerifiedUser(
+  user: FirebaseUser,
+  existingSnapshot?: { exists: () => boolean },
+): Promise<void> {
   if (!user?.uid || !user.emailVerified) {
     return;
   }
 
-  await user.getIdToken(true);
+  if (typeof user.getIdToken === 'function') {
+    await user.getIdToken(true);
+  }
 
   const userRef = userProfileRef(user.uid);
-  const userSnapshot = await getDoc(userRef);
+  const userSnapshot = existingSnapshot ?? (await getDoc(userRef));
 
   if (!userSnapshot.exists()) {
     await setDoc(
@@ -83,6 +89,7 @@ export async function initializeVerifiedUser(user: FirebaseUser): Promise<void> 
       {
         email: user.email ?? '',
         role: 'player' as Role,
+        regionId: 1,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       },
@@ -103,6 +110,50 @@ export async function getUserProfile(uid: string): Promise<UserProfile> {
   }
 
   return profile;
+}
+
+export function isStaffRole(role: Role | null | undefined): boolean {
+  return role === 'team-staff' || role === 'global-admin' || role === 'super-admin';
+}
+
+export async function getCurrentUserRole(uid?: string): Promise<Role | null> {
+  const targetUid = uid ?? auth.currentUser?.uid;
+  if (!targetUid) return null;
+
+  try {
+    const userDoc = await getDoc(userProfileRef(targetUid));
+    if (!userDoc.exists()) return null;
+    const data = userDoc.data();
+    return data && isRole(data.role) ? data.role : null;
+  } catch {
+    return null;
+  }
+}
+
+export async function isCurrentUserStaff(uid?: string): Promise<boolean> {
+  const role = await getCurrentUserRole(uid);
+  return isStaffRole(role);
+}
+
+export async function getCurrentUserProfile(): Promise<UserProfile | null> {
+  const uid = auth.currentUser?.uid;
+  if (!uid) return null;
+  try {
+    return await getUserProfile(uid);
+  } catch {
+    return null;
+  }
+}
+
+export function subscribeToCurrentUserRole(callback: (role: Role | null) => void): () => void {
+  return onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      callback(null);
+      return;
+    }
+    const role = await getCurrentUserRole(user.uid);
+    callback(role);
+  });
 }
 
 // Resumes signup for an existing unverified account. Signs out verified accounts.
@@ -200,7 +251,12 @@ export async function getPostSignInRoute(user: FirebaseUser): Promise<PostSignIn
   if (!user.emailVerified) return '/auth/verify-email';
 
   const snapshot = await getDoc(userProfileRef(user.uid));
-  const firstName = snapshot.exists() ? snapshot.data().firstName : undefined;
+  if (!snapshot.exists()) {
+    await initializeVerifiedUser(user, snapshot);
+    return '/auth/create-account';
+  }
+
+  const firstName = snapshot.data().firstName;
   return typeof firstName === 'string' && firstName.trim() ? '/tabs/home' : '/auth/create-account';
 }
 
@@ -208,6 +264,7 @@ export async function getPostSignInRoute(user: FirebaseUser): Promise<PostSignIn
 export async function continueWithGoogle(): Promise<PostSignInRoute | null> {
   try {
     const user = await signInWithGoogle();
+    await initializeVerifiedUser(user);
     return await getPostSignInRoute(user);
   } catch (err) {
     if (err instanceof FirebaseError && err.code === 'auth/popup-closed-by-user') return null;
@@ -273,6 +330,7 @@ export async function saveAccountProfile(form: AccountForm, photo: AccountPhoto)
   }
 
   await setDoc(doc(db, 'Users', user.uid), {
+    role: 'player' as Role,
     firstName: profile.firstName.trim(),
     lastName: profile.lastName.trim(),
     gender: profile.gender,

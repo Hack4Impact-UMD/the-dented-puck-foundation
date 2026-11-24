@@ -14,6 +14,7 @@ type AppButtonProps = {
     accessibilityRole?: 'button';
     accessibilityHint?: string;
     className?: string;
+    disabled?: boolean;
 };
 
 const variants: Record<Variant, { container: string; text: string; iconColor?: string }> = {
@@ -31,18 +32,21 @@ export default function AppButton({
     accessibilityLabel,
     accessibilityHint,
     accessibilityRole = 'button',
-    className = ''
+    className = '',
+    disabled = false,
 }: AppButtonProps) {
 
     const styles = variants[variant];
 
     return (
         <Pressable
+            disabled={disabled}
             onPress={onPress}
             accessibilityLabel={accessibilityLabel ?? title}
             accessibilityRole={accessibilityRole}
+            accessibilityState={{ disabled }}
             accessibilityHint={accessibilityHint}
-            className={`flex-row gap-[10px] px-2 min-h-14 rounded-[4px] justify-center items-center active:opacity-70 ${styles.container} ${className}`}
+            className={`flex-row gap-[10px] px-2 min-h-14 rounded-[4px] justify-center items-center active:opacity-70 ${styles.container} ${className} ${disabled ? 'opacity-60' : ''}`}
         >
             {icon && <Ionicons name={icon} size={24} color={styles.iconColor} accessibilityElementsHidden importantForAccessibility="no" />}
             <Text className={`font-sans-bold text-center shrink ${styles.text}`}>{title}</Text>
