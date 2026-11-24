@@ -5,4 +5,5 @@ import type { HomeDestinations } from '@/types/home';
 export const homeDestinations: HomeDestinations = {
   team: (teamId) => ({ pathname: '/tabs/teams/[teamId]', params: { teamId } }),
   nearbyTeamList: '/tabs/home/nearby-teams',
+  notifications: '/tabs/home/notifications',
 };

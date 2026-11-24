@@ -7,6 +7,8 @@ import {
 } from "@expo-google-fonts/atkinson-hyperlegible";
 import "../../global.css";
 
+const queryClient = new QueryClient();
+
 export default function RootLayout() {
   const [fontsLoaded, fontError] = useFonts({
     AtkinsonHyperlegible_400Regular,
