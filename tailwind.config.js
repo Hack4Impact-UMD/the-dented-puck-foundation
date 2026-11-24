@@ -28,6 +28,8 @@ module.exports = {
             dark: '#1C1C1C',
           },
           field: '#2D2E2F',
+          card: '#2E2E2E',
+          navigation: '#1A1A1A',
         },
         ink: {
           DEFAULT: '#010101',
@@ -37,6 +39,7 @@ module.exports = {
             dark: '#B3B3B3',
           },
           subtle: '#BDBDBD',
+          soft: '#D9D9D9',
         },
         line: {
           DEFAULT: '#767676',

@@ -1,52 +1,71 @@
-import { Tabs } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { TabBarIcon, type TabName } from '@/components/teams/TabBarIcon';
-import { TabBarLabel } from '@/components/teams/TabBarLabel';
+import { Image, Platform, Pressable, Text, View, useWindowDimensions } from 'react-native';
+import { Tabs, router } from 'expo-router';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { StatusBar } from 'expo-status-bar';
+import { HomeProvider, useHomeDashboard } from '@/hooks/useHomeDashboard';
+import { homeDestinations } from '@/config/homeDestinations';
 
-const TABS: { name: TabName; title: string }[] = [
-  { name: 'home', title: 'Home' },
-  { name: 'teams', title: 'Teams' },
-  { name: 'chats', title: 'Chats' },
-  { name: 'account', title: 'Account' },
-];
+const icons = {
+  Home: require('@/assets/home/home.png'),
+  Teams: require('@/assets/home/teams.png'),
+  Chats: require('@/assets/home/chats.png'),
+  Account: require('@/assets/home/account.png'),
+};
 
-// From the Figma nav bar; style props can't take Tailwind classes.
-const BAR_BACKGROUND = '#1A1A1A';
-const BAR_BORDER = '#5C5C5C';
-// Figma bar is 96 tall including the ~34 home-indicator strip. The library's default (49) clips the labels.
-const BAR_HEIGHT = 62;
+export const unstable_settings = { anchor: 'home' };
 
-export default function TabsLayout() {
-  const insets = useSafeAreaInsets();
-
+function DashboardTabs() {
+  const { destinations } = useHomeDashboard();
+  const { fontScale } = useWindowDimensions();
   return (
     <Tabs
-      screenOptions={{
-        headerShown: false,
-        // Otherwise wide or landscape screens move the labels beside the icons.
-        tabBarLabelPosition: 'below-icon',
-        tabBarStyle: {
-          height: BAR_HEIGHT + insets.bottom,
-          backgroundColor: BAR_BACKGROUND,
-          borderTopColor: BAR_BORDER,
-          borderTopWidth: 1,
-          paddingTop: 9,
-        },
-      }}
+      backBehavior="initialRoute"
+      screenOptions={{ headerShown: false }}
+      tabBar={({ state, emitter, navigateToTab }) => (
+        <SafeAreaView edges={['bottom', 'left', 'right']} className="border-t border-line-dark bg-surface-navigation">
+          <View accessibilityRole={Platform.OS === 'ios' ? undefined : 'tablist'} className="flex-row flex-wrap pt-2">
+            {(['Home', 'Teams', 'Chats', 'Account'] as const).map((label) => {
+              const routeName = label === 'Home' ? 'home' : label.toLowerCase();
+              const selected = state.routes[state.index]?.name === routeName;
+              const href = label === 'Home' ? '/tabs/home' as const : destinations[label.toLowerCase() as 'teams' | 'chats' | 'account'];
+              const usesTabRoute = label === 'Home' || label === 'Teams' || label === 'Chats';
+              const route = state.routes.find((item) => item.name === routeName);
+              const unavailable = usesTabRoute ? !route : !href;
+              return (
+                <Pressable
+                  key={label}
+                  accessibilityRole={Platform.OS === 'ios' ? 'button' : 'tab'}
+                  accessibilityLabel={label}
+                  accessibilityState={{ selected, disabled: unavailable }}
+                  accessibilityHint={unavailable ? `${label} navigation is not available yet` : undefined}
+                  disabled={unavailable}
+                  onPress={() => {
+                    if (route && usesTabRoute) {
+                      const event = emitter.emit({ type: 'tabPress', target: route.key, canPreventDefault: true });
+                      if (!event.defaultPrevented) navigateToTab(route.key);
+                    } else if (!usesTabRoute && href) router.navigate(href);
+                  }}
+                  className="min-h-16 items-center gap-0.5 px-1 pb-2 active:opacity-70"
+                  style={{ width: fontScale > 1.6 ? '50%' : '25%' }}
+                >
+                  <View className={`h-8 w-14 items-center justify-center rounded-2xl ${selected ? 'bg-brand' : ''}`}>
+                    <Image accessible={false} importantForAccessibility="no" source={icons[label]} style={{ width: 24, height: 24, tintColor: selected ? '#010101' : '#FFFFFF' }} />
+                  </View>
+                  <Text className={`text-center text-lg leading-6 text-white ${selected ? 'font-sans-bold' : 'font-sans'}`}>{label}</Text>
+                </Pressable>
+              );
+            })}
+          </View>
+        </SafeAreaView>
+      )}
     >
-      {TABS.map(({ name, title }) => (
-        <Tabs.Screen
-          key={name}
-          name={name}
-          options={{
-            title,
-            // Role ("tab" on Android, "button" on iOS) and the selected state come from Tabs itself.
-            tabBarAccessibilityLabel: title,
-            tabBarIcon: ({ focused }) => <TabBarIcon name={name} focused={focused} />,
-            tabBarLabel: ({ focused }) => <TabBarLabel title={title} focused={focused} />,
-          }}
-        />
-      ))}
+      <Tabs.Screen name="home" options={{ title: 'Home' }} />
+      <Tabs.Screen name="teams" options={{ title: 'Teams' }} />
+      <Tabs.Screen name="chats" options={{ title: 'Chats' }} />
     </Tabs>
   );
+}
+
+export default function TabsLayout() {
+  return <HomeProvider destinations={homeDestinations}><StatusBar style="light" /><DashboardTabs /></HomeProvider>;
 }
